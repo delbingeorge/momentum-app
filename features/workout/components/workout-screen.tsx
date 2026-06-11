@@ -3,6 +3,7 @@ import { useState } from "react";
 import { SheetManager } from "react-native-actions-sheet";
 import { ScrollView, Text, View } from "react-native";
 
+import { haptics } from "@/shared/lib/haptics";
 import {
   buildSession,
   makeExercise,
@@ -127,6 +128,7 @@ export const WorkoutScreen = () => {
   };
 
   const handleDiscard = () => {
+    haptics.warning();
     rest.skip();
     discardWorkout();
     router.back();

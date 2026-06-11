@@ -16,9 +16,11 @@ interface SettingsState {
   unit: Unit;
   restSec: number;
   reminder: ReminderConfig;
+  hapticsEnabled: boolean;
   setUnit: (unit: Unit) => void;
   setRestSec: (restSec: number) => void;
   setReminder: (reminder: ReminderConfig) => void;
+  setHapticsEnabled: (hapticsEnabled: boolean) => void;
   resetSettings: () => void;
 }
 
@@ -32,6 +34,7 @@ const initialState = {
   unit: "kg" as Unit,
   restSec: 90,
   reminder: DEFAULT_REMINDER,
+  hapticsEnabled: true,
 };
 
 const persistedSchema = z.object({
@@ -42,6 +45,7 @@ const persistedSchema = z.object({
     time: z.string(),
     days: z.array(z.number()),
   }),
+  hapticsEnabled: z.boolean().catch(true),
 });
 
 export const useSettingsStore = create<SettingsState>()(
@@ -51,6 +55,7 @@ export const useSettingsStore = create<SettingsState>()(
       setUnit: (unit) => set({ unit }),
       setRestSec: (restSec) => set({ restSec }),
       setReminder: (reminder) => set({ reminder }),
+      setHapticsEnabled: (hapticsEnabled) => set({ hapticsEnabled }),
       resetSettings: () => set(initialState),
     }),
     {

@@ -7,6 +7,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { cn } from "@/shared/lib/cn";
+import { haptics } from "@/shared/lib/haptics";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -15,6 +16,7 @@ interface PressableScaleProps {
   onPress?: () => void;
   disabled?: boolean;
   className?: string;
+  haptic?: boolean;
 }
 
 export const PressableScale = ({
@@ -22,6 +24,7 @@ export const PressableScale = ({
   onPress,
   disabled = false,
   className,
+  haptic = true,
 }: PressableScaleProps) => {
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({
@@ -31,6 +34,7 @@ export const PressableScale = ({
   return (
     <AnimatedPressable
       onPressIn={() => {
+        if (haptic) haptics.tap();
         scale.value = withTiming(0.97, { duration: 120 });
       }}
       onPressOut={() => {

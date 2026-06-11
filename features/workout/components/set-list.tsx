@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
+import { haptics } from "@/shared/lib/haptics";
 import { isWorkingSet } from "@/shared/lib/program";
 import { useWorkoutStore } from "@/shared/stores";
 import type {
@@ -37,6 +38,8 @@ export const SetList = ({
     const set = sets[index];
     if (!set) return;
     const willDone = !set.done;
+    if (willDone) haptics.success();
+    else haptics.select();
     updateSet(exercise.id, index, { done: willDone });
     // warmups don't trigger rest
     if (willDone && isWorkingSet(set)) onRest();

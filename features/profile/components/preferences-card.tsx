@@ -4,6 +4,7 @@ import { SheetManager } from "react-native-actions-sheet";
 
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
+import { haptics } from "@/shared/lib/haptics";
 import { requestNotificationPermission } from "@/shared/lib/notifications";
 import { useSettingsStore } from "@/shared/stores";
 import type { Unit } from "@/shared/types";
@@ -24,6 +25,8 @@ export const PreferencesCard = () => {
   const setRestSec = useSettingsStore((state) => state.setRestSec);
   const reminder = useSettingsStore((state) => state.reminder);
   const setReminder = useSettingsStore((state) => state.setReminder);
+  const hapticsEnabled = useSettingsStore((state) => state.hapticsEnabled);
+  const setHapticsEnabled = useSettingsStore((state) => state.setHapticsEnabled);
 
   const stepRest = (delta: number) =>
     setRestSec(Math.max(30, Math.min(300, restSec + delta)));
@@ -97,6 +100,25 @@ export const PreferencesCard = () => {
             <Icon name="plus" size={15} color={COLORS.lime} strokeWidth={2.4} />
           </PressableScale>
         </View>
+      </View>
+
+      <View className="flex-row items-center gap-3 border-b border-line px-4 py-3">
+        <Icon name="zap" size={19} color={COLORS.mut} />
+        <Text className="flex-1 font-sans text-[15px] text-text">Haptics</Text>
+        <PressableScale
+          haptic={false}
+          onPress={() => {
+            setHapticsEnabled(!hapticsEnabled);
+            // confirm the new state by feel: buzz only when turning on
+            if (!hapticsEnabled) haptics.success();
+          }}
+          className={cn(
+            "h-7 w-[46px] justify-center rounded-full p-[3px]",
+            hapticsEnabled ? "items-end bg-lime" : "items-start bg-card2",
+          )}
+        >
+          <View className="h-[22px] w-[22px] rounded-full bg-white" />
+        </PressableScale>
       </View>
 
       <View className="flex-row items-center gap-3 px-4 py-3">

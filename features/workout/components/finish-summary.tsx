@@ -1,8 +1,10 @@
 import { router } from "expo-router";
+import { useEffect } from "react";
 import { Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
 import { fmtDur } from "@/shared/lib/dates";
+import { haptics } from "@/shared/lib/haptics";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
 import { CtaButton, Icon, Screen } from "@/shared/ui";
 
@@ -11,6 +13,10 @@ const KG_PER_LB = 2.2046;
 export const FinishSummary = () => {
   const session = useWorkoutStore((state) => state.pastSessions[0]);
   const unit = useSettingsStore((state) => state.unit);
+
+  useEffect(() => {
+    haptics.success();
+  }, []);
 
   if (!session) return null;
   const volume = Math.round(

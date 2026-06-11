@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { haptics } from "@/shared/lib/haptics";
+
 import {
   clearRestNotification,
   startRestNotification,
@@ -28,8 +30,12 @@ export const useRestTimer = (): RestTimer => {
   useEffect(() => {
     if (!rest) return;
     const id = setInterval(() => {
-      if (Date.now() >= rest.endAt) setRest(null);
-      else setTick((t) => t + 1);
+      if (Date.now() >= rest.endAt) {
+        // natural expiry only; skip() clears without buzzing. Backgrounded
+        // case is covered by the scheduled rest-over notification.
+        haptics.timerDone();
+        setRest(null);
+      } else setTick((t) => t + 1);
     }, 250);
     return () => clearInterval(id);
   }, [rest]);
