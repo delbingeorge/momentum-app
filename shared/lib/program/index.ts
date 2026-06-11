@@ -15,7 +15,6 @@ export {
   progressIncrement,
   progressionFor,
 } from "./progression";
-export { seedHistory, seedPastSessions, seedWeights } from "./seeds";
 export {
   buildSchedule,
   GENDERS,

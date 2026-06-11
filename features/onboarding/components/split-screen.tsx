@@ -4,7 +4,7 @@ import { Text, View } from "react-native";
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
 import { DAY, splitsFor } from "@/shared/lib/program";
-import { useBodyStore, usePlanStore, useWorkoutStore } from "@/shared/stores";
+import { usePlanStore } from "@/shared/stores";
 import { CtaButton, Icon, PressableScale } from "@/shared/ui";
 
 import { OnboardingShell } from "./onboarding-shell";
@@ -15,16 +15,11 @@ export const SplitScreen = () => {
   const days = usePlanStore((state) => state.days);
   const splitId = usePlanStore((state) => state.splitId);
   const setSplitId = usePlanStore((state) => state.setSplitId);
-  const seedWorkouts = useWorkoutStore((state) => state.seedIfEmpty);
-  const seedBody = useBodyStore((state) => state.seedIfEmpty);
 
   const options = splitsFor(days);
 
   const handleNext = () => {
-    const { confirmSplit, goal } = usePlanStore.getState();
-    const schedule = confirmSplit();
-    seedWorkouts(schedule, days);
-    seedBody(goal ?? "muscle");
+    usePlanStore.getState().confirmSplit();
     router.push("/onboarding/exercises");
   };
 

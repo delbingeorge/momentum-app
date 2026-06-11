@@ -2,12 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { z } from "zod";
 
-import {
-  initLog,
-  isWorkingSet,
-  seedHistory,
-  seedPastSessions,
-} from "@/shared/lib/program";
+import { initLog, isWorkingSet } from "@/shared/lib/program";
 import { createPersistStorage } from "@/shared/lib/storage";
 import type {
   ExerciseHistory,
@@ -57,7 +52,6 @@ interface WorkoutState {
   discardWorkout: () => void;
   dropStaleActive: (scheduleLength: number) => void;
   finishWorkout: (session: SessionRecord, deloadWasDue: boolean) => void;
-  seedIfEmpty: (schedule: ScheduledDay[], days: number) => void;
   applyCloud: (data: {
     history: ExerciseHistory;
     pastSessions: SessionRecord[];
@@ -151,16 +145,6 @@ export const useWorkoutStore = create<WorkoutState>()(
             active: null,
           };
         }),
-      seedIfEmpty: (schedule, days) =>
-        set((state) => ({
-          history: Object.keys(state.history).length
-            ? state.history
-            : seedHistory(schedule),
-          pastSessions: state.pastSessions.length
-            ? state.pastSessions
-            : seedPastSessions(schedule),
-          sinceDeload: state.sinceDeload || days * 4,
-        })),
       applyCloud: (data) => set(data),
       resetWorkouts: () => set(initialState),
     }),
