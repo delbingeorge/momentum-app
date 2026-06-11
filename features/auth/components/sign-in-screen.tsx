@@ -13,7 +13,6 @@ import Svg, {
   Defs,
   LinearGradient,
   Mask,
-  Path,
   Pattern,
   RadialGradient,
   Rect,
@@ -22,30 +21,9 @@ import Svg, {
 
 import { COLORS } from "@/shared/lib/colors";
 import { useAuthStore } from "@/shared/stores";
-import { Icon, PressableScale, Screen } from "@/shared/ui";
+import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
 
 import { signInWithGoogle } from "../api/auth-api";
-
-const GoogleMark = ({ size = 22 }: { size?: number }) => (
-  <Svg width={size} height={size} viewBox="0 0 48 48">
-    <Path
-      fill="#EA4335"
-      d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.6 2.5 30.2 0 24 0 14.6 0 6.5 5.4 2.5 13.2l7.9 6.2C12.3 13.4 17.6 9.5 24 9.5z"
-    />
-    <Path
-      fill="#4285F4"
-      d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-4 6.8-9.9 6.8-17.4z"
-    />
-    <Path
-      fill="#FBBC05"
-      d="M10.4 28.6c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6l-7.9-6.2C.9 16.5 0 20.1 0 24s.9 7.5 2.5 10.8l7.9-6.2z"
-    />
-    <Path
-      fill="#34A853"
-      d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.3-5.7c-2 1.4-4.7 2.3-7.9 2.3-6.4 0-11.7-3.9-13.6-9.4l-7.9 6.2C6.5 42.6 14.6 48 24 48z"
-    />
-  </Svg>
-);
 
 // A soft radial glow circle; RN has no CSS blur, the gradient falloff does the job
 const Flare = ({
@@ -108,6 +86,11 @@ export const SignInScreen = () => {
   const leave = () => {
     if (next) router.replace(next as Href);
     else router.back();
+  };
+
+  // "Continue" skips sign-in and heads into onboarding (or the flow's next step)
+  const continueFree = () => {
+    router.replace(next ? (next as Href) : "/onboarding/goal");
   };
 
   const flareA = useDrift(-18, 22, 1.12, 14);
@@ -256,28 +239,19 @@ export const SignInScreen = () => {
             shadowRadius: 30,
             shadowOffset: { width: 0, height: 8 },
             elevation: 8,
-            opacity: loading ? 0.7 : 1,
           }}
         >
-          <PressableScale
-            onPress={handleSignIn}
+          <CtaButton
+            label="Continue for free"
+            onPress={continueFree}
             disabled={loading}
-            className="h-[58px] flex-row items-center justify-center gap-3 rounded-full bg-white"
-          >
-            {loading ? (
-              <Text className="font-sans-semibold text-[17px] text-[#5f6368]">
-                Signing in…
-              </Text>
-            ) : (
-              <>
-                <GoogleMark size={22} />
-                <Text className="font-sans-bold text-[17px] text-[#1a1a1a]">
-                  Continue with Google
-                </Text>
-              </>
-            )}
-          </PressableScale>
+          />
         </View>
+        <PressableScale onPress={handleSignIn} disabled={loading}>
+          <Text className="py-2 text-center font-sans-semibold text-[15px] text-mut">
+            {loading ? "Signing in…" : "Already a member? Sign In"}
+          </Text>
+        </PressableScale>
         {error ? (
           <Text className="text-center font-mono text-[11px] text-drop">
             {error}
