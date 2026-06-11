@@ -1,0 +1,17 @@
+export const COLORS = {
+  bg: "#0A0A0B",
+  sheet: "#141416",
+  card: "#1A1A1D",
+  card2: "#202024",
+  line: "rgba(255,255,255,0.07)",
+  line2: "rgba(255,255,255,0.12)",
+  text: "#F6F6F4",
+  mut: "rgba(246,246,244,0.50)",
+  faint: "rgba(246,246,244,0.28)",
+  lime: "#CBFB45",
+  limeDim: "rgba(203,251,69,0.16)",
+  limeText: "#0A0A0B",
+  green: "#7CE38B",
+  warmup: "#6FB6FF",
+  drop: "#FF8A5B",
+} as const;
