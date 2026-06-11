@@ -25,7 +25,7 @@ export default function WelcomeScreen() {
           Train smarter.{"\n"}Keep momentum.
         </Text>
         <Text className="font-sans text-lg text-mut">
-          Personalized workout programs, smart progression, and nutrition
+          Personalized workout programs, smart progression, and progress
           tracking — all in one place.
         </Text>
       </View>

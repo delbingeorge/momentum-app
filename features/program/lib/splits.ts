@@ -1,0 +1,166 @@
+import type {
+  GenderOption,
+  GoalOption,
+  LevelOption,
+  ScheduledDay,
+  Split,
+} from "@/shared/types";
+
+import { dayOf } from "./day-templates";
+
+export const GOALS: GoalOption[] = [
+  {
+    id: "muscle",
+    name: "Build Muscle",
+    icon: "dumbbell",
+    blurb: "Hypertrophy & lean bulking",
+    tag: "Moderate reps · progressive overload",
+  },
+  {
+    id: "fatloss",
+    name: "Lose Fat",
+    icon: "flame",
+    blurb: "Cutting & fat loss",
+    tag: "Higher volume · calorie deficit",
+  },
+  {
+    id: "strength",
+    name: "Get Stronger",
+    icon: "medal",
+    blurb: "Strength & raw power",
+    tag: "Heavy loads · low reps",
+  },
+];
+
+export const LEVELS: LevelOption[] = [
+  {
+    id: "beginner",
+    name: "Beginner",
+    icon: "activity",
+    blurb: "New to lifting, or back after a long break",
+  },
+  {
+    id: "intermediate",
+    name: "Intermediate",
+    icon: "trendingUp",
+    blurb: "Training consistently for 6+ months",
+  },
+  {
+    id: "advanced",
+    name: "Advanced",
+    icon: "medal",
+    blurb: "Years in, dialed-in technique",
+  },
+];
+
+export const GENDERS: GenderOption[] = [
+  { id: "male", name: "Male" },
+  { id: "female", name: "Female" },
+  { id: "other", name: "Other" },
+];
+
+export const WD = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
+
+const SPLITS_BY_DAYS: Record<number, Split[]> = {
+  2: [
+    {
+      id: "fb2",
+      family: "Full Body",
+      name: "Full Body",
+      sub: "2× / week",
+      plan: ["full", "full"],
+    },
+    {
+      id: "ul2",
+      family: "Upper / Lower",
+      name: "Upper / Lower",
+      sub: "1× each",
+      plan: ["upper", "lower"],
+    },
+  ],
+  3: [
+    {
+      id: "ppl3",
+      family: "Push / Pull / Legs",
+      name: "Push / Pull / Legs",
+      sub: "The classic 3-day",
+      plan: ["pushA", "pullA", "legs"],
+    },
+    {
+      id: "fb3",
+      family: "Full Body",
+      name: "Full Body",
+      sub: "3× / week",
+      plan: ["full", "full", "full"],
+    },
+  ],
+  4: [
+    {
+      id: "ul4",
+      family: "Upper / Lower",
+      name: "Upper / Lower",
+      sub: "2× upper, 2× lower",
+      plan: ["upper", "lower", "upper", "lower"],
+    },
+    {
+      id: "ppl4",
+      family: "Push / Pull / Legs",
+      name: "Push / Pull / Legs",
+      sub: "4-day with Push B",
+      plan: ["pushA", "pullA", "legs", "pushB"],
+    },
+  ],
+  5: [
+    {
+      id: "ppl5",
+      family: "Push / Pull / Legs",
+      name: "Push / Pull / Legs",
+      sub: "Full A/B rotation",
+      plan: ["pushA", "pullA", "legs", "pushB", "pullB"],
+    },
+    {
+      id: "bro5",
+      family: "Bro Split",
+      name: "Bro Split",
+      sub: "One muscle a day",
+      plan: ["chest", "back", "legs", "shoulders", "arms"],
+    },
+  ],
+  6: [
+    {
+      id: "ppl6",
+      family: "Push / Pull / Legs",
+      name: "Push / Pull / Legs",
+      sub: "6-day, A & B weeks",
+      plan: ["pushA", "pullA", "legs", "pushB", "pullB", "legs"],
+    },
+    {
+      id: "ul6",
+      family: "Upper / Lower",
+      name: "Upper / Lower",
+      sub: "3× each",
+      plan: ["upper", "lower", "upper", "lower", "upper", "lower"],
+    },
+  ],
+};
+
+const FALLBACK_DAYS = 3;
+
+export const splitsFor = (days: number): Split[] =>
+  SPLITS_BY_DAYS[days] ?? SPLITS_BY_DAYS[FALLBACK_DAYS] ?? [];
+
+// distribute training days across the week with rest gaps
+const REST_PATTERNS: Record<number, number[]> = {
+  2: [0, 3],
+  3: [0, 2, 4],
+  4: [0, 1, 3, 4],
+  5: [0, 1, 2, 3, 4],
+  6: [0, 1, 2, 4, 5, 6],
+};
+
+export const buildSchedule = (split: Split, days: number): ScheduledDay[] => {
+  const slots = REST_PATTERNS[days] ?? REST_PATTERNS[FALLBACK_DAYS] ?? [];
+  return split.plan.map((key, index) =>
+    dayOf(key, WD[slots[index] ?? index] ?? "Mon"),
+  );
+};

@@ -1,3 +1,6 @@
+export const fmtDur = (totalSec: number): string =>
+  `${Math.floor(totalSec / 60)}:${String(totalSec % 60).padStart(2, "0")}`;
+
 export const isoDate = (date: Date = new Date()): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
