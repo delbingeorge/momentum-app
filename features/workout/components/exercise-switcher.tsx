@@ -35,7 +35,7 @@ export const ExerciseSwitcher = ({
       ref={scrollRef}
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerClassName="gap-2 pb-3.5"
+      contentContainerClassName="gap-2 py-3"
     >
       {exList.map((exercise, index) => {
         const on = index === current;

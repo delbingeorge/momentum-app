@@ -80,7 +80,7 @@ export const SetList = ({
         <Text className="flex-1 text-center font-mono text-[10.5px] uppercase text-faint">
           Reps
         </Text>
-        <View className="w-[24px]" />
+        <View className="w-[27px]" />
       </View>
       <View className="gap-2">
         {sets.map((set, index) => {
@@ -108,15 +108,15 @@ export const SetList = ({
       <View className="mt-2.5 flex-row gap-2">
         <PressableScale
           onPress={addSet}
-          className="h-11 flex-1 flex-row items-center justify-center gap-1.5 rounded-2xl border border-dashed border-line2"
+          className="h-14 flex-1 flex-row items-center justify-center gap-1.5 rounded-2xl border border-dashed border-line2"
         >
           <Icon name="plus" size={16} color={COLORS.mut} strokeWidth={2.4} />
-          <Text className="font-sans-semibold text-sm text-mut">Add set</Text>
+          <Text className="font-sans-medium text-md text-mut">Add set</Text>
         </PressableScale>
         {sets.length > 1 ? (
           <PressableScale
             onPress={removeLastSet}
-            className="h-11 w-[52px] items-center justify-center rounded-2xl border border-dashed border-line2"
+            className="h-14 w-[52px] items-center justify-center rounded-2xl border border-dashed border-line2"
           >
             <Icon name="minus" size={16} color={COLORS.mut} strokeWidth={2.4} />
           </PressableScale>

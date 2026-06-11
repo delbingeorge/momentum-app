@@ -3,7 +3,6 @@ import { useState } from "react";
 import { SheetManager } from "react-native-actions-sheet";
 import { ScrollView, Text, View } from "react-native";
 
-import { COLORS } from "@/shared/lib/colors";
 import {
   buildSession,
   makeExercise,
@@ -161,35 +160,24 @@ export const WorkoutScreen = () => {
           suggestion={suggestion}
           unit={unit}
         />
-        <View className="flex-row items-start justify-between gap-2.5">
+        <View className="flex-row items-center justify-between gap-2.5">
           <Text className="flex-1 font-sans-bold text-[22px] leading-7 tracking-tight text-text">
             {exercise.name}
           </Text>
+          <PressableScale
+            onPress={() =>
+              SheetManager.show("exercise-info", { payload: { exercise } })
+            }
+            className="h-[38px] w-[38px] items-center justify-center rounded-full bg-card"
+          >
+            <Icon name="videoCam" size={18} />
+          </PressableScale>
           <PressableScale
             onPress={() => setMenuOpen(true)}
             className="h-[38px] w-[38px] items-center justify-center rounded-full bg-card"
           >
             <Icon name="dots" size={20} />
           </PressableScale>
-        </View>
-        <View className="mt-2 flex-row flex-wrap items-center gap-2">
-          <PressableScale
-            onPress={() =>
-              SheetManager.show("exercise-info", { payload: { exercise } })
-            }
-            className="flex-row items-center gap-1.5 rounded-full bg-lime py-1.5 pl-2.5 pr-3"
-          >
-            <Icon name="videoCam" size={15} color={COLORS.limeText} />
-            <Text className="font-sans-bold text-[13px] text-lime-text">
-              Watch form
-            </Text>
-          </PressableScale>
-          <Text className="rounded-lg bg-lime-dim px-2 py-1 font-mono text-[11px] text-lime">
-            {exercise.muscle}
-          </Text>
-          <Text className="font-sans text-[13px] text-mut">
-            Target {exercise.target} reps
-          </Text>
         </View>
         <SetList
           exercise={exercise}

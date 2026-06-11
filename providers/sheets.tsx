@@ -3,6 +3,8 @@ import {
   SheetRegister,
 } from "react-native-actions-sheet";
 
+import { ExportSheet } from "@/features/profile/components/export.sheet";
+import { ReminderSheet } from "@/features/profile/components/reminder.sheet";
 import { LogBodyweightSheet } from "@/features/progress/components/log-bodyweight.sheet";
 import { SessionDetailSheet } from "@/features/progress/components/session-detail.sheet";
 import { ExerciseInfoSheet } from "@/features/workout/components/exercise-info.sheet";
@@ -22,6 +24,8 @@ declare module "react-native-actions-sheet" {
       payload: { session: SessionRecord };
     }>;
     "log-bodyweight": SheetDefinition;
+    "reminder-config": SheetDefinition;
+    "export-data": SheetDefinition;
   }
 }
 
@@ -32,6 +36,8 @@ export const AppSheets = () => (
       "exercise-info": ExerciseInfoSheet,
       "session-detail": SessionDetailSheet,
       "log-bodyweight": LogBodyweightSheet,
+      "reminder-config": ReminderSheet,
+      "export-data": ExportSheet,
     }}
   />
 );

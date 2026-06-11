@@ -1,4 +1,5 @@
 export { BrandBar } from "./brand-bar";
+export { Checkbox } from "./checkbox";
 export { CtaButton } from "./cta-button";
 export { ErrorBoundary } from "./error-boundary";
 export { Icon, type IconName } from "./icon";

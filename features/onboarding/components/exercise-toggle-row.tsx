@@ -3,7 +3,7 @@ import { Text, View } from "react-native";
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
 import type { ExerciseInstance } from "@/shared/types";
-import { Icon, PressableScale } from "@/shared/ui";
+import { Checkbox, Icon, PressableScale } from "@/shared/ui";
 
 interface ExerciseToggleRowProps {
   exercise: ExerciseInstance;

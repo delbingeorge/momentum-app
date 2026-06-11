@@ -3,7 +3,7 @@ import { Text, View } from "react-native";
 import { COLORS } from "@/shared/lib/colors";
 import { dispToKg, kgToDisp, stepKg } from "@/shared/lib/units";
 import type { LoggedSet, SessionSet, Unit } from "@/shared/types";
-import { Icon, PressableScale } from "@/shared/ui";
+import { Checkbox, Icon, PressableScale } from "@/shared/ui";
 
 import { Stepper } from "./stepper";
 
@@ -56,12 +56,6 @@ export const SetRow = ({
     : set.done
       ? COLORS.limeText
       : COLORS.mut;
-  const checkStyle = set.done
-    ? {
-        backgroundColor: chrome ? chrome.color : COLORS.lime,
-        borderColor: "transparent",
-      }
-    : { borderColor: COLORS.line2 };
   const rowStyle = set.done
     ? {
         backgroundColor: chrome ? chrome.dim : COLORS.limeDim,
@@ -70,9 +64,12 @@ export const SetRow = ({
     : { backgroundColor: COLORS.card, borderColor: COLORS.line };
 
   return (
-    <View className="overflow-hidden rounded-2xl border" style={rowStyle}>
+    <View
+      className="overflow-hidden rounded-2xl border px-2 py-3.5"
+      style={rowStyle}
+    >
       {prev ? (
-        <View className="flex-row items-center gap-1.5 px-3 pt-2">
+        <View className="flex-row items-center gap-1.5 px-3 pb-2.5">
           <Icon name="rotate" size={11} color={COLORS.faint} />
           <Text className="font-mono text-[10.5px] text-faint">
             Last: {kgToDisp(prev.kg, unit)} {unit} × {prev.reps}
@@ -92,66 +89,56 @@ export const SetRow = ({
           ) : null}
         </View>
       ) : null}
-      <View className="flex-row items-center gap-1.5 px-2 py-2">
-        <PressableScale
-          onPress={onCycleType}
-          className="h-7 w-7 items-center justify-center rounded-full"
-        >
-          <View
+      <View className="flex-row justify-between items-center px-2">
+        <View className="flex-row items-center justify-between gap-4">
+          <PressableScale
+            onPress={onCycleType}
             className="h-7 w-7 items-center justify-center rounded-full"
-            style={badgeStyle}
           >
-            <Text
-              className="font-mono-bold text-[13px]"
-              style={{ color: badgeTextColor }}
+            <View
+              className="h-7 w-7 items-center justify-center rounded-full"
+              style={badgeStyle}
             >
-              {chrome
-                ? chrome.label
-                : set.type !== "warmup"
-                  ? workingIndex
-                  : index + 1}
-            </Text>
-          </View>
-        </PressableScale>
-        <View className="flex-1 items-center">
-          <Stepper
-            big
-            value={kgToDisp(set.kg, unit)}
-            onDec={() => onUpdate({ kg: Math.max(0, set.kg - stepKg(unit)) })}
-            onInc={() => onUpdate({ kg: set.kg + stepKg(unit) })}
-            onInput={(value) =>
-              onUpdate({ kg: Math.max(0, dispToKg(value, unit)) })
-            }
-          />
-        </View>
-        <View className="flex-1 items-center">
-          <Stepper
-            value={set.reps}
-            onDec={() => onUpdate({ reps: Math.max(0, set.reps - 1) })}
-            onInc={() => onUpdate({ reps: set.reps + 1 })}
-            onInput={(value) =>
-              onUpdate({ reps: Math.max(0, Math.round(value)) })
-            }
-          />
-        </View>
-        <PressableScale
-          onPress={onToggleDone}
-          className="h-[30px] w-[30px] items-center justify-center rounded-xl"
-        >
-          <View
-            className="h-full w-full items-center justify-center rounded-md border-2"
-            style={checkStyle}
-          >
-            <Icon
-              name="check"
-              size={16}
-              color={
-                set.done ? (chrome ? COLORS.bg : COLORS.limeText) : COLORS.faint
+              <Text
+                className="font-mono-bold text-[13px]"
+                style={{ color: badgeTextColor }}
+              >
+                {chrome
+                  ? chrome.label
+                  : set.type !== "warmup"
+                    ? workingIndex
+                    : index + 1}
+              </Text>
+            </View>
+          </PressableScale>
+          <View className="flex-row justify-between gap-2 items-center">
+            <Stepper
+              big
+              value={kgToDisp(set.kg, unit)}
+              onDec={() => onUpdate({ kg: Math.max(0, set.kg - stepKg(unit)) })}
+              onInc={() => onUpdate({ kg: set.kg + stepKg(unit) })}
+              onInput={(value) =>
+                onUpdate({ kg: Math.max(0, dispToKg(value, unit)) })
               }
-              strokeWidth={3}
+            />
+            <Stepper
+              value={set.reps}
+              onDec={() => onUpdate({ reps: Math.max(0, set.reps - 1) })}
+              onInc={() => onUpdate({ reps: set.reps + 1 })}
+              onInput={(value) =>
+                onUpdate({ reps: Math.max(0, Math.round(value)) })
+              }
             />
           </View>
-        </PressableScale>
+        </View>
+        <Checkbox
+          checked={set.done}
+          onCheckedChange={onToggleDone}
+          className="rounded-lg"
+          checkedColor={chrome?.color}
+          iconColor={chrome ? COLORS.bg : COLORS.limeText}
+          iconSize={14}
+        />
       </View>
     </View>
   );
