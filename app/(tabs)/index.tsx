@@ -1,12 +1,12 @@
-import { Text } from "react-native";
+import { TodayPanel } from "@/features/home";
+import { ErrorBoundary, Screen } from "@/shared/ui";
 
-import { Screen } from "@/shared/ui";
-
-export default function TodayScreen() {
+export default function TodayRoute() {
   return (
-    <Screen className="items-center justify-center">
-      <Text className="font-sans-bold text-xl text-text">Home</Text>
-      <Text className="font-sans text-base text-mut">Coming in step 5</Text>
+    <Screen edges={["top"]}>
+      <ErrorBoundary>
+        <TodayPanel />
+      </ErrorBoundary>
     </Screen>
   );
 }
