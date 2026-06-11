@@ -28,7 +28,10 @@ export const ExerciseInfoSheet = ({
       <Text className="-mt-2 px-5 pb-2 font-mono text-[11.5px] text-mut">
         {exercise.muscle} · {exercise.sets}×{exercise.target}
       </Text>
-      <SheetScrollView className="px-5" contentContainerStyle={{ paddingBottom: 32 }}>
+      <SheetScrollView
+        className="px-5"
+        contentContainerStyle={{ paddingBottom: 32 }}
+      >
         <View className="aspect-[9/16] max-h-[340px] w-full items-center justify-center self-center overflow-hidden rounded-[18px] border border-line bg-card2">
           <View className="absolute inset-0 items-center justify-center opacity-10">
             <Icon
@@ -54,7 +57,10 @@ export const ExerciseInfoSheet = ({
               ["Sets", `${exercise.sets}×`],
             ] as const
           ).map(([label, value]) => (
-            <View key={label} className="flex-1 rounded-2xl bg-card px-3.5 py-3">
+            <View
+              key={label}
+              className="flex-1 rounded-2xl bg-card px-3.5 py-3"
+            >
               <Text className="font-mono text-[10px] uppercase tracking-wide text-faint">
                 {label}
               </Text>

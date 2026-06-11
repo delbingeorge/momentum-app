@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import { SheetManager } from "react-native-actions-sheet";
 import { useEffect } from "react";
 import { ScrollView, Text, View } from "react-native";
 
@@ -85,7 +86,13 @@ export const TodayPanel = () => {
           {day.exercises
             .filter((exercise) => !exercise.off)
             .map((exercise) => (
-              <ExercisePreviewRow key={exercise.id} exercise={exercise} />
+              <ExercisePreviewRow
+                key={exercise.id}
+                exercise={exercise}
+                onPress={() =>
+                  SheetManager.show("exercise-info", { payload: { exercise } })
+                }
+              />
             ))}
         </View>
       </ScrollView>
