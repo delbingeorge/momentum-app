@@ -2,7 +2,6 @@ import { Text } from "react-native";
 
 import { Screen } from "@/shared/ui";
 
-// Placeholder — the tab shell + today dashboard land in step 5
 export default function TodayScreen() {
   return (
     <Screen className="items-center justify-center">
