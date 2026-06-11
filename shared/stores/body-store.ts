@@ -11,6 +11,7 @@ import { bodyweightEntrySchema } from "@/shared/types/schemas";
 interface BodyState {
   weights: BodyweightEntry[];
   logWeight: (kg: number) => void;
+  setWeights: (weights: BodyweightEntry[]) => void;
   seedIfEmpty: (goal: Goal) => void;
   resetBody: () => void;
 }
@@ -33,6 +34,7 @@ export const useBodyStore = create<BodyState>()(
             ),
           };
         }),
+      setWeights: (weights) => set({ weights }),
       seedIfEmpty: (goal) =>
         set((state) => ({
           weights: state.weights.length ? state.weights : seedWeights(goal),

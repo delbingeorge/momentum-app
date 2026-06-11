@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
-import { AccountCard } from "@/features/auth";
+import type { ReactNode } from "react";
 import { COLORS } from "@/shared/lib/colors";
 import { GOALS, splitsFor } from "@/shared/lib/program";
 import { weekStreak } from "@/shared/lib/streaks";
@@ -12,6 +12,7 @@ import {
   useBodyStore,
   usePlanStore,
   useSettingsStore,
+  useSyncStore,
   useWorkoutStore,
 } from "@/shared/stores";
 import { BrandBar, CtaButton, Icon, type IconName, PressableScale } from "@/shared/ui";
@@ -44,7 +45,11 @@ const PlanRow = ({
   </View>
 );
 
-export const ProfilePanel = () => {
+interface ProfilePanelProps {
+  accountSlot?: ReactNode;
+}
+
+export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
   const goal = usePlanStore((state) => state.goal);
   const days = usePlanStore((state) => state.days);
   const splitId = usePlanStore((state) => state.splitId);
@@ -59,6 +64,7 @@ export const ProfilePanel = () => {
 
   const resetAll = () => {
     useAuthStore.getState().resetAuth();
+    useSyncStore.getState().resetSync();
     usePlanStore.getState().resetPlan();
     useWorkoutStore.getState().resetWorkouts();
     useBodyStore.getState().resetBody();
@@ -92,7 +98,7 @@ export const ProfilePanel = () => {
         </View>
 
         <SectionLabel>Account</SectionLabel>
-        <AccountCard />
+        {accountSlot}
 
         <SectionLabel>Your plan</SectionLabel>
         <View className="overflow-hidden rounded-[18px] bg-card">

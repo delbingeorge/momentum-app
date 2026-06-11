@@ -22,6 +22,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { getCurrentUser } from "@/features/auth";
+import { useSyncEngine } from "@/features/sync";
 import { scheduleReminder } from "@/features/profile/lib/reminder-scheduler";
 import { queryClient } from "@/shared/lib/query-client";
 import { COLORS } from "@/shared/lib/colors";
@@ -31,6 +32,7 @@ import { AppSheets } from "@/providers/sheets";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  useSyncEngine();
   const [fontsLoaded] = useFonts({
     HankenGrotesk_400Regular,
     HankenGrotesk_500Medium,

@@ -30,6 +30,15 @@ interface PlanState {
   setTodayIndex: (todayIndex: number) => void;
   setSchedule: (schedule: ScheduledDay[]) => void;
   confirmSplit: () => ScheduledDay[];
+  applyCloud: (data: {
+    goal: Goal | null;
+    level: Level | null;
+    gender: Gender | null;
+    weightKg: number;
+    days: number;
+    splitId: string | null;
+    schedule: ScheduledDay[] | null;
+  }) => void;
   resetPlan: () => void;
 }
 
@@ -78,6 +87,7 @@ export const usePlanStore = create<PlanState>()(
         set({ splitId: split.id, schedule, todayIndex: 0 });
         return schedule;
       },
+      applyCloud: (data) => set(data),
       resetPlan: () => set(initialState),
     }),
     {

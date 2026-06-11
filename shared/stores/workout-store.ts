@@ -58,6 +58,11 @@ interface WorkoutState {
   dropStaleActive: (scheduleLength: number) => void;
   finishWorkout: (session: SessionRecord, deloadWasDue: boolean) => void;
   seedIfEmpty: (schedule: ScheduledDay[], days: number) => void;
+  applyCloud: (data: {
+    history: ExerciseHistory;
+    pastSessions: SessionRecord[];
+    sessionDates: string[];
+  }) => void;
   resetWorkouts: () => void;
 }
 
@@ -156,6 +161,7 @@ export const useWorkoutStore = create<WorkoutState>()(
             : seedPastSessions(schedule),
           sinceDeload: state.sinceDeload || days * 4,
         })),
+      applyCloud: (data) => set(data),
       resetWorkouts: () => set(initialState),
     }),
     {
