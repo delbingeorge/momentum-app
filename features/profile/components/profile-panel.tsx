@@ -59,7 +59,7 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
 
   const goalName = GOALS.find((g) => g.id === goal)?.name ?? "Custom";
   const splitName =
-    splitsFor(days).find((s) => s.id === splitId)?.name ?? "—";
+    splitsFor(days).find((s) => s.id === splitId)?.name ?? "Not set";
   const streak = weekStreak(sessionDates);
 
   const resetAll = () => {
@@ -129,7 +129,7 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
             <Text className="mt-0.5 font-sans text-xs text-mut">
               {isPaid
                 ? "Workouts, bodyweight, history or a full backup."
-                : "CSV & full backup — a Premium feature."}
+                : "CSV and full backup, a Premium feature."}
             </Text>
           </View>
           {isPaid ? (

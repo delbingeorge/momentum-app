@@ -75,7 +75,7 @@ export const exportSessionsCsv = async (): Promise<void> => {
   await writeAndShare("momentum-sessions.csv", toCsv(rows), "text/csv");
 };
 
-// Full state backup — everything needed to restore the app
+// Full state backup: everything needed to restore the app
 export const exportBackupJson = async (): Promise<void> => {
   const plan = usePlanStore.getState();
   const workout = useWorkoutStore.getState();

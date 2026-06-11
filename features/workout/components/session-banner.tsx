@@ -21,8 +21,8 @@ export const SessionBanner = ({
       <View className="mb-3 flex-row items-center gap-2.5 rounded-2xl border border-warmup/40 bg-warmup-dim px-3.5 py-3">
         <Icon name="rotate" size={17} color={COLORS.warmup} />
         <Text className="flex-1 font-sans text-[13px] leading-[17px] text-text">
-          <Text className="font-sans-bold">Deload week.</Text> Lighter loads &
-          fewer sets — let your body recover and come back stronger.
+          <Text className="font-sans-bold">Deload week.</Text> Lighter loads and
+          fewer sets so your body can recover and come back stronger.
         </Text>
       </View>
     );
@@ -33,7 +33,7 @@ export const SessionBanner = ({
         <Icon name="trendingUp" size={17} color={COLORS.lime} />
         <Text className="flex-1 font-sans text-[13px] leading-[17px] text-text">
           <Text className="font-sans-bold">Progressive overload.</Text> You
-          cleared the top of your range — bumped to{" "}
+          cleared the top of your range, so the weight goes up to{" "}
           {kgToDisp(suggestion.kg, unit)} {unit}.
         </Text>
       </View>

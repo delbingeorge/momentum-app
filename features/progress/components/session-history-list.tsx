@@ -25,7 +25,7 @@ export const SessionHistoryList = ({
     {sessions.length === 0 ? (
       <View className="items-center rounded-2xl border border-dashed border-line2 bg-card px-4 py-5">
         <Text className="font-sans text-sm text-mut">
-          No sessions yet — finish a workout to see it here.
+          No sessions yet. Finish a workout and it will show up here.
         </Text>
       </View>
     ) : (

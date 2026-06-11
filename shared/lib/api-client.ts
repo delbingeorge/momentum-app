@@ -5,11 +5,11 @@ import { env, isCloudConfigured } from "@/shared/lib/env";
 
 let client: SupabaseClient | null = null;
 
-// Lazy singleton — the app runs fully local until Supabase env vars exist
+// Lazy singleton; the app runs fully local until Supabase env vars exist
 export const getSupabase = (): SupabaseClient => {
   if (!isCloudConfigured) {
     throw new Error(
-      "Cloud is not configured — set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY.",
+      "Cloud is not configured. Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY.",
     );
   }
   if (!client) {

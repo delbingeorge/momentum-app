@@ -39,7 +39,7 @@ export const SetRow = ({
     set.type !== "warmup" &&
     (set.kg > prev.kg || (set.kg === prev.kg && set.reps > prev.reps));
 
-  // Set-type colors come from data, not a fixed class — style is the escape hatch
+  // Set-type colors come from data, not a fixed class; style is the escape hatch
   const badgeStyle = {
     backgroundColor: chrome
       ? set.done

@@ -16,7 +16,7 @@ const SLIDES: WelcomeSlide[] = [
   {
     icon: "dumbbell",
     title: "Train with a plan that fits you",
-    body: "Pick a goal and split — we build your weekly schedule around it, exercise by exercise.",
+    body: "Pick a goal and a split, and we build your weekly schedule around it, exercise by exercise.",
   },
   {
     icon: "videoCam",
@@ -31,11 +31,11 @@ const SLIDES: WelcomeSlide[] = [
   {
     icon: "chart",
     title: "Watch the progress add up",
-    body: "Weekly volume per muscle, streaks, and personal records — proof you're getting stronger.",
+    body: "Weekly volume per muscle, streaks, and personal records. Proof you're getting stronger.",
   },
   {
     icon: "zap",
-    title: "Free to use — pay what you want",
+    title: "Free to use, pay what you want",
     body: "The whole app is free and lives on your device. Unlock once to add login, cloud sync and no ads.",
   },
 ];

@@ -20,7 +20,7 @@ export const ActivityHeatmap = ({ onSelectDay }: ActivityHeatmapProps) => {
   const weeks = buildActivity(sessionDates, COLS);
   const months = monthLabels(weeks);
 
-  // cells flex to fill the card — no dead space on wide screens
+  // cells flex to fill the card, so there is no dead space on wide screens
   const cell =
     gridWidth > 0 ? Math.floor((gridWidth - (COLS - 1) * GAP) / COLS) : 0;
 

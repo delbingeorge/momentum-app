@@ -11,7 +11,7 @@ import { OnboardingShell } from "./onboarding-shell";
 const DAY_OPTIONS = [2, 3, 4, 5, 6];
 
 const DAY_NOTE: Record<number, string> = {
-  2: "Minimal but effective — full-body focus.",
+  2: "Minimal but effective, with a full-body focus.",
   3: "A balanced base. Plenty of recovery.",
   4: "The sweet spot for steady progress.",
   5: "Higher volume, faster results.",

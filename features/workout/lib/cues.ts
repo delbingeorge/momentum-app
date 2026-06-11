@@ -1,4 +1,4 @@
-// Concise form cues for the main lifts (fallback: none — keeps it lean)
+// Concise form cues for the main lifts (fallback: none, keeps it lean)
 export const CUES: Record<string, string[]> = {
   "Barbell Bench Press": [
     "Retract shoulder blades, feet planted",

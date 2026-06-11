@@ -41,7 +41,7 @@ export const SyncStatusRow = () => {
         {status === "syncing"
           ? "Syncing…"
           : status === "error"
-            ? "Sync failed — changes are saved locally"
+            ? "Sync failed. Your changes are saved on this device"
             : lastSyncedAt
               ? `Synced ${ago(lastSyncedAt)}`
               : "Waiting for first sync"}

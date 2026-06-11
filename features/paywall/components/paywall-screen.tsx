@@ -11,12 +11,12 @@ const PERKS = [
   "Google login & cloud backup",
   "Sync your logs across devices",
   "No ads, ever",
-  "Lifetime access — one payment",
+  "Pay once, keep it for life",
 ];
 
 // High anchor first makes the suggested tier read as the sensible pick
 const TIERS = [
-  { id: "champion", amount: 999, name: "Champion", blurb: "Go all in — back an indie dev" },
+  { id: "champion", amount: 999, name: "Champion", blurb: "Go all in and back an indie dev" },
   { id: "support", amount: 499, name: "Support", blurb: "Fuels development", suggested: true },
   { id: "unlock", amount: 299, name: "Unlock", blurb: "Just the features" },
 ];
@@ -89,7 +89,7 @@ export const PaywallScreen = () => {
           Pay what feels fair.
         </Text>
         <Text className="mb-5 mt-3 font-sans text-[15.5px] leading-[22px] text-mut">
-          Momentum is built by one developer. The whole app is free — unlock to
+          Momentum is built by one developer. The whole app is free. Unlock to
           sync your data and support the work.
         </Text>
 

@@ -18,7 +18,7 @@ type DatasetId = "workouts" | "bodyweight" | "sessions";
 const DATASETS: { id: DatasetId; icon: IconName; label: string; desc: string }[] = [
   { id: "workouts", icon: "dumbbell", label: "Workouts", desc: "Every logged set, by training day" },
   { id: "bodyweight", icon: "scale", label: "Bodyweight", desc: "Your weigh-in history over time" },
-  { id: "sessions", icon: "fire", label: "Training days", desc: "Dates you trained — for streaks" },
+  { id: "sessions", icon: "fire", label: "Training days", desc: "Dates you trained, used for streaks" },
 ];
 
 const EXPORTERS: Record<DatasetId, () => Promise<void>> = {
@@ -56,7 +56,7 @@ export const ExportSheet = ({ sheetId }: SheetProps<"export-data">) => {
       if (full) {
         await exportBackupJson();
       } else {
-        // share dialogs are modal — run picked exports one at a time
+        // share dialogs are modal, so run picked exports one at a time
         for (const dataset of DATASETS) {
           if (picked[dataset.id]) await EXPORTERS[dataset.id]();
         }
@@ -73,7 +73,7 @@ export const ExportSheet = ({ sheetId }: SheetProps<"export-data">) => {
   return (
     <BaseSheet sheetId={sheetId} title="Export your data">
       <Text className="-mt-1 px-5 pb-4 font-sans text-[13.5px] leading-5 text-mut">
-        Pick what you want — each set shares as its own CSV.
+        Pick what you want. Each one shares as its own CSV.
       </Text>
 
       <View className="px-5">
@@ -125,7 +125,7 @@ export const ExportSheet = ({ sheetId }: SheetProps<"export-data">) => {
 
         {error ? (
           <Text className="pt-3 text-center font-mono text-xs text-drop">
-            Export failed — try again.
+            Export failed. Please try again.
           </Text>
         ) : null}
 
