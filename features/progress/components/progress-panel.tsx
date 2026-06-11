@@ -1,23 +1,20 @@
-import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
+import { SheetManager } from "react-native-actions-sheet";
 
 import { weekStreak } from "@/shared/lib/streaks";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
-import type { SessionRecord } from "@/shared/types";
 import { BrandBar } from "@/shared/ui";
 
 import { recentPRs, trainingStats } from "../lib/training-stats";
 import { ActivityHeatmap } from "./activity-heatmap";
 import { BodyweightCard } from "./bodyweight-card";
 import { PrList } from "./pr-list";
-import { SessionDetailSheet } from "./session-detail-sheet";
 import { SessionHistoryList } from "./session-history-list";
 
 export const ProgressPanel = () => {
   const pastSessions = useWorkoutStore((state) => state.pastSessions);
   const sessionDates = useWorkoutStore((state) => state.sessionDates);
   const unit = useSettingsStore((state) => state.unit);
-  const [selected, setSelected] = useState<SessionRecord | null>(null);
 
   const stats = trainingStats(pastSessions);
   const prs = recentPRs(pastSessions, 4);
@@ -59,7 +56,8 @@ export const ProgressPanel = () => {
         <ActivityHeatmap
           onSelectDay={(dateKey) => {
             const session = pastSessions.find((s) => s.date === dateKey);
-            if (session) setSelected(session);
+            if (session)
+              SheetManager.show("session-detail", { payload: { session } });
           }}
         />
         <BodyweightCard />
@@ -67,14 +65,11 @@ export const ProgressPanel = () => {
         <SessionHistoryList
           sessions={pastSessions}
           unit={unit}
-          onSelect={setSelected}
+          onSelect={(session) =>
+            SheetManager.show("session-detail", { payload: { session } })
+          }
         />
       </ScrollView>
-      <SessionDetailSheet
-        session={selected}
-        unit={unit}
-        onClose={() => setSelected(null)}
-      />
     </View>
   );
 };

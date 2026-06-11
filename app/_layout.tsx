@@ -16,9 +16,12 @@ import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { SheetProvider } from "react-native-actions-sheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { COLORS } from "@/shared/lib/colors";
+import { AppSheets } from "@/providers/sheets";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -45,23 +48,28 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: COLORS.bg },
-        }}
-      >
-        <Stack.Screen
-          name="workout"
-          options={{ gestureEnabled: false, animation: "slide_from_right" }}
-        />
-        <Stack.Screen
-          name="workout-done"
-          options={{ gestureEnabled: false, animation: "slide_from_right" }}
-        />
-      </Stack>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <StatusBar style="light" />
+        <AppSheets />
+        <SheetProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: COLORS.bg },
+            }}
+          >
+            <Stack.Screen
+              name="workout"
+              options={{ gestureEnabled: false, animation: "slide_from_right" }}
+            />
+            <Stack.Screen
+              name="workout-done"
+              options={{ gestureEnabled: false, animation: "slide_from_right" }}
+            />
+          </Stack>
+        </SheetProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

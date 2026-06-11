@@ -5,5 +5,5 @@ export { Icon, type IconName } from "./icon";
 export { OptionCard } from "./option-card";
 export { PressableScale } from "./pressable-scale";
 export { Screen } from "./screen";
-export { Sheet } from "./sheet";
+export { BaseSheet, SheetScrollView } from "./sheet";
 export { StepBar } from "./step-bar";

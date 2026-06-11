@@ -1,33 +1,23 @@
 import { useState } from "react";
-import { ScrollView, Text, TextInput, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
+import { SheetManager, type SheetProps } from "react-native-actions-sheet";
 
 import { COLORS } from "@/shared/lib/colors";
 import { LIB } from "@/shared/lib/program";
-import { Icon, PressableScale, Sheet } from "@/shared/ui";
-
-interface ExercisePickerSheetProps {
-  visible: boolean;
-  title: string;
-  onPick: (name: string) => void;
-  onClose: () => void;
-}
+import { BaseSheet, Icon, PressableScale, SheetScrollView } from "@/shared/ui";
 
 export const ExercisePickerSheet = ({
-  visible,
-  title,
-  onPick,
-  onClose,
-}: ExercisePickerSheetProps) => {
+  sheetId,
+  payload,
+}: SheetProps<"exercise-picker">) => {
   const [query, setQuery] = useState("");
   const lowered = query.trim().toLowerCase();
 
+  const pick = (name: string) =>
+    SheetManager.hide(sheetId, { payload: name });
+
   return (
-    <Sheet
-      visible={visible}
-      onClose={onClose}
-      title={title}
-      className="h-[88%]"
-    >
+    <BaseSheet sheetId={sheetId} title={payload?.title ?? "Pick exercise"} fullHeight>
       <View className="px-5 pb-2">
         <View className="h-11 flex-row items-center gap-2 rounded-xl border border-line bg-card px-3">
           <Icon name="search" size={16} color={COLORS.faint} />
@@ -40,7 +30,7 @@ export const ExercisePickerSheet = ({
           />
         </View>
       </View>
-      <ScrollView className="px-5" contentContainerClassName="pb-6">
+      <SheetScrollView className="px-5" contentContainerStyle={{ paddingBottom: 24 }}>
         {Object.entries(LIB).map(([muscle, names]) => {
           const filtered = names.filter(
             (name) => !lowered || name.toLowerCase().includes(lowered),
@@ -55,31 +45,21 @@ export const ExercisePickerSheet = ({
                 {filtered.map((name) => (
                   <PressableScale
                     key={name}
-                    onPress={() => onPick(name)}
+                    onPress={() => pick(name)}
                     className="flex-row items-center gap-3 rounded-xl border border-line bg-card px-3.5 py-3"
                   >
-                    <Icon
-                      name="dumbbell"
-                      size={18}
-                      color={COLORS.mut}
-                      strokeWidth={1.8}
-                    />
+                    <Icon name="dumbbell" size={18} color={COLORS.mut} strokeWidth={1.8} />
                     <Text className="flex-1 font-sans-semibold text-[15px] text-text">
                       {name}
                     </Text>
-                    <Icon
-                      name="plus"
-                      size={17}
-                      color={COLORS.lime}
-                      strokeWidth={2.6}
-                    />
+                    <Icon name="plus" size={17} color={COLORS.lime} strokeWidth={2.6} />
                   </PressableScale>
                 ))}
               </View>
             </View>
           );
         })}
-      </ScrollView>
-    </Sheet>
+      </SheetScrollView>
+    </BaseSheet>
   );
 };

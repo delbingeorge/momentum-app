@@ -1,8 +1,8 @@
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
+import type { SheetProps } from "react-native-actions-sheet";
 
 import { COLORS } from "@/shared/lib/colors";
-import type { ExerciseInstance } from "@/shared/types";
-import { Icon, Sheet } from "@/shared/ui";
+import { BaseSheet, Icon, SheetScrollView } from "@/shared/ui";
 
 import { CUES } from "../lib/cues";
 
@@ -15,24 +15,20 @@ const glyphFor = (muscle: string) => {
   return "dumbbell" as const;
 };
 
-interface ExerciseInfoSheetProps {
-  exercise: ExerciseInstance | null;
-  onClose: () => void;
-}
-
 export const ExerciseInfoSheet = ({
-  exercise,
-  onClose,
-}: ExerciseInfoSheetProps) => {
+  sheetId,
+  payload,
+}: SheetProps<"exercise-info">) => {
+  const exercise = payload?.exercise;
   if (!exercise) return null;
   const cues = CUES[exercise.name];
 
   return (
-    <Sheet visible onClose={onClose} title={exercise.name} className="h-[88%]">
+    <BaseSheet sheetId={sheetId} title={exercise.name} fullHeight>
       <Text className="-mt-2 px-5 pb-2 font-mono text-[11.5px] text-mut">
         {exercise.muscle} · {exercise.sets}×{exercise.target}
       </Text>
-      <ScrollView className="px-5" contentContainerClassName="pb-8">
+      <SheetScrollView className="px-5" contentContainerStyle={{ paddingBottom: 32 }}>
         <View className="aspect-[9/16] max-h-[340px] w-full items-center justify-center self-center overflow-hidden rounded-[18px] border border-line bg-card2">
           <View className="absolute inset-0 items-center justify-center opacity-10">
             <Icon
@@ -58,10 +54,7 @@ export const ExerciseInfoSheet = ({
               ["Sets", `${exercise.sets}×`],
             ] as const
           ).map(([label, value]) => (
-            <View
-              key={label}
-              className="flex-1 rounded-2xl bg-card px-3.5 py-3"
-            >
+            <View key={label} className="flex-1 rounded-2xl bg-card px-3.5 py-3">
               <Text className="font-mono text-[10px] uppercase tracking-wide text-faint">
                 {label}
               </Text>
@@ -96,7 +89,7 @@ export const ExerciseInfoSheet = ({
             </View>
           </View>
         ) : null}
-      </ScrollView>
-    </Sheet>
+      </SheetScrollView>
+    </BaseSheet>
   );
 };

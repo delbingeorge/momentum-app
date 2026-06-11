@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
+import { SheetManager } from "react-native-actions-sheet";
 import { ScrollView, Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
@@ -18,9 +19,7 @@ import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
 
 import { useRestTimer } from "../hooks/use-rest-timer";
 import { useSessionTimer } from "../hooks/use-session-timer";
-import { ExerciseInfoSheet } from "./exercise-info-sheet";
 import { ExerciseMenu } from "./exercise-menu";
-import { ExercisePickerSheet } from "./exercise-picker-sheet";
 import { ExerciseSwitcher } from "./exercise-switcher";
 import { RestTimerBar } from "./rest-timer-bar";
 import { SessionBanner } from "./session-banner";
@@ -40,8 +39,6 @@ export const WorkoutScreen = () => {
 
   const [current, setCurrent] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [picker, setPicker] = useState<"add" | "swap" | null>(null);
-  const [infoOpen, setInfoOpen] = useState(false);
 
   const elapsed = useSessionTimer(active?.startedAt ?? null);
   const rest = useRestTimer();
@@ -90,19 +87,25 @@ export const WorkoutScreen = () => {
     );
   };
 
-  const addExercise = (name: string) => {
+  const addExercise = async () => {
+    const name = await SheetManager.show("exercise-picker", {
+      payload: { title: "Add exercise" },
+    });
+    if (!name) return;
     const added = makeExercise(name, 3);
     setExList([...exList, added]);
     initOne(added);
-    setPicker(null);
     setCurrent(exList.length);
   };
 
-  const swapExercise = (name: string) => {
+  const swapExercise = async () => {
+    const name = await SheetManager.show("exercise-picker", {
+      payload: { title: "Swap exercise" },
+    });
+    if (!name) return;
     const swapped = makeExercise(name, exercise.sets);
     setExList(exList.map((x, i) => (i === current ? swapped : x)));
     initOne(swapped);
-    setPicker(null);
   };
 
   const moveExercise = (dir: -1 | 1) => {
@@ -151,7 +154,7 @@ export const WorkoutScreen = () => {
           log={log}
           current={current}
           onSelect={setCurrent}
-          onAdd={() => setPicker("add")}
+          onAdd={addExercise}
         />
         <SessionBanner
           deload={active.deload}
@@ -171,7 +174,9 @@ export const WorkoutScreen = () => {
         </View>
         <View className="mt-2 flex-row flex-wrap items-center gap-2">
           <PressableScale
-            onPress={() => setInfoOpen(true)}
+            onPress={() =>
+              SheetManager.show("exercise-info", { payload: { exercise } })
+            }
             className="flex-row items-center gap-1.5 rounded-full bg-lime py-1.5 pl-2.5 pr-3"
           >
             <Icon name="videoCam" size={15} color={COLORS.limeText} />
@@ -245,26 +250,12 @@ export const WorkoutScreen = () => {
         canMoveLeft={current > 0}
         canMoveRight={current < exList.length - 1}
         canRemove={exList.length > 1}
-        onSwap={() => setPicker("swap")}
+        onSwap={swapExercise}
         onMove={moveExercise}
         onRemove={removeExercise}
         onDiscard={handleDiscard}
         onClose={() => setMenuOpen(false)}
       />
-      {picker ? (
-        <ExercisePickerSheet
-          visible
-          title={picker === "add" ? "Add exercise" : "Swap exercise"}
-          onPick={picker === "add" ? addExercise : swapExercise}
-          onClose={() => setPicker(null)}
-        />
-      ) : null}
-      {infoOpen ? (
-        <ExerciseInfoSheet
-          exercise={exercise}
-          onClose={() => setInfoOpen(false)}
-        />
-      ) : null}
     </Screen>
   );
 };
