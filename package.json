@@ -19,6 +19,7 @@
     "expo-device": "~56.0.4",
     "expo-file-system": "~56.0.8",
     "expo-font": "~56.0.6",
+    "expo-haptics": "^56.0.3",
     "expo-linking": "~56.0.14",
     "expo-notifications": "~56.0.17",
     "expo-router": "~56.2.10",

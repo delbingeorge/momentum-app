@@ -102,6 +102,10 @@ export default function RootLayout() {
               name="paywall"
               options={{ presentation: "modal", animation: "slide_from_bottom" }}
             />
+            <Stack.Screen
+              name="sign-in"
+              options={{ animation: "slide_from_right" }}
+            />
           </Stack>
         </SheetProvider>
       </SafeAreaProvider>

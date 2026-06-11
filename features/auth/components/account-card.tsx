@@ -7,26 +7,13 @@ import { Icon, PressableScale } from "@/shared/ui";
 
 import { useAuthStore } from "@/shared/stores";
 
-import { signInWithGoogle, signOut } from "../api/auth-api";
+import { signOut } from "../api/auth-api";
 
 export const AccountCard = () => {
   const user = useAuthStore((state) => state.user);
   const isPaid = useAuthStore((state) => state.isPaid);
   const setUser = useAuthStore((state) => state.setUser);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSignIn = async () => {
-    setBusy(true);
-    setError(null);
-    try {
-      setUser(await signInWithGoogle());
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign-in failed.");
-    } finally {
-      setBusy(false);
-    }
-  };
 
   const handleSignOut = async () => {
     setBusy(true);
@@ -108,20 +95,14 @@ export const AccountCard = () => {
       ) : (
         <View className="px-3.5 pb-3.5 pt-3">
           <PressableScale
-            onPress={handleSignIn}
-            disabled={busy}
+            onPress={() => router.push("/sign-in")}
             className="h-12 flex-row items-center justify-center gap-2 rounded-full bg-white"
           >
             <Icon name="user" size={16} color={COLORS.bg} strokeWidth={2.2} />
             <Text className="font-sans-bold text-[15px] text-bg">
-              {busy ? "Signing in…" : "Sign in with Google to sync"}
+              Sign in with Google to sync
             </Text>
           </PressableScale>
-          {error ? (
-            <Text className="pt-2 text-center font-mono text-[11px] text-drop">
-              {error}
-            </Text>
-          ) : null}
         </View>
       )}
     </View>
