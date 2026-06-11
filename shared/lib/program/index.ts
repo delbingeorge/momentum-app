@@ -1,4 +1,4 @@
-export { DAY, dayOf } from "./lib/day-templates";
+export { DAY, dayOf } from "./day-templates";
 export {
   DEFAULT_KG,
   defaultKgFor,
@@ -7,15 +7,15 @@ export {
   LIB,
   makeExercise,
   muscleOf,
-} from "./lib/exercises";
+} from "./exercises";
 export {
   buildSession,
   initLog,
   isWorkingSet,
   progressIncrement,
   progressionFor,
-} from "./lib/progression";
-export { seedHistory, seedPastSessions, seedWeights } from "./lib/seeds";
+} from "./progression";
+export { seedHistory, seedPastSessions, seedWeights } from "./seeds";
 export {
   buildSchedule,
   GENDERS,
@@ -23,4 +23,4 @@ export {
   LEVELS,
   splitsFor,
   WD,
-} from "./lib/splits";
+} from "./splits";
