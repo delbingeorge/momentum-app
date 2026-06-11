@@ -8,6 +8,7 @@ import { useSettingsStore } from "@/shared/stores";
 import { BaseSheet, CtaButton, Icon, PressableScale } from "@/shared/ui";
 
 import { fmt12 } from "../lib/reminder-format";
+import { scheduleReminder } from "../lib/reminder-scheduler";
 
 const DAY_LETTERS = ["S", "M", "T", "W", "T", "F", "S"];
 const PRESETS: [string, number[]][] = [
@@ -76,6 +77,7 @@ export const ReminderSheet = ({ sheetId }: SheetProps<"reminder-config">) => {
 
   const save = () => {
     setReminder({ ...reminder, time, days });
+    if (reminder.enabled) void scheduleReminder(time, days);
     SheetManager.hide(sheetId);
   };
 

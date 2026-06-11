@@ -48,7 +48,7 @@ export const DaySwitcher = ({
           className="flex-1 bg-black/40"
           onPress={() => setOpen(false)}
         >
-          <View className="absolute left-5 top-28 min-w-[190px] rounded-2xl border border-line bg-card2 p-1.5">
+          <View className="absolute left-5 top-44 min-w-[190px] rounded-2xl border border-line bg-card2 p-1.5">
             {schedule.map((entry, index) => (
               <PressableScale
                 key={`${entry.key}-${index}`}

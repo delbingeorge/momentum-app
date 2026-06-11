@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 
+import {
+  clearRestNotification,
+  startRestNotification,
+} from "../lib/rest-notification";
+
 interface RestState {
   total: number;
   endAt: number;
@@ -14,8 +19,8 @@ interface RestTimer {
   skip: () => void;
 }
 
-// Absolute end-time based countdown so backgrounding can't desync it.
-// Notification hook-in lands in step 10.
+// Absolute end-time based countdown so backgrounding can't desync it; the
+// native rest-over notification fires even if the app is killed.
 export const useRestTimer = (): RestTimer => {
   const [rest, setRest] = useState<RestState | null>(null);
   const [, setTick] = useState(0);
@@ -29,18 +34,26 @@ export const useRestTimer = (): RestTimer => {
     return () => clearInterval(id);
   }, [rest]);
 
+  useEffect(() => () => void clearRestNotification(), []);
+
   return {
     active: rest !== null,
     total: rest?.total ?? 0,
     left: rest ? Math.max(0, Math.ceil((rest.endAt - Date.now()) / 1000)) : 0,
-    start: (totalSec) =>
-      setRest({ total: totalSec, endAt: Date.now() + totalSec * 1000 }),
+    start: (totalSec) => {
+      setRest({ total: totalSec, endAt: Date.now() + totalSec * 1000 });
+      void startRestNotification(totalSec);
+    },
     addSeconds: (sec) =>
-      setRest((prev) =>
-        prev
-          ? { total: prev.total + sec, endAt: prev.endAt + sec * 1000 }
-          : prev,
-      ),
-    skip: () => setRest(null),
+      setRest((prev) => {
+        if (!prev) return prev;
+        const endAt = prev.endAt + sec * 1000;
+        void startRestNotification(Math.ceil((endAt - Date.now()) / 1000));
+        return { total: prev.total + sec, endAt };
+      }),
+    skip: () => {
+      setRest(null);
+      void clearRestNotification();
+    },
   };
 };

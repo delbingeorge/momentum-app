@@ -3,10 +3,12 @@ import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
+import { AccountCard } from "@/features/auth";
 import { COLORS } from "@/shared/lib/colors";
 import { GOALS, splitsFor } from "@/shared/lib/program";
 import { weekStreak } from "@/shared/lib/streaks";
 import {
+  useAuthStore,
   useBodyStore,
   usePlanStore,
   useSettingsStore,
@@ -47,6 +49,7 @@ export const ProfilePanel = () => {
   const days = usePlanStore((state) => state.days);
   const splitId = usePlanStore((state) => state.splitId);
   const sessionDates = useWorkoutStore((state) => state.sessionDates);
+  const isPaid = useAuthStore((state) => state.isPaid);
   const [resetArmed, setResetArmed] = useState(false);
 
   const goalName = GOALS.find((g) => g.id === goal)?.name ?? "Custom";
@@ -55,6 +58,7 @@ export const ProfilePanel = () => {
   const streak = weekStreak(sessionDates);
 
   const resetAll = () => {
+    useAuthStore.getState().resetAuth();
     usePlanStore.getState().resetPlan();
     useWorkoutStore.getState().resetWorkouts();
     useBodyStore.getState().resetBody();
@@ -87,6 +91,9 @@ export const ProfilePanel = () => {
           </View>
         </View>
 
+        <SectionLabel>Account</SectionLabel>
+        <AccountCard />
+
         <SectionLabel>Your plan</SectionLabel>
         <View className="overflow-hidden rounded-[18px] bg-card">
           <PlanRow icon="target" label="Goal" value={goalName} />
@@ -99,7 +106,11 @@ export const ProfilePanel = () => {
 
         <SectionLabel>Export data</SectionLabel>
         <PressableScale
-          onPress={() => SheetManager.show("export-data")}
+          onPress={() =>
+            isPaid
+              ? SheetManager.show("export-data")
+              : router.push("/paywall")
+          }
           className="flex-row items-center gap-3 rounded-[18px] bg-card px-4 py-3.5"
         >
           <View className="h-[38px] w-[38px] items-center justify-center rounded-xl bg-lime-dim">
@@ -110,10 +121,18 @@ export const ProfilePanel = () => {
               Export your data
             </Text>
             <Text className="mt-0.5 font-sans text-xs text-mut">
-              Workouts, bodyweight, history or a full backup.
+              {isPaid
+                ? "Workouts, bodyweight, history or a full backup."
+                : "CSV & full backup — a Premium feature."}
             </Text>
           </View>
-          <Icon name="chevR" size={16} color={COLORS.faint} />
+          {isPaid ? (
+            <Icon name="chevR" size={16} color={COLORS.faint} />
+          ) : (
+            <Text className="rounded-full bg-lime px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wide text-lime-text">
+              Premium
+            </Text>
+          )}
         </PressableScale>
 
         <View className="mt-6 gap-3">

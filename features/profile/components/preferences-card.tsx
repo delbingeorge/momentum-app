@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
+import { requestNotificationPermission } from "@/shared/lib/notifications";
 import { useSettingsStore } from "@/shared/stores";
 import type { Unit } from "@/shared/types";
 import { Icon, PressableScale } from "@/shared/ui";
 
 import { fmt12, reminderSummary } from "../lib/reminder-format";
+import { cancelReminder, scheduleReminder } from "../lib/reminder-scheduler";
 
 const UNITS: Unit[] = ["kg", "lb"];
 
@@ -24,6 +27,27 @@ export const PreferencesCard = () => {
 
   const stepRest = (delta: number) =>
     setRestSec(Math.max(30, Math.min(300, restSec + delta)));
+
+  const [denied, setDenied] = useState(false);
+
+  // flip the switch immediately; request permission in the background and
+  // revert only if denied (same UX as the MVP)
+  const toggleReminder = async () => {
+    const next = !reminder.enabled;
+    setReminder({ ...reminder, enabled: next });
+    setDenied(false);
+    if (!next) {
+      void cancelReminder();
+      return;
+    }
+    const permission = await requestNotificationPermission();
+    if (permission === "denied") {
+      setReminder({ ...reminder, enabled: false });
+      setDenied(true);
+      return;
+    }
+    void scheduleReminder(reminder.time, reminder.days);
+  };
 
   return (
     <View className="overflow-hidden rounded-[18px] bg-card">
@@ -77,11 +101,18 @@ export const PreferencesCard = () => {
 
       <View className="flex-row items-center gap-3 px-4 py-3">
         <Icon name="bell" size={19} color={COLORS.mut} />
-        <Text className="flex-1 font-sans text-[15px] text-text">
-          Workout reminder
-        </Text>
+        <View className="flex-1">
+          <Text className="font-sans text-[15px] text-text">
+            Workout reminder
+          </Text>
+          {denied ? (
+            <Text className="mt-0.5 font-mono text-[10px] text-drop">
+              Enable notifications in settings
+            </Text>
+          ) : null}
+        </View>
         <PressableScale
-          onPress={() => setReminder({ ...reminder, enabled: !reminder.enabled })}
+          onPress={toggleReminder}
           className={cn(
             "h-7 w-[46px] justify-center rounded-full p-[3px]",
             reminder.enabled ? "items-end bg-lime" : "items-start bg-card2",

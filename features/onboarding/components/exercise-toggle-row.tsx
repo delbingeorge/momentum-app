@@ -24,17 +24,7 @@ export const ExerciseToggleRow = ({
         off && "opacity-50",
       )}
     >
-      <PressableScale
-        onPress={onToggle}
-        className={cn(
-          "h-[21px] w-[21px] items-center justify-center rounded-md border-2",
-          off ? "border-line2 bg-transparent" : "border-lime bg-lime",
-        )}
-      >
-        {!off && (
-          <Icon name="check" size={13} color={COLORS.limeText} strokeWidth={3} />
-        )}
-      </PressableScale>
+      <Checkbox checked={!off} onCheckedChange={onToggle} />
       <View className="flex-1">
         <Text
           numberOfLines={1}
