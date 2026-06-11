@@ -1,6 +1,5 @@
 import { Text, View } from "react-native";
 
-import { COLORS } from "@/shared/lib/colors";
 import { fmtDur } from "@/shared/lib/dates";
 import { Icon, PressableScale } from "@/shared/ui";
 

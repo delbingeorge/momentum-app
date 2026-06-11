@@ -4,9 +4,9 @@ import { ScrollView, Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
 import { usePlanStore, useWorkoutStore } from "@/shared/stores";
-import { Icon } from "@/shared/ui";
+import { BrandBar, Icon } from "@/shared/ui";
 
-import { BrandBar } from "./brand-bar";
+
 import { DaySwitcher } from "./day-switcher";
 import { ExercisePreviewRow } from "./exercise-preview-row";
 import { StartBar } from "./start-bar";
