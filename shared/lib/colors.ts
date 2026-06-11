@@ -13,5 +13,8 @@ export const COLORS = {
   limeText: "#0A0A0B",
   green: "#7CE38B",
   warmup: "#6FB6FF",
+  warmupDim: "rgba(111,182,255,0.18)",
   drop: "#FF8A5B",
+  dropDim: "rgba(255,138,91,0.18)",
+  danger: "#FF6B6B",
 } as const;

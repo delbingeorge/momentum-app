@@ -1,0 +1,46 @@
+import { useEffect, useState } from "react";
+
+interface RestState {
+  total: number;
+  endAt: number;
+}
+
+interface RestTimer {
+  active: boolean;
+  total: number;
+  left: number;
+  start: (totalSec: number) => void;
+  addSeconds: (sec: number) => void;
+  skip: () => void;
+}
+
+// Absolute end-time based countdown so backgrounding can't desync it.
+// Notification hook-in lands in step 10.
+export const useRestTimer = (): RestTimer => {
+  const [rest, setRest] = useState<RestState | null>(null);
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!rest) return;
+    const id = setInterval(() => {
+      if (Date.now() >= rest.endAt) setRest(null);
+      else setTick((t) => t + 1);
+    }, 250);
+    return () => clearInterval(id);
+  }, [rest]);
+
+  return {
+    active: rest !== null,
+    total: rest?.total ?? 0,
+    left: rest ? Math.max(0, Math.ceil((rest.endAt - Date.now()) / 1000)) : 0,
+    start: (totalSec) =>
+      setRest({ total: totalSec, endAt: Date.now() + totalSec * 1000 }),
+    addSeconds: (sec) =>
+      setRest((prev) =>
+        prev
+          ? { total: prev.total + sec, endAt: prev.endAt + sec * 1000 }
+          : prev,
+      ),
+    skip: () => setRest(null),
+  };
+};

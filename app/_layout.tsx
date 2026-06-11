@@ -52,7 +52,16 @@ export default function RootLayout() {
           headerShown: false,
           contentStyle: { backgroundColor: COLORS.bg },
         }}
-      />
+      >
+        <Stack.Screen
+          name="workout"
+          options={{ gestureEnabled: false, animation: "slide_from_right" }}
+        />
+        <Stack.Screen
+          name="workout-done"
+          options={{ gestureEnabled: false, animation: "slide_from_right" }}
+        />
+      </Stack>
     </SafeAreaProvider>
   );
 }

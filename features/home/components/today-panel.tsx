@@ -8,7 +8,6 @@ import { Icon } from "@/shared/ui";
 
 import { BrandBar } from "./brand-bar";
 import { DaySwitcher } from "./day-switcher";
-import { DeloadBanner } from "./deload-banner";
 import { ExercisePreviewRow } from "./exercise-preview-row";
 import { StartBar } from "./start-bar";
 
@@ -70,8 +69,6 @@ export const TodayPanel = () => {
           </Text>
         </View>
       </View>
-
-      {deloadDue ? <DeloadBanner /> : null}
 
       <ScrollView className="flex-1" contentContainerClassName="pb-2">
         <View className="flex-row items-center justify-between px-5 pb-2 pt-4">
