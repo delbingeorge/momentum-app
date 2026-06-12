@@ -100,8 +100,8 @@ export const SignInScreen = () => {
             Welcome to{"\n"}Momentum
           </Text>
           <Text className="mt-3 font-sans text-base leading-[23px] text-mut">
-            Sign in to save your plan, sync your logs, and keep your streak
-            going.
+            Build strength, stay consistent, and become the version of you
+            that never skips a workout.
           </Text>
         </View>
       </View>

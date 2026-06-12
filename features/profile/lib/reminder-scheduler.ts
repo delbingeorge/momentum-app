@@ -1,6 +1,6 @@
 import * as Notifications from "expo-notifications";
 
-import { quoteForDay } from "@/shared/lib/motivational-quotes";
+import { shuffledQuotes } from "@/shared/lib/motivational-quotes";
 import { ensureNotificationChannel } from "@/shared/lib/notifications";
 
 import { fmt12, reminderSummary } from "./reminder-format";
@@ -23,10 +23,10 @@ export const cancelReminder = async (): Promise<void> => {
 };
 
 // (Re)schedule the workout reminder: one weekly trigger per selected day, each
-// with its own motivational quote (scheduled content is static, so per-day
-// triggers are the only way to vary the copy). `confirm` fires a one-shot
-// ~2s later so the user gets immediate proof the reminder is armed; pass
-// false when re-arming silently on app launch.
+// with a randomly drawn motivational quote (scheduled content is static, so
+// the draw happens here; the silent re-arm on every launch reshuffles it).
+// `confirm` fires a one-shot ~2s later so the user gets immediate proof the
+// reminder is armed; pass false when re-arming silently on app launch.
 export const scheduleReminder = async (
   time: string,
   days: number[],
@@ -38,11 +38,12 @@ export const scheduleReminder = async (
   await ensureNotificationChannel();
   await cancelReminder();
 
+  const quotes = shuffledQuotes(selected.length);
   await Promise.all(
-    selected.map((day) =>
+    selected.map((day, i) =>
       Notifications.scheduleNotificationAsync({
         identifier: perDayId(day),
-        content: { title: TITLE, body: quoteForDay(day) },
+        content: { title: TITLE, body: quotes[i] },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
           weekday: day + 1,
