@@ -53,7 +53,12 @@ export const AccountCard = () => {
             onPress={() => router.push("/paywall")}
             className="h-12 flex-row items-center justify-center gap-2 rounded-full bg-lime"
           >
-            <Icon name="zap" size={17} color={COLORS.limeText} strokeWidth={2.4} />
+            <Icon
+              name="zap"
+              size={17}
+              color={COLORS.limeText}
+              strokeWidth={2.4}
+            />
             <Text className="font-sans-bold text-[15px] text-lime-text">
               Unlock Momentum
             </Text>
@@ -83,7 +88,7 @@ export const AccountCard = () => {
           <Icon name="check" size={18} color={COLORS.green} strokeWidth={2.6} />
           <View className="flex-1">
             <Text className="font-sans text-[14.5px] text-text">
-              Signed in{user.email ? ` · ${user.email}` : ""}
+              {user ? `${user.email}` : ""}
             </Text>
           </View>
           <PressableScale onPress={handleSignOut} disabled={busy}>

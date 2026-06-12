@@ -15,7 +15,13 @@ import {
   useSyncStore,
   useWorkoutStore,
 } from "@/shared/stores";
-import { BrandBar, CtaButton, Icon, type IconName, PressableScale } from "@/shared/ui";
+import {
+  BrandBar,
+  CtaButton,
+  Icon,
+  type IconName,
+  PressableScale,
+} from "@/shared/ui";
 
 import { PreferencesCard } from "./preferences-card";
 
@@ -50,6 +56,7 @@ interface ProfilePanelProps {
 }
 
 export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
+  const user = useAuthStore((state) => state.user);
   const goal = usePlanStore((state) => state.goal);
   const days = usePlanStore((state) => state.days);
   const splitId = usePlanStore((state) => state.splitId);
@@ -86,7 +93,7 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
           </View>
           <View>
             <Text className="font-sans-bold text-[21px] tracking-tight text-text">
-              Athlete
+              {user ? user.name : "Athlete"}
             </Text>
             <View className="mt-1.5 flex-row items-center gap-1.5 self-start rounded-lg bg-lime-dim px-2.5 py-1">
               <Icon name="fire" size={12} color={COLORS.lime} />
@@ -113,9 +120,7 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
         <SectionLabel>Export data</SectionLabel>
         <PressableScale
           onPress={() =>
-            isPaid
-              ? SheetManager.show("export-data")
-              : router.push("/paywall")
+            isPaid ? SheetManager.show("export-data") : router.push("/paywall")
           }
           className="flex-row items-center gap-3 rounded-[18px] bg-card px-4 py-3.5"
         >
@@ -164,7 +169,9 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
             <Text
               className={`font-sans-semibold text-[15px] ${resetArmed ? "text-danger" : "text-mut"}`}
             >
-              {resetArmed ? "Tap again to erase everything" : "Reset & start over"}
+              {resetArmed
+                ? "Tap again to erase everything"
+                : "Reset & start over"}
             </Text>
           </PressableScale>
         </View>
