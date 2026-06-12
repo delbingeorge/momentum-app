@@ -77,15 +77,24 @@ export const SplitScreen = () => {
               </View>
               <View className="mt-3.5 flex-row flex-wrap gap-1.5">
                 {split.plan.map((dayKey, index) => (
-                  <Text
+                  // box styles live on a View: Android ignores borderRadius
+                  // and mis-pads backgrounds set directly on Text
+                  <View
                     key={`${dayKey}-${index}`}
                     className={cn(
-                      "rounded-lg px-2 py-1 font-mono text-[11px]",
-                      selected ? "bg-white/10 text-text" : "bg-card2 text-mut",
+                      "rounded-lg px-2 py-1",
+                      selected ? "bg-white/10" : "bg-card2",
                     )}
                   >
-                    {shortDayName(DAY[dayKey].name)}
-                  </Text>
+                    <Text
+                      className={cn(
+                        "font-mono text-[11px]",
+                        selected ? "text-text" : "text-mut",
+                      )}
+                    >
+                      {shortDayName(DAY[dayKey].name)}
+                    </Text>
+                  </View>
                 ))}
               </View>
             </PressableScale>
