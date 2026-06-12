@@ -12,7 +12,7 @@ import { signOut } from "../api/auth-api";
 export const AccountCard = () => {
   const user = useAuthStore((state) => state.user);
   const isPaid = useAuthStore((state) => state.isPaid);
-  const setUser = useAuthStore((state) => state.setUser);
+  const resetAuth = useAuthStore((state) => state.resetAuth);
   const [busy, setBusy] = useState(false);
 
   const handleSignOut = async () => {
@@ -20,7 +20,7 @@ export const AccountCard = () => {
     try {
       await signOut();
     } finally {
-      setUser(null);
+      resetAuth();
       setBusy(false);
     }
   };

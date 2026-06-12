@@ -98,7 +98,7 @@ export const TodayPanel = () => {
       </ScrollView>
 
       <StartBar
-        activeStartedAt={active?.startedAt ?? null}
+        hasActive={active !== null}
         onStart={handleStart}
         onResume={handleResume}
         onDiscard={discardWorkout}

@@ -62,7 +62,7 @@ export default function RootLayout() {
   }, []);
 
   // keep the RevenueCat customer bound to the signed-in user so purchases
-  // follow the account; back to anonymous on sign-out (local isPaid persists)
+  // follow the account; back to anonymous on sign-out
   useEffect(() => {
     return useAuthStore.subscribe((state, prev) => {
       if (state.user && state.user !== prev.user) {
