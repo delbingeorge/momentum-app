@@ -52,7 +52,8 @@ export const ExerciseCustomizeScreen = () => {
 
   const finish = () => {
     setTodayIndex(0);
-    router.replace("/");
+    // straight to tabs: "/" would bounce a signed-out user back to the sign-in gate
+    router.replace("/(tabs)");
   };
 
   return (

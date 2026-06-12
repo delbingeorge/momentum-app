@@ -9,12 +9,19 @@ export interface ActivityDay {
 
 export type ActivityWeek = ActivityDay[];
 
-// GitHub-style grid: `cols` weeks × 7 days ending this week. Real sessions only.
+// GitHub-style grid: `cols` weeks × 7 days ending this week. Levels 1-4 are
+// the day's sets relative to the best day, so shades read like commit counts.
 export const buildActivity = (
-  sessionDates: string[],
+  setsByDate: Record<string, number>,
   cols = 18,
 ): ActivityWeek[] => {
-  const real = new Set(sessionDates);
+  const max = Math.max(0, ...Object.values(setsByDate));
+  const levelFor = (key: string): number => {
+    const sets = setsByDate[key];
+    if (sets === undefined) return 0;
+    if (sets <= 0 || max <= 0) return 1;
+    return Math.max(1, Math.ceil((sets / max) * 4));
+  };
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const weekStart = new Date(today);
@@ -32,7 +39,7 @@ export const buildActivity = (
         continue;
       }
       const key = isoDate(d);
-      days.push({ future: false, key, lvl: real.has(key) ? 4 : 0, date: d });
+      days.push({ future: false, key, lvl: levelFor(key), date: d });
     }
     weeks.push(days);
   }
