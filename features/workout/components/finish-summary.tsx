@@ -44,17 +44,19 @@ export const FinishSummary = () => {
           <Text className="font-mono text-xs uppercase tracking-widest text-lime">
             {session.dayName} complete
           </Text>
-          <Text className="mt-2 font-sans-bold text-[38px] leading-10 tracking-tight text-text">
-            Nice work.{"\n"}Logged & done.
-          </Text>
+          <View className="mt-2">
+            <Text className="font-sans-bold text-[38px] leading-10 tracking-tight text-text">
+              Nice work.
+            </Text>
+            <Text className="font-sans-bold text-[38px] tracking-tight text-text">
+              Logged & done.
+            </Text>
+          </View>
         </View>
         <View className="flex-row gap-3">
           {stats.map(([label, value]) => (
-            <View
-              key={label}
-              className="flex-1 rounded-[18px] bg-card px-3.5 py-4"
-            >
-              <Text className="font-sans-bold text-[22px] tracking-tight text-text">
+            <View key={label} className="flex-1 rounded-xl bg-card px-3.5 py-4">
+              <Text className="font-sans-bold text-[20px] tracking-tight text-text">
                 {value}
               </Text>
               <Text className="mt-1 font-mono text-[10.5px] uppercase tracking-wide text-faint">
