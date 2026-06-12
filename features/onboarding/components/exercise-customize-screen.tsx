@@ -53,6 +53,8 @@ export const ExerciseCustomizeScreen = () => {
   const finish = () => {
     setTodayIndex(0);
     // straight to tabs: "/" would bounce a signed-out user back to the sign-in gate
+    // pop the whole flow first so back from home can't reveal sign-in/onboarding
+    router.dismissAll();
     router.replace("/(tabs)");
   };
 

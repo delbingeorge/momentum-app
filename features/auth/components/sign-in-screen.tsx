@@ -31,8 +31,10 @@ export const SignInScreen = () => {
   const continueFree = () => {
     if (next) return router.replace(next as Href);
     const route = getPlanRoute();
-    if (route === "/welcome") router.push(route);
-    else router.replace(route);
+    // push flows the user can back out of; only a finished plan replaces,
+    // so home never pops back to sign-in
+    if (route === "/(tabs)") router.replace(route);
+    else router.push(route);
   };
 
   // Sign-in is for paid members only. Settle both entitlement sources
