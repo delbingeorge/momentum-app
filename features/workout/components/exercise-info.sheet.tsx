@@ -1,8 +1,10 @@
+import { router } from "expo-router";
 import { Text, View } from "react-native";
-import type { SheetProps } from "react-native-actions-sheet";
+import { SheetManager, type SheetProps } from "react-native-actions-sheet";
 
 import { COLORS } from "@/shared/lib/colors";
-import { BaseSheet, Icon, SheetScrollView } from "@/shared/ui";
+import { useIsPaid } from "@/shared/lib/entitlements";
+import { BaseSheet, Icon, PressableScale, SheetScrollView } from "@/shared/ui";
 
 import { CUES } from "../lib/cues";
 
@@ -19,12 +21,18 @@ export const ExerciseInfoSheet = ({
   sheetId,
   payload,
 }: SheetProps<"exercise-info">) => {
+  const isPaid = useIsPaid();
   const exercise = payload?.exercise;
   if (!exercise) return null;
   const cues = CUES[exercise.name];
 
+  const openPaywall = () => {
+    void SheetManager.hide(sheetId);
+    router.push("/paywall");
+  };
+
   return (
-    <BaseSheet sheetId={sheetId} title={exercise.name} fullHeight>
+    <BaseSheet height="65%" sheetId={sheetId} title={exercise.name} fullHeight>
       <Text className="-mt-2 px-5 pb-2 font-mono text-[11.5px] text-mut">
         {exercise.muscle} · {exercise.sets}×{exercise.target}
       </Text>
@@ -32,22 +40,49 @@ export const ExerciseInfoSheet = ({
         className="px-5"
         contentContainerStyle={{ paddingBottom: 32 }}
       >
-        <View className="aspect-[9/16] max-h-[340px] w-full items-center justify-center self-center overflow-hidden rounded-[18px] border border-line bg-card2">
-          <View className="absolute inset-0 items-center justify-center opacity-10">
-            <Icon
-              name={glyphFor(exercise.muscle)}
-              size={140}
-              color={COLORS.text}
-              strokeWidth={1}
-            />
+        {isPaid ? (
+          <View className="aspect-video w-full items-center justify-center self-center overflow-hidden rounded-[18px] border border-line bg-card2">
+            <View className="absolute inset-0 items-center justify-center opacity-10">
+              <Icon
+                name={glyphFor(exercise.muscle)}
+                size={140}
+                color={COLORS.text}
+                strokeWidth={1}
+              />
+            </View>
+            <View className="flex-row items-center gap-1.5 rounded-lg bg-black/45 px-2.5 py-1.5">
+              <Icon name="videoCam" size={13} color={COLORS.lime} />
+              <Text className="font-mono text-[10px] tracking-wider text-text">
+                FORM DEMO
+              </Text>
+            </View>
           </View>
-          <View className="flex-row items-center gap-1.5 rounded-lg bg-black/45 px-2.5 py-1.5">
-            <Icon name="videoCam" size={13} color={COLORS.lime} />
-            <Text className="font-mono text-[10px] tracking-wider text-text">
-              FORM DEMO
+        ) : (
+          <PressableScale
+            onPress={openPaywall}
+            className="flex-row items-center gap-3 rounded-2xl border border-dashed border-line2 bg-card px-3.5 py-3"
+          >
+            <View className="h-[38px] w-[38px] items-center justify-center rounded-xl bg-lime-dim">
+              <Icon
+                name="videoCam"
+                size={18}
+                color={COLORS.lime}
+                strokeWidth={1.8}
+              />
+            </View>
+            <View className="flex-1">
+              <Text className="font-sans-semibold text-[15px] text-text">
+                Form demo video
+              </Text>
+              <Text className="mt-0.5 font-mono text-[10.5px] text-faint">
+                Unlock to watch how each rep should look
+              </Text>
+            </View>
+            <Text className="rounded-full bg-lime px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wide text-lime-text">
+              Premium
             </Text>
-          </View>
-        </View>
+          </PressableScale>
+        )}
 
         <View className="mt-4 flex-row gap-2">
           {(

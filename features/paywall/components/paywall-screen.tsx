@@ -18,6 +18,7 @@ import {
 import { TIERS } from "../lib/tiers";
 
 const PERKS = [
+  "Form demo videos for every exercise",
   "Full training history & all-time stats",
   "Google login & cloud backup",
   "Sync your logs across devices",

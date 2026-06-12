@@ -16,7 +16,7 @@ const SLIDES: WelcomeSlide[] = [
   {
     icon: "dumbbell",
     title: "Train with a plan that fits you",
-    body: "Pick your goal and split, and we'll build your week around it. Every exercise comes with a demo video and form cues.",
+    body: "Pick your goal and split, and we'll build your week around it. Every exercise comes with form cues to keep your technique sharp.",
   },
   {
     icon: "activity",

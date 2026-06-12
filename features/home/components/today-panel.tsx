@@ -7,7 +7,6 @@ import { COLORS } from "@/shared/lib/colors";
 import { usePlanStore, useWorkoutStore } from "@/shared/stores";
 import { BrandBar, Icon } from "@/shared/ui";
 
-
 import { DaySwitcher } from "./day-switcher";
 import { RecapCard } from "./recap-card";
 import { ExercisePreviewRow } from "./exercise-preview-row";
