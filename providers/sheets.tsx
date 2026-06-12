@@ -5,7 +5,11 @@ import {
 
 import { RecapSheet } from "@/features/home";
 import { ExportSheet, ReminderSheet } from "@/features/profile";
-import { LogBodyweightSheet, SessionDetailSheet } from "@/features/progress";
+import {
+  LogBodyweightSheet,
+  SessionDetailSheet,
+  StreakJourneySheet,
+} from "@/features/progress";
 import { ExerciseInfoSheet, ExercisePickerSheet } from "@/features/workout";
 import type { ExerciseInstance, SessionRecord } from "@/shared/types";
 
@@ -25,6 +29,7 @@ declare module "react-native-actions-sheet" {
     "reminder-config": SheetDefinition;
     "export-data": SheetDefinition;
     "session-recap": SheetDefinition;
+    "streak-journey": SheetDefinition;
   }
 }
 
@@ -38,6 +43,7 @@ export const AppSheets = () => (
       "reminder-config": ReminderSheet,
       "export-data": ExportSheet,
       "session-recap": RecapSheet,
+      "streak-journey": StreakJourneySheet,
     }}
   />
 );

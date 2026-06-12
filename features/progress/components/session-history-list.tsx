@@ -85,7 +85,12 @@ export const SessionHistoryList = ({
             className="flex-row items-center gap-3 rounded-2xl border border-dashed border-line2 bg-card px-3.5 py-3"
           >
             <View className="h-[38px] w-[38px] items-center justify-center rounded-xl bg-lime-dim">
-              <Icon name="medal" size={18} color={COLORS.lime} strokeWidth={1.8} />
+              <Icon
+                name="medal"
+                size={18}
+                color={COLORS.lime}
+                strokeWidth={1.8}
+              />
             </View>
             <View className="flex-1">
               <Text className="font-sans-semibold text-[15px] text-text">

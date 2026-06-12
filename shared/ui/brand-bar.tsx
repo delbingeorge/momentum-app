@@ -1,9 +1,11 @@
 import { Text, View } from "react-native";
+import { SheetManager } from "react-native-actions-sheet";
 
 import { COLORS } from "@/shared/lib/colors";
 import { weekStreak } from "@/shared/lib/streaks";
 import { useWorkoutStore } from "@/shared/stores";
 import { Icon } from "@/shared/ui";
+import { PressableScale } from "@/shared/ui/pressable-scale";
 
 export const BrandBar = () => {
   const sessionDates = useWorkoutStore((state) => state.sessionDates);
@@ -24,10 +26,13 @@ export const BrandBar = () => {
           Momentum
         </Text>
       </View>
-      <View className="flex-row items-center gap-1.5 rounded-full bg-card py-1.5 pl-2.5 pr-3">
+      <PressableScale
+        onPress={() => SheetManager.show("streak-journey")}
+        className="flex-row items-center gap-1.5 rounded-full bg-card py-1.5 pl-2.5 pr-3"
+      >
         <Icon name="fire" size={15} color={COLORS.lime} />
         <Text className="font-mono text-[12.5px] text-text">{streak}</Text>
-      </View>
+      </PressableScale>
     </View>
   );
 };

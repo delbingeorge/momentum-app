@@ -185,7 +185,7 @@ export const PaywallScreen = () => {
               )}
             >
               <Radio on={selectedId === tier.id} />
-              <View className="flex-1">
+              <View className="flex-1 justify-center">
                 <View className="flex-row items-center gap-2">
                   <Text className="font-sans-bold text-base text-text">
                     {tier.name}
@@ -196,9 +196,11 @@ export const PaywallScreen = () => {
                     </Text>
                   ) : null}
                 </View>
-                <Text className="mt-px font-sans text-[12.5px] text-mut">
-                  {tier.blurb}
-                </Text>
+                {tier.blurb ? (
+                  <Text className="mt-px font-sans text-[12.5px] text-mut">
+                    {tier.blurb}
+                  </Text>
+                ) : null}
               </View>
               <Text className="font-sans-bold text-[19px] tracking-tight text-text">
                 {tier.priceString}
@@ -206,7 +208,6 @@ export const PaywallScreen = () => {
             </PressableScale>
           ))}
         </View>
-
       </ScrollView>
 
       <View className="px-6 pb-3 pt-2">

@@ -1,5 +1,4 @@
-import { isWorkingSet } from "@/shared/lib/program";
-import type { SessionRecord, SessionSet } from "@/shared/types";
+import type { SessionRecord } from "@/shared/types";
 
 export const relDate = (ts: number): string => {
   const d = new Date(ts);
@@ -20,27 +19,12 @@ export const relDate = (ts: number): string => {
 export const recapDur = (sec: number): string =>
   `${Math.floor(sec / 60)}m ${String(sec % 60).padStart(2, "0")}s`;
 
-export interface RecapExercise {
-  name: string;
-  muscle: string;
-  work: SessionSet[];
-  allSets: SessionSet[];
-}
-
 export interface Recap {
   last: SessionRecord;
-  exercises: RecapExercise[];
 }
 
 // Summary of the most recent session for the home recap card/sheet
 export const analyzeRecap = (pastSessions: SessionRecord[]): Recap | null => {
   const last = pastSessions[0];
-  if (!last) return null;
-  const exercises = last.exercises.map((exercise) => ({
-    name: exercise.name,
-    muscle: exercise.muscle,
-    work: exercise.sets.filter(isWorkingSet),
-    allSets: exercise.sets,
-  }));
-  return { last, exercises };
+  return last ? { last } : null;
 };

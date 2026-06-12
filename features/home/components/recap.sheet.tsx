@@ -1,8 +1,8 @@
 import { Text, View } from "react-native";
 import { SheetManager, type SheetProps } from "react-native-actions-sheet";
 
+import { ExerciseSetTable } from "@/features/workout";
 import { COLORS } from "@/shared/lib/colors";
-import { round5 } from "@/shared/lib/units";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
 import { BaseSheet, Icon, PressableScale, SheetScrollView } from "@/shared/ui";
 
@@ -16,8 +16,6 @@ export const RecapSheet = ({ sheetId }: SheetProps<"session-recap">) => {
   const recap = analyzeRecap(pastSessions);
   if (!recap) return null;
 
-  const toUnit = (kg: number) =>
-    unit === "kg" ? round5(kg) : round5(kg * KG_PER_LB);
   const vol = Math.round(
     unit === "kg" ? recap.last.volume : recap.last.volume * KG_PER_LB,
   ).toLocaleString();
@@ -62,7 +60,9 @@ export const RecapSheet = ({ sheetId }: SheetProps<"session-recap">) => {
                   {stat.v}
                 </Text>
                 {stat.u ? (
-                  <Text className="font-sans text-[11px] text-mut">{stat.u}</Text>
+                  <Text className="font-sans text-[11px] text-mut">
+                    {stat.u}
+                  </Text>
                 ) : null}
               </View>
               <Text className="mt-1 font-mono text-[9.5px] uppercase tracking-wide text-faint">
@@ -75,38 +75,7 @@ export const RecapSheet = ({ sheetId }: SheetProps<"session-recap">) => {
         <Text className="mb-3 font-mono text-[11px] uppercase tracking-wider text-faint">
           Exercises
         </Text>
-        <View className="gap-2">
-          {recap.exercises.map((exercise, index) => {
-            const sets = exercise.work.length ? exercise.work : exercise.allSets;
-            const reps = sets.map((s) => s.reps);
-            const repLo = Math.min(...reps);
-            const repHi = Math.max(...reps);
-            const kgs = sets.map((s) => toUnit(s.kg));
-            const kgLo = Math.min(...kgs);
-            const kgHi = Math.max(...kgs);
-            return (
-              <View
-                key={`${exercise.name}-${index}`}
-                className="flex-row items-center gap-3 rounded-2xl border border-line bg-card px-4 py-3"
-              >
-                <View className="flex-1">
-                  <Text
-                    numberOfLines={1}
-                    className="font-sans-semibold text-[15px] text-text"
-                  >
-                    {exercise.name}
-                  </Text>
-                  <Text className="mt-0.5 font-mono text-[11px] text-faint">
-                    {sets.length} sets · {repLo === repHi ? repLo : `${repLo}–${repHi}`} reps
-                  </Text>
-                </View>
-                <Text className="font-mono text-[13px] text-lime">
-                  {kgLo === kgHi ? kgLo : `${kgLo}–${kgHi}`} {unit}
-                </Text>
-              </View>
-            );
-          })}
-        </View>
+        <ExerciseSetTable exercises={recap.last.exercises} />
       </SheetScrollView>
     </BaseSheet>
   );
