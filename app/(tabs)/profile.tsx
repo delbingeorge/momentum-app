@@ -5,7 +5,7 @@ import { ErrorBoundary, Screen } from "@/shared/ui";
 
 export default function ProfileRoute() {
   return (
-    <Screen edges={["top"]}>
+    <Screen edges={["top"]} className="pt-2">
       <ErrorBoundary>
         <ProfilePanel
           accountSlot={

@@ -3,7 +3,7 @@ import { ErrorBoundary, Screen } from "@/shared/ui";
 
 export default function ProgressRoute() {
   return (
-    <Screen edges={["top"]}>
+    <Screen edges={["top"]} className="pt-2">
       <ErrorBoundary>
         <ProgressPanel />
       </ErrorBoundary>

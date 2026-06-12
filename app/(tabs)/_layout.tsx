@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
-import type { ColorValue } from "react-native";
+import { Platform, type ColorValue } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { COLORS } from "@/shared/lib/colors";
 import { Icon, type IconName } from "@/shared/ui";
@@ -16,6 +17,14 @@ const tabIcon =
   );
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+  // Edge-to-edge on Android can report a 0 inset (3-button nav hidden /
+  // older devices), leaving the bar flush against the screen edge.
+  const bottomInset = Math.max(
+    insets.bottom,
+    Platform.OS === "android" ? 12 : 0,
+  );
+
   return (
     <Tabs
       screenOptions={{
@@ -25,6 +34,9 @@ export default function TabsLayout() {
           backgroundColor: "rgba(10,10,11,0.96)",
           borderTopColor: COLORS.line,
           borderTopWidth: 1,
+          height: 56 + bottomInset,
+          paddingTop: 6,
+          paddingBottom: bottomInset,
         },
         tabBarActiveTintColor: COLORS.lime,
         tabBarInactiveTintColor: COLORS.mut,
