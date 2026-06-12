@@ -38,7 +38,12 @@ const doConfigure = async (): Promise<void> => {
   const key = apiKey();
   if (!Purchases || !key) return;
   try {
-    Purchases.configure({ apiKey: key });
+    Purchases.configure({
+      apiKey: key,
+      // Test Store has no Play billing client; skip Play in-app messages so
+      // the SDK doesn't log a billing connection error on Android in dev
+      shouldShowInAppMessagesAutomatically: !key.startsWith("test_"),
+    });
     configured = true;
     const info = await Purchases.getCustomerInfo();
     // only ever upgrade locally — never silently revoke

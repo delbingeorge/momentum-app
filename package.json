@@ -44,9 +44,15 @@
   },
   "scripts": {
     "start": "expo start",
+    "dev": "expo start",
+    "dev:clear": "expo start --clear",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "android:prod": "expo run:android --variant release",
+    "ios:prod": "expo run:ios --configuration Release",
+    "web": "expo start --web",
+    "clean": "watchman watch-del-all 2>/dev/null; rm -rf .expo \"$TMPDIR\"metro-* \"$TMPDIR\"haste-map-*",
+    "clean:full": "pnpm clean; rm -rf node_modules ios/Pods ios/build android/build android/app/build ~/Library/Developer/Xcode/DerivedData/Momentum-* && pnpm install && npx pod-install"
   },
   "private": true,
   "devDependencies": {
