@@ -22,6 +22,7 @@ export const AccountCard = () => {
     } finally {
       resetAuth();
       setBusy(false);
+      router.replace("/sign-in");
     }
   };
 

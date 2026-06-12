@@ -1,12 +1,15 @@
 import { type Href, router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Text, View } from "react-native";
+import { SheetManager } from "react-native-actions-sheet";
 
+import { logInPurchases } from "@/features/paywall/api/purchases-api";
 import { COLORS } from "@/shared/lib/colors";
-import { toast, useAuthStore, usePlanStore } from "@/shared/stores";
+import { getPlanRoute } from "@/shared/lib/plan-route";
+import { toast, useAuthStore } from "@/shared/stores";
 import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
 
-import { signInWithGoogle } from "../api/auth-api";
+import { fetchPaidFlag, signInWithGoogle, signOut } from "../api/auth-api";
 import { SignInBackdrop } from "./sign-in-backdrop";
 
 export const SignInScreen = () => {
@@ -27,22 +30,45 @@ export const SignInScreen = () => {
   // users resume where they left off (mirrors the index route guard)
   const continueFree = () => {
     if (next) return router.replace(next as Href);
-    const { goal, level, gender, splitId, schedule } = usePlanStore.getState();
-    const hasPlan =
-      Boolean(level) &&
-      Boolean(gender) &&
-      Boolean(splitId) &&
-      Boolean(schedule?.length);
-    if (!goal) router.push("/welcome");
-    else if (!hasPlan) router.replace("/onboarding/goal");
-    else router.replace("/(tabs)");
+    const route = getPlanRoute();
+    if (route === "/welcome") router.push(route);
+    else router.replace(route);
   };
 
+  // Sign-in is for paid members only. Settle both entitlement sources
+  // (RevenueCat, then the profiles mirror) before deciding: paid users
+  // continue in, unpaid ones get told and choose purchase or free.
   const handleSignIn = async () => {
     setLoading(true);
     try {
-      setUser(await signInWithGoogle());
-      leave();
+      const signedIn = await signInWithGoogle();
+      setUser(signedIn);
+      await logInPurchases(signedIn.id);
+      if (
+        !useAuthStore.getState().isPaid &&
+        (await fetchPaidFlag(signedIn.id))
+      ) {
+        useAuthStore.getState().setPaid(true);
+      }
+      setLoading(false);
+      if (useAuthStore.getState().isPaid) {
+        leave();
+        return;
+      }
+      const choice = await SheetManager.show("no-purchase", {
+        payload: { email: signedIn.email },
+      });
+      if (choice === "purchase") {
+        router.push({ pathname: "/paywall", params: { gate: "1" } });
+      } else {
+        // anything else drops the unpaid session first
+        await signOut();
+        useAuthStore.getState().resetAuth();
+        if (choice === "free") router.replace("/welcome");
+        // purchase may live on another Google account: rerun the whole
+        // flow, the picker shows again since sign-in clears its session
+        else if (choice === "switch") return handleSignIn();
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Sign-in failed.");
     } finally {

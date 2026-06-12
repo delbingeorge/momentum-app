@@ -76,7 +76,7 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
     useWorkoutStore.getState().resetWorkouts();
     useBodyStore.getState().resetBody();
     useSettingsStore.getState().resetSettings();
-    router.replace("/welcome");
+    router.replace("/sign-in");
   };
 
   return (

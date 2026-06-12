@@ -3,6 +3,7 @@ import {
   SheetRegister,
 } from "react-native-actions-sheet";
 
+import { NoPurchaseSheet } from "@/features/auth";
 import { RecapSheet } from "@/features/home";
 import { ExportSheet, ReminderSheet } from "@/features/profile";
 import {
@@ -30,6 +31,10 @@ declare module "react-native-actions-sheet" {
     "export-data": SheetDefinition;
     "session-recap": SheetDefinition;
     "streak-journey": SheetDefinition;
+    "no-purchase": SheetDefinition<{
+      payload: { email: string | null };
+      returnValue: "purchase" | "free" | "switch";
+    }>;
   }
 }
 
@@ -44,6 +49,7 @@ export const AppSheets = () => (
       "export-data": ExportSheet,
       "session-recap": RecapSheet,
       "streak-journey": StreakJourneySheet,
+      "no-purchase": NoPurchaseSheet,
     }}
   />
 );

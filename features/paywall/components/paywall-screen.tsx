@@ -1,8 +1,8 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 
-import { signInWithGoogle, upsertPaidFlag } from "@/features/auth";
+import { signInWithGoogle, signOut, upsertPaidFlag } from "@/features/auth";
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
 import { toast, useAuthStore } from "@/shared/stores";
@@ -57,6 +57,9 @@ const Radio = ({ on }: { on: boolean }) => (
 );
 
 export const PaywallScreen = () => {
+  // gate mode: reached signed-in but unpaid (sign-in without entitlement,
+  // lapsed sub) — the only ways out are paying or dropping the session
+  const { gate } = useLocalSearchParams<{ gate?: string }>();
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
   const setPaid = useAuthStore((state) => state.setPaid);
@@ -79,6 +82,20 @@ export const PaywallScreen = () => {
 
   const selected = tiers.find((tier) => tier.id === selectedId);
 
+  // the gate redirect replaces the stack, so back isn't always available
+  const close = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/");
+  };
+
+  // signed in but not paying: drop the session (paid-only sign-in invariant),
+  // local data stays, then start the free flow from the intro
+  const continueFree = async () => {
+    await signOut();
+    useAuthStore.getState().resetAuth();
+    router.replace("/welcome");
+  };
+
   const unlock = async () => {
     if (!selected) return;
     setLoading(true);
@@ -86,11 +103,13 @@ export const PaywallScreen = () => {
       // sign in first so the purchase lands on the account, not an
       // anonymous device id — entitlement then syncs across devices
       let userId = user?.id;
+      let signedInInline = false;
       if (!userId) {
         try {
           const signedIn = await signInWithGoogle();
           setUser(signedIn);
           userId = signedIn.id;
+          signedInInline = true;
         } catch (err) {
           setLoading(false);
           toast.error(err instanceof Error ? err.message : "Sign-in failed.");
@@ -102,16 +121,22 @@ export const PaywallScreen = () => {
       setLoading(false);
       if (result === "purchased") {
         void upsertPaidFlag(userId, true);
-        router.back();
-      } else if (result === "error") {
-        toast.error("Purchase failed — try again.");
+        close();
+      } else {
+        // no purchase: undo the inline sign-in so an unpaid session
+        // doesn't linger behind the paywall
+        if (signedInInline) {
+          void signOut();
+          useAuthStore.getState().resetAuth();
+        }
+        if (result === "error") toast.error("Purchase failed — try again.");
       }
     } else {
       // TODO(octane): remove dev fallback once store builds always have RC configured
       setTimeout(() => {
         setPaid(true);
         setLoading(false);
-        router.back();
+        close();
       }, 1200);
     }
   };
@@ -122,13 +147,13 @@ export const PaywallScreen = () => {
       const result = await restorePremium();
       if (result === "purchased") {
         if (user?.id) void upsertPaidFlag(user.id, true);
-        router.back();
+        close();
       } else {
         toast.error("No previous purchase found.");
       }
     } else {
       setPaid(true);
-      router.back();
+      close();
     }
   };
 
@@ -143,7 +168,7 @@ export const PaywallScreen = () => {
             </Text>
           </View>
           <PressableScale
-            onPress={() => router.back()}
+            onPress={() => (gate ? void continueFree() : close())}
             className="h-9 w-9 items-center justify-center rounded-full bg-card"
           >
             <Icon name="x" size={18} color={COLORS.mut} strokeWidth={2.4} />
@@ -228,9 +253,17 @@ export const PaywallScreen = () => {
             </Text>
           </PressableScale>
           <Text className="text-faint">·</Text>
-          <Text className="font-sans text-[13px] text-faint">
-            Secure payment
-          </Text>
+          {gate ? (
+            <PressableScale onPress={() => void continueFree()}>
+              <Text className="font-sans-medium text-[13px] text-mut">
+                Continue for free
+              </Text>
+            </PressableScale>
+          ) : (
+            <Text className="font-sans text-[13px] text-faint">
+              Secure payment
+            </Text>
+          )}
         </View>
       </View>
     </Screen>
