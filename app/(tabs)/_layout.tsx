@@ -3,6 +3,7 @@ import { Platform, type ColorValue } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { COLORS } from "@/shared/lib/colors";
+import { haptics } from "@/shared/lib/haptics";
 import { Icon, type IconName } from "@/shared/ui";
 
 const tabIcon =
@@ -27,6 +28,7 @@ export default function TabsLayout() {
 
   return (
     <Tabs
+      screenListeners={{ tabPress: () => haptics.select() }}
       screenOptions={{
         headerShown: false,
         sceneStyle: { backgroundColor: COLORS.bg },
