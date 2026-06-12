@@ -1,18 +1,18 @@
 import * as Notifications from "expo-notifications";
 
+import { quoteForDay } from "@/shared/lib/motivational-quotes";
 import { ensureNotificationChannel } from "@/shared/lib/notifications";
 
 import { fmt12, reminderSummary } from "./reminder-format";
 
 const CONFIRM_ID = "reminder-confirm";
-const DAILY_ID = "reminder-daily";
+const DAILY_ID = "reminder-daily"; // legacy id; kept in ALL_IDS so old installs cancel cleanly
 const perDayId = (day: number) => `reminder-day-${day}`;
 const ALL_IDS = [CONFIRM_ID, DAILY_ID, ...[0, 1, 2, 3, 4, 5, 6].map(perDayId)];
 
 const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
 
-const TITLE = "Time to train 💪";
-const BODY = "Your workout is waiting in Momentum.";
+const TITLE = "Time to train";
 
 export const cancelReminder = async (): Promise<void> => {
   await Promise.all(
@@ -22,8 +22,9 @@ export const cancelReminder = async (): Promise<void> => {
   );
 };
 
-// (Re)schedule the daily workout reminder. All 7 days → one daily trigger;
-// otherwise one weekly trigger per selected day. `confirm` fires a one-shot
+// (Re)schedule the workout reminder: one weekly trigger per selected day, each
+// with its own motivational quote (scheduled content is static, so per-day
+// triggers are the only way to vary the copy). `confirm` fires a one-shot
 // ~2s later so the user gets immediate proof the reminder is armed; pass
 // false when re-arming silently on app launch.
 export const scheduleReminder = async (
@@ -37,38 +38,26 @@ export const scheduleReminder = async (
   await ensureNotificationChannel();
   await cancelReminder();
 
-  if (selected.length === 7) {
-    await Notifications.scheduleNotificationAsync({
-      identifier: DAILY_ID,
-      content: { title: TITLE, body: BODY },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DAILY,
-        hour,
-        minute,
-      },
-    });
-  } else {
-    await Promise.all(
-      selected.map((day) =>
-        Notifications.scheduleNotificationAsync({
-          identifier: perDayId(day),
-          content: { title: TITLE, body: BODY },
-          trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
-            weekday: day + 1,
-            hour,
-            minute,
-          },
-        }),
-      ),
-    );
-  }
+  await Promise.all(
+    selected.map((day) =>
+      Notifications.scheduleNotificationAsync({
+        identifier: perDayId(day),
+        content: { title: TITLE, body: quoteForDay(day) },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+          weekday: day + 1,
+          hour,
+          minute,
+        },
+      }),
+    ),
+  );
 
   if (confirm) {
     await Notifications.scheduleNotificationAsync({
       identifier: CONFIRM_ID,
       content: {
-        title: "Reminder set ✅",
+        title: "Reminder set",
         body: `${reminderSummary(selected)} at ${fmt12(time)}.`,
       },
       trigger: {

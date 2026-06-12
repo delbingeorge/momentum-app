@@ -1,5 +1,6 @@
 import * as Notifications from "expo-notifications";
 
+import { randomRestQuote } from "@/shared/lib/motivational-quotes";
 import { ensureNotificationChannel } from "@/shared/lib/notifications";
 
 const DONE_ID = "rest-done";
@@ -12,7 +13,7 @@ export const startRestNotification = async (seconds: number): Promise<void> => {
     await Notifications.cancelScheduledNotificationAsync(DONE_ID);
     await Notifications.scheduleNotificationAsync({
       identifier: DONE_ID,
-      content: { title: "Rest complete 💪", body: "Time for your next set." },
+      content: { title: "Rest complete", body: randomRestQuote() },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DATE,
         date: new Date(Date.now() + seconds * 1000),
