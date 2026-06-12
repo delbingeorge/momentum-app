@@ -18,13 +18,23 @@ import {
 } from "../api/purchases-api";
 import { TIERS } from "../lib/tiers";
 
-const PERKS = [
-  "Form demo videos for every exercise",
-  "Full training history & all-time stats",
-  "Google login & cloud backup",
-  "Sync your logs across devices",
-  "No ads, ever",
-  "Pay once, keep it for life",
+interface Perk {
+  label: string;
+  // shown when the free tier is selected, so the loss framing stays honest
+  freeNote?: string;
+  freeIncluded?: boolean;
+}
+
+const PERKS: Perk[] = [
+  { label: "Form demo videos for every exercise" },
+  {
+    label: "Full training history & all-time stats",
+    freeNote: "8 weeks, recent stats only",
+  },
+  { label: "Google login & cloud backup" },
+  { label: "Sync your logs across devices" },
+  { label: "No ads, ever", freeIncluded: true },
+  { label: "Pay once, keep it for life" },
 ];
 
 interface DisplayTier {
@@ -45,15 +55,35 @@ const placeholderTiers: DisplayTier[] = TIERS.map((tier) => ({
   rcPackage: null,
 }));
 
-const Radio = ({ on }: { on: boolean }) => (
+// display-only row, never purchasable; appended in gate mode so picking it
+// shows what staying free costs before the user confirms
+const FREE_TIER: DisplayTier = {
+  id: "free",
+  name: "Free forever",
+  blurb: "Training stays free, premium locked",
+  priceString: "₹0",
+  suggested: false,
+  rcPackage: null,
+};
+
+const Radio = ({ on, muted }: { on: boolean; muted?: boolean }) => (
   <View
     className={cn(
       "h-[22px] w-[22px] items-center justify-center rounded-full border-2",
-      on ? "border-lime bg-lime" : "border-line2",
+      on
+        ? muted
+          ? "border-line2 bg-card2"
+          : "border-lime bg-lime"
+        : "border-line2",
     )}
   >
     {on ? (
-      <Icon name="check" size={12} color={COLORS.limeText} strokeWidth={3} />
+      <Icon
+        name="check"
+        size={12}
+        color={muted ? COLORS.mut : COLORS.limeText}
+        strokeWidth={3}
+      />
     ) : null}
   </View>
 );
@@ -82,7 +112,11 @@ export const PaywallScreen = () => {
     });
   }, []);
 
-  const selected = tiers.find((tier) => tier.id === selectedId);
+  // derived, not state: the RC package load resets `tiers`, so appending the
+  // free row in state would get wiped
+  const displayTiers = gate ? [...tiers, FREE_TIER] : tiers;
+  const selected = displayTiers.find((tier) => tier.id === selectedId);
+  const freeSelected = selectedId === FREE_TIER.id;
 
   // the gate redirect replaces the stack, so back isn't always available
   const close = () => {
@@ -93,6 +127,7 @@ export const PaywallScreen = () => {
   // signed in but not paying: drop the session (paid-only sign-in invariant),
   // local data stays, then continue free from wherever the plan left off
   const continueFree = async () => {
+    setLoading(true);
     await signOut();
     useAuthStore.getState().resetAuth();
     router.replace(getPlanRoute());
@@ -131,7 +166,7 @@ export const PaywallScreen = () => {
           void signOut();
           useAuthStore.getState().resetAuth();
         }
-        if (result === "error") toast.error("Purchase failed — try again.");
+        if (result === "error") toast.error("Purchase failed. Try again.");
       }
     } else {
       // TODO(octane): remove dev fallback once store builds always have RC configured
@@ -181,40 +216,71 @@ export const PaywallScreen = () => {
           Pay what feels fair.
         </Text>
         <Text className="mb-5 mt-3 font-sans text-[15.5px] leading-[22px] text-mut">
-          Momentum is built by one developer. Training stays free forever.
-          Unlock once for your full history, sync, and to support the work.
+          {freeSelected
+            ? "Free covers your training. Everything below stays locked."
+            : "Momentum is built by one developer. Training stays free forever. Unlock once for your full history, sync, and to support the work."}
         </Text>
 
         <View className="mb-5 gap-3">
-          {PERKS.map((perk) => (
-            <View key={perk} className="flex-row items-center gap-3">
-              <View className="h-[26px] w-[26px] items-center justify-center rounded-full bg-lime-dim">
-                <Icon
-                  name="check"
-                  size={15}
-                  color={COLORS.lime}
-                  strokeWidth={3}
-                />
+          {PERKS.map((perk) => {
+            const lost = freeSelected && !perk.freeIncluded;
+            return (
+              <View key={perk.label} className="flex-row items-center gap-3">
+                <View
+                  className={cn(
+                    "h-[26px] w-[26px] items-center justify-center rounded-full",
+                    lost ? "bg-danger/10" : "bg-lime-dim",
+                  )}
+                >
+                  <Icon
+                    name={lost ? "x" : "check"}
+                    size={15}
+                    color={lost ? COLORS.danger : COLORS.lime}
+                    strokeWidth={3}
+                  />
+                </View>
+                <Text
+                  className={cn(
+                    "flex-1 font-sans text-[15.5px]",
+                    lost ? "text-mut" : "text-text",
+                  )}
+                >
+                  {perk.label}
+                  {lost && perk.freeNote ? (
+                    <Text className="text-faint"> ({perk.freeNote})</Text>
+                  ) : null}
+                </Text>
               </View>
-              <Text className="font-sans text-[15.5px] text-text">{perk}</Text>
-            </View>
-          ))}
+            );
+          })}
         </View>
 
         <View className="gap-2.5">
-          {tiers.map((tier) => (
+          {displayTiers.map((tier) => (
             <PressableScale
               key={tier.id}
               onPress={() => setSelectedId(tier.id)}
               className={cn(
                 "flex-row items-center gap-3.5 rounded-[18px] p-4",
-                selectedId === tier.id ? "bg-lime-dim" : "bg-card",
+                selectedId === tier.id
+                  ? tier.id === FREE_TIER.id
+                    ? "bg-card2"
+                    : "bg-lime-dim"
+                  : "bg-card",
               )}
             >
-              <Radio on={selectedId === tier.id} />
+              <Radio
+                on={selectedId === tier.id}
+                muted={tier.id === FREE_TIER.id}
+              />
               <View className="flex-1 justify-center">
                 <View className="flex-row items-center gap-2">
-                  <Text className="font-sans-bold text-base text-text">
+                  <Text
+                    className={cn(
+                      "font-sans-bold text-base",
+                      tier.id === FREE_TIER.id ? "text-mut" : "text-text",
+                    )}
+                  >
                     {tier.name}
                   </Text>
                   {tier.suggested ? (
@@ -229,7 +295,12 @@ export const PaywallScreen = () => {
                   </Text>
                 ) : null}
               </View>
-              <Text className="font-sans-bold text-[19px] tracking-tight text-text">
+              <Text
+                className={cn(
+                  "font-sans-bold text-[19px] tracking-tight",
+                  tier.id === FREE_TIER.id ? "text-mut" : "text-text",
+                )}
+              >
                 {tier.priceString}
               </Text>
             </PressableScale>
@@ -242,11 +313,13 @@ export const PaywallScreen = () => {
           label={
             loading
               ? "Processing…"
-              : `${user ? "Pay" : "Sign in & pay"} ${selected?.priceString ?? ""} · ${selected?.name ?? ""}`
+              : freeSelected
+                ? "Continue for free"
+                : `${user ? "Pay" : "Sign in & pay"} ${selected?.priceString ?? ""} · ${selected?.name ?? ""}`
           }
-          icon={loading ? undefined : "check"}
+          icon={loading ? undefined : freeSelected ? "chevR" : "check"}
           disabled={loading || !selected}
-          onPress={() => void unlock()}
+          onPress={() => void (freeSelected ? continueFree() : unlock())}
         />
         <View className="mt-3.5 flex-row items-center justify-center gap-3.5">
           <PressableScale onPress={() => void restore()}>
@@ -255,17 +328,9 @@ export const PaywallScreen = () => {
             </Text>
           </PressableScale>
           <Text className="text-faint">·</Text>
-          {gate ? (
-            <PressableScale onPress={() => void continueFree()}>
-              <Text className="font-sans-medium text-[13px] text-mut">
-                Continue for free
-              </Text>
-            </PressableScale>
-          ) : (
-            <Text className="font-sans text-[13px] text-faint">
-              Secure payment
-            </Text>
-          )}
+          <Text className="font-sans text-[13px] text-faint">
+            Secure payment
+          </Text>
         </View>
       </View>
     </Screen>
