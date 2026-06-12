@@ -34,7 +34,7 @@ export const SignInScreen = () => {
       Boolean(gender) &&
       Boolean(splitId) &&
       Boolean(schedule?.length);
-    if (!goal) router.replace("/welcome");
+    if (!goal) router.push("/welcome");
     else if (!hasPlan) router.replace("/onboarding/goal");
     else router.replace("/(tabs)");
   };
