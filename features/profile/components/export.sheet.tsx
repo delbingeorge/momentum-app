@@ -4,6 +4,7 @@ import { SheetManager, type SheetProps } from "react-native-actions-sheet";
 
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
+import { toast } from "@/shared/stores";
 import { BaseSheet, Checkbox, CtaButton, Icon, type IconName, PressableScale } from "@/shared/ui";
 
 import {
@@ -35,7 +36,6 @@ export const ExportSheet = ({ sheetId }: SheetProps<"export-data">) => {
   });
   const [full, setFull] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(false);
 
   const toggle = (id: DatasetId) =>
     setPicked((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -51,7 +51,6 @@ export const ExportSheet = ({ sheetId }: SheetProps<"export-data">) => {
 
   const run = async () => {
     setBusy(true);
-    setError(false);
     try {
       if (full) {
         await exportBackupJson();
@@ -64,7 +63,7 @@ export const ExportSheet = ({ sheetId }: SheetProps<"export-data">) => {
       SheetManager.hide(sheetId);
     } catch (err) {
       console.error("export failed:", err);
-      setError(true);
+      toast.error("Export failed. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -122,12 +121,6 @@ export const ExportSheet = ({ sheetId }: SheetProps<"export-data">) => {
           </View>
           <Checkbox checked={full} onCheckedChange={() => setFull((prev) => !prev)} />
         </PressableScale>
-
-        {error ? (
-          <Text className="pt-3 text-center font-mono text-xs text-drop">
-            Export failed. Please try again.
-          </Text>
-        ) : null}
 
         <View className="pt-4">
           <CtaButton

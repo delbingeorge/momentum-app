@@ -18,7 +18,7 @@ import {
   pushProfile,
   pushSessions,
 } from "../api/sync-api";
-import { useSyncStore } from "@/shared/stores";
+import { toast, useSyncStore } from "@/shared/stores";
 import { mergeHistory, mergeSessionDates, mergeSessions, mergeWeights } from "./merge";
 
 export const canSync = (): boolean => {
@@ -123,5 +123,6 @@ export const syncNow = async (): Promise<void> => {
   } catch (error) {
     console.error("sync failed:", error);
     useSyncStore.getState().setStatus("error");
+    toast.error("Sync failed — changes saved on device.");
   }
 };

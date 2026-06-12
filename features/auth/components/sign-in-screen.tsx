@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
-import { useAuthStore, usePlanStore } from "@/shared/stores";
+import { toast, useAuthStore, usePlanStore } from "@/shared/stores";
 import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
 
 import { signInWithGoogle } from "../api/auth-api";
@@ -15,7 +15,6 @@ export const SignInScreen = () => {
   const { next } = useLocalSearchParams<{ next?: string }>();
   const setUser = useAuthStore((state) => state.setUser);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const leave = () => {
     if (next) router.replace(next as Href);
@@ -41,12 +40,11 @@ export const SignInScreen = () => {
 
   const handleSignIn = async () => {
     setLoading(true);
-    setError(null);
     try {
       setUser(await signInWithGoogle());
       leave();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign-in failed.");
+      toast.error(err instanceof Error ? err.message : "Sign-in failed.");
     } finally {
       setLoading(false);
     }
@@ -102,11 +100,6 @@ export const SignInScreen = () => {
             {loading ? "Signing in…" : "Already a member? Sign In"}
           </Text>
         </PressableScale>
-        {error ? (
-          <Text className="text-center font-mono text-[11px] text-drop">
-            {error}
-          </Text>
-        ) : null}
         <Text className="text-center font-sans text-xs leading-[17px] text-faint">
           By continuing you agree to our Terms & Privacy Policy.
         </Text>

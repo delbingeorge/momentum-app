@@ -9,7 +9,7 @@ import {
   useWorkoutStore,
 } from "@/shared/stores";
 
-import { type SyncEntity, useSyncStore } from "@/shared/stores";
+import { type SyncEntity, toast, useSyncStore } from "@/shared/stores";
 
 import { canSync, pushDirty, syncNow } from "../lib/engine";
 
@@ -40,6 +40,7 @@ export const useSyncEngine = (): void => {
           .catch((error) => {
             console.error("push failed:", error);
             useSyncStore.getState().setStatus("error");
+            toast.error("Sync failed — changes saved on device.");
           });
       }, PUSH_DEBOUNCE_MS);
     };

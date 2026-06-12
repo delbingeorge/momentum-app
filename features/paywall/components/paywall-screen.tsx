@@ -5,7 +5,7 @@ import { ScrollView, Text, View } from "react-native";
 import { signInWithGoogle, upsertPaidFlag } from "@/features/auth";
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
-import { useAuthStore } from "@/shared/stores";
+import { toast, useAuthStore } from "@/shared/stores";
 import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
 
 import {
@@ -62,10 +62,10 @@ export const PaywallScreen = () => {
   const setPaid = useAuthStore((state) => state.setPaid);
   const [tiers, setTiers] = useState<DisplayTier[]>(placeholderTiers);
   const [selectedId, setSelectedId] = useState(
-    placeholderTiers.find((tier) => tier.suggested)?.id ?? placeholderTiers[0]?.id,
+    placeholderTiers.find((tier) => tier.suggested)?.id ??
+      placeholderTiers[0]?.id,
   );
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     getPaywallPackages().then((packages) => {
@@ -82,7 +82,6 @@ export const PaywallScreen = () => {
   const unlock = async () => {
     if (!selected) return;
     setLoading(true);
-    setError(null);
     if (selected.rcPackage) {
       // sign in first so the purchase lands on the account, not an
       // anonymous device id — entitlement then syncs across devices
@@ -94,7 +93,7 @@ export const PaywallScreen = () => {
           userId = signedIn.id;
         } catch (err) {
           setLoading(false);
-          setError(err instanceof Error ? err.message : "Sign-in failed.");
+          toast.error(err instanceof Error ? err.message : "Sign-in failed.");
           return;
         }
       }
@@ -105,7 +104,7 @@ export const PaywallScreen = () => {
         void upsertPaidFlag(userId, true);
         router.back();
       } else if (result === "error") {
-        setError("Purchase failed — try again.");
+        toast.error("Purchase failed — try again.");
       }
     } else {
       // TODO(octane): remove dev fallback once store builds always have RC configured
@@ -118,7 +117,6 @@ export const PaywallScreen = () => {
   };
 
   const restore = async () => {
-    setError(null);
     if (tiers[0]?.rcPackage) {
       if (user?.id) await logInPurchases(user.id);
       const result = await restorePremium();
@@ -126,7 +124,7 @@ export const PaywallScreen = () => {
         if (user?.id) void upsertPaidFlag(user.id, true);
         router.back();
       } else {
-        setError("No previous purchase found.");
+        toast.error("No previous purchase found.");
       }
     } else {
       setPaid(true);
@@ -164,7 +162,12 @@ export const PaywallScreen = () => {
           {PERKS.map((perk) => (
             <View key={perk} className="flex-row items-center gap-3">
               <View className="h-[26px] w-[26px] items-center justify-center rounded-full bg-lime-dim">
-                <Icon name="check" size={15} color={COLORS.lime} strokeWidth={3} />
+                <Icon
+                  name="check"
+                  size={15}
+                  color={COLORS.lime}
+                  strokeWidth={3}
+                />
               </View>
               <Text className="font-sans text-[15.5px] text-text">{perk}</Text>
             </View>
@@ -204,9 +207,6 @@ export const PaywallScreen = () => {
           ))}
         </View>
 
-        {error ? (
-          <Text className="pt-3 font-sans text-[12.5px] text-drop">{error}</Text>
-        ) : null}
       </ScrollView>
 
       <View className="px-6 pb-3 pt-2">
@@ -227,7 +227,9 @@ export const PaywallScreen = () => {
             </Text>
           </PressableScale>
           <Text className="text-faint">·</Text>
-          <Text className="font-sans text-[13px] text-faint">Secure payment</Text>
+          <Text className="font-sans text-[13px] text-faint">
+            Secure payment
+          </Text>
         </View>
       </View>
     </Screen>
