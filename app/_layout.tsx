@@ -109,24 +109,17 @@ export default function RootLayout() {
           <Stack
             screenOptions={{
               headerShown: false,
+              animation: "slide_from_right",
               contentStyle: { backgroundColor: COLORS.bg },
             }}
           >
             <Stack.Screen
               name="workout"
-              options={{ gestureEnabled: false, animation: "slide_from_right" }}
+              options={{ gestureEnabled: false }}
             />
             <Stack.Screen
               name="workout-done"
-              options={{ gestureEnabled: false, animation: "slide_from_right" }}
-            />
-            <Stack.Screen
-              name="paywall"
-              options={{ animation: "slide_from_right" }}
-            />
-            <Stack.Screen
-              name="sign-in"
-              options={{ animation: "slide_from_right" }}
+              options={{ gestureEnabled: false }}
             />
           </Stack>
         </SheetProvider>
