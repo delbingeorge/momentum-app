@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 
+import { signInWithGoogle, upsertPaidFlag } from "@/features/auth";
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
 import { useAuthStore } from "@/shared/stores";
@@ -9,6 +10,7 @@ import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
 
 import {
   getPaywallPackages,
+  logInPurchases,
   type PaywallPackage,
   purchasePremium,
   restorePremium,
@@ -55,6 +57,8 @@ const Radio = ({ on }: { on: boolean }) => (
 );
 
 export const PaywallScreen = () => {
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
   const setPaid = useAuthStore((state) => state.setPaid);
   const [tiers, setTiers] = useState<DisplayTier[]>(placeholderTiers);
   const [selectedId, setSelectedId] = useState(
@@ -80,10 +84,29 @@ export const PaywallScreen = () => {
     setLoading(true);
     setError(null);
     if (selected.rcPackage) {
+      // sign in first so the purchase lands on the account, not an
+      // anonymous device id — entitlement then syncs across devices
+      let userId = user?.id;
+      if (!userId) {
+        try {
+          const signedIn = await signInWithGoogle();
+          setUser(signedIn);
+          userId = signedIn.id;
+        } catch (err) {
+          setLoading(false);
+          setError(err instanceof Error ? err.message : "Sign-in failed.");
+          return;
+        }
+      }
+      await logInPurchases(userId);
       const result = await purchasePremium(selected.rcPackage);
       setLoading(false);
-      if (result === "purchased") router.back();
-      else if (result === "error") setError("Purchase failed — try again.");
+      if (result === "purchased") {
+        void upsertPaidFlag(userId, true);
+        router.back();
+      } else if (result === "error") {
+        setError("Purchase failed — try again.");
+      }
     } else {
       // TODO(octane): remove dev fallback once store builds always have RC configured
       setTimeout(() => {
@@ -97,9 +120,14 @@ export const PaywallScreen = () => {
   const restore = async () => {
     setError(null);
     if (tiers[0]?.rcPackage) {
+      if (user?.id) await logInPurchases(user.id);
       const result = await restorePremium();
-      if (result === "purchased") router.back();
-      else setError("No previous purchase found.");
+      if (result === "purchased") {
+        if (user?.id) void upsertPaidFlag(user.id, true);
+        router.back();
+      } else {
+        setError("No previous purchase found.");
+      }
     } else {
       setPaid(true);
       router.back();
@@ -186,7 +214,7 @@ export const PaywallScreen = () => {
           label={
             loading
               ? "Processing…"
-              : `Pay ${selected?.priceString ?? ""} · ${selected?.name ?? ""}`
+              : `${user ? "Pay" : "Sign in & pay"} ${selected?.priceString ?? ""} · ${selected?.name ?? ""}`
           }
           icon={loading ? undefined : "check"}
           disabled={loading || !selected}

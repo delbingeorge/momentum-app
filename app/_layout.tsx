@@ -22,7 +22,11 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { getCurrentUser } from "@/features/auth";
-import { configurePurchases } from "@/features/paywall";
+import {
+  configurePurchases,
+  logInPurchases,
+  logOutPurchases,
+} from "@/features/paywall";
 import { useSyncEngine } from "@/features/sync";
 import { scheduleReminder } from "@/features/profile";
 import { queryClient } from "@/shared/lib/query-client";
@@ -54,6 +58,18 @@ export default function RootLayout() {
   // RevenueCat: configure + refresh entitlement (no-op without native module)
   useEffect(() => {
     void configurePurchases();
+  }, []);
+
+  // keep the RevenueCat customer bound to the signed-in user so purchases
+  // follow the account; back to anonymous on sign-out (local isPaid persists)
+  useEffect(() => {
+    return useAuthStore.subscribe((state, prev) => {
+      if (state.user && state.user !== prev.user) {
+        void logInPurchases(state.user.id);
+      } else if (!state.user && prev.user) {
+        void logOutPurchases();
+      }
+    });
   }, []);
 
   // restore the Supabase session into the auth store on launch
@@ -106,7 +122,7 @@ export default function RootLayout() {
             />
             <Stack.Screen
               name="paywall"
-              options={{ presentation: "modal", animation: "slide_from_bottom" }}
+              options={{ animation: "slide_from_right" }}
             />
             <Stack.Screen
               name="sign-in"

@@ -10,7 +10,12 @@
     "backgroundColor": "#0A0A0B",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.octane.momentum"
+      "bundleIdentifier": "com.octane.momentum",
+      "icon": {
+        "light": "./assets/icon.png",
+        "dark": "./assets/icon-dark.png",
+        "tinted": "./assets/icon-tinted.png"
+      }
     },
     "android": {
       "package": "com.octane.momentum",

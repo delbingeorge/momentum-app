@@ -31,12 +31,12 @@ const hasPremium = (info: CustomerInfo): boolean =>
   Object.keys(info.entitlements.active).length > 0;
 
 let configured = false;
+let configuring: Promise<void> | null = null;
 
-// Call once at app start; also refreshes the local isPaid flag from the store
-export const configurePurchases = async (): Promise<void> => {
+const doConfigure = async (): Promise<void> => {
   const Purchases = await getPurchases();
   const key = apiKey();
-  if (!Purchases || !key || configured) return;
+  if (!Purchases || !key) return;
   try {
     Purchases.configure({ apiKey: key });
     configured = true;
@@ -45,6 +45,36 @@ export const configurePurchases = async (): Promise<void> => {
     if (hasPremium(info)) useAuthStore.getState().setPaid(true);
   } catch (error) {
     console.error("purchases configure failed:", error);
+  }
+};
+
+// Call once at app start; also refreshes the local isPaid flag from the store
+export const configurePurchases = (): Promise<void> => {
+  configuring ??= doConfigure();
+  return configuring;
+};
+
+// Bind the RevenueCat customer to our Supabase user id so purchases follow
+// the account (and any anonymous purchase on this device transfers to it)
+export const logInPurchases = async (userId: string): Promise<void> => {
+  await configurePurchases();
+  const Purchases = await getPurchases();
+  if (!Purchases || !configured) return;
+  try {
+    const { customerInfo } = await Purchases.logIn(userId);
+    if (hasPremium(customerInfo)) useAuthStore.getState().setPaid(true);
+  } catch (error) {
+    console.error("purchases login failed:", error);
+  }
+};
+
+export const logOutPurchases = async (): Promise<void> => {
+  const Purchases = await getPurchases();
+  if (!Purchases || !configured) return;
+  try {
+    await Purchases.logOut();
+  } catch {
+    // already anonymous — nothing to do
   }
 };
 
