@@ -1,6 +1,14 @@
 import { ScrollView, Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
+import {
+  filterDatesToFreeWindow,
+  filterSessionsToFreeWindow,
+  FREE_HISTORY_WEEKS,
+  freePrCutoffTs,
+  PAID_HISTORY_WEEKS,
+  useIsPaid,
+} from "@/shared/lib/entitlements";
 import { weekStreak } from "@/shared/lib/streaks";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
 import { BrandBar } from "@/shared/ui";
@@ -15,10 +23,23 @@ export const ProgressPanel = () => {
   const pastSessions = useWorkoutStore((state) => state.pastSessions);
   const sessionDates = useWorkoutStore((state) => state.sessionDates);
   const unit = useSettingsStore((state) => state.unit);
+  const isPaid = useIsPaid();
 
-  const stats = trainingStats(pastSessions);
-  const prs = recentPRs(pastSessions, 4);
-  const streak = weekStreak(sessionDates);
+  // free tier sees a limited window; data itself is never touched
+  const visibleSessions = isPaid
+    ? pastSessions
+    : filterSessionsToFreeWindow(pastSessions);
+  const visibleDates = isPaid
+    ? sessionDates
+    : filterDatesToFreeWindow(sessionDates);
+  const lockedCount = pastSessions.length - visibleSessions.length;
+
+  const stats = trainingStats(visibleSessions);
+  const allPrs = recentPRs(visibleSessions, 4);
+  const prs = isPaid
+    ? allPrs
+    : allPrs.filter((pr) => pr.ts >= freePrCutoffTs());
+  const streak = weekStreak(visibleDates);
 
   const statCards: [string, string, boolean][] = [
     [String(stats.total), "workouts", true],
@@ -54,8 +75,9 @@ export const ProgressPanel = () => {
           ))}
         </View>
         <ActivityHeatmap
+          weeks={isPaid ? PAID_HISTORY_WEEKS : FREE_HISTORY_WEEKS}
           onSelectDay={(dateKey) => {
-            const session = pastSessions.find((s) => s.date === dateKey);
+            const session = visibleSessions.find((s) => s.date === dateKey);
             if (session)
               SheetManager.show("session-detail", { payload: { session } });
           }}
@@ -63,7 +85,8 @@ export const ProgressPanel = () => {
         <BodyweightCard />
         <PrList prs={prs} unit={unit} />
         <SessionHistoryList
-          sessions={pastSessions}
+          sessions={visibleSessions}
+          lockedCount={lockedCount}
           unit={unit}
           onSelect={(session) =>
             SheetManager.show("session-detail", { payload: { session } })

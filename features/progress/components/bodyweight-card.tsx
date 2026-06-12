@@ -3,6 +3,7 @@ import { SheetManager } from "react-native-actions-sheet";
 import Svg, { Circle, Path } from "react-native-svg";
 
 import { COLORS } from "@/shared/lib/colors";
+import { freeHistoryCutoffTs, useIsPaid } from "@/shared/lib/entitlements";
 import { useBodyStore, useSettingsStore } from "@/shared/stores";
 import { Icon, PressableScale } from "@/shared/ui";
 
@@ -42,8 +43,13 @@ const Sparkline = ({ pts }: { pts: number[] }) => {
 };
 
 export const BodyweightCard = () => {
-  const weights = useBodyStore((state) => state.weights);
+  const allWeights = useBodyStore((state) => state.weights);
   const unit = useSettingsStore((state) => state.unit);
+  const isPaid = useIsPaid();
+  const cutoff = new Date(freeHistoryCutoffTs()).getTime();
+  const weights = isPaid
+    ? allWeights
+    : allWeights.filter((entry) => new Date(entry.date).getTime() >= cutoff);
 
   const lastKg = weights[weights.length - 1]?.kg ?? 70;
   const deltaKg = weights.length > 1 ? lastKg - (weights[0]?.kg ?? lastKg) : 0;

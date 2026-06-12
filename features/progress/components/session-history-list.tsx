@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
@@ -9,12 +10,14 @@ const KG_PER_LB = 2.2046;
 
 interface SessionHistoryListProps {
   sessions: SessionRecord[];
+  lockedCount?: number;
   unit: Unit;
   onSelect: (session: SessionRecord) => void;
 }
 
 export const SessionHistoryList = ({
   sessions,
+  lockedCount = 0,
   unit,
   onSelect,
 }: SessionHistoryListProps) => (
@@ -76,6 +79,27 @@ export const SessionHistoryList = ({
             </PressableScale>
           );
         })}
+        {lockedCount > 0 ? (
+          <PressableScale
+            onPress={() => router.push("/paywall")}
+            className="flex-row items-center gap-3 rounded-2xl border border-dashed border-line2 bg-card px-3.5 py-3"
+          >
+            <View className="h-[38px] w-[38px] items-center justify-center rounded-xl bg-lime-dim">
+              <Icon name="medal" size={18} color={COLORS.lime} strokeWidth={1.8} />
+            </View>
+            <View className="flex-1">
+              <Text className="font-sans-semibold text-[15px] text-text">
+                {lockedCount} older workout{lockedCount === 1 ? "" : "s"}
+              </Text>
+              <Text className="mt-0.5 font-mono text-[10.5px] text-faint">
+                Unlock to see your full history
+              </Text>
+            </View>
+            <Text className="rounded-full bg-lime px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wide text-lime-text">
+              Premium
+            </Text>
+          </PressableScale>
+        ) : null}
       </View>
     )}
   </View>

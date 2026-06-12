@@ -6,30 +6,35 @@ import { useWorkoutStore } from "@/shared/stores";
 import { buildActivity, monthLabels } from "../lib/activity";
 
 const GAP = 3;
-const COLS = 18;
 const EMPTY = "rgba(255,255,255,0.05)";
 const FILLED = "#CBFB45";
 
 interface ActivityHeatmapProps {
+  weeks?: number;
   onSelectDay?: (dateKey: string) => void;
 }
 
-export const ActivityHeatmap = ({ onSelectDay }: ActivityHeatmapProps) => {
+export const ActivityHeatmap = ({
+  weeks: weekCount = 18,
+  onSelectDay,
+}: ActivityHeatmapProps) => {
   const sessionDates = useWorkoutStore((state) => state.sessionDates);
   const [gridWidth, setGridWidth] = useState(0);
-  const weeks = buildActivity(sessionDates, COLS);
+  const weeks = buildActivity(sessionDates, weekCount);
   const months = monthLabels(weeks);
 
   // cells flex to fill the card, so there is no dead space on wide screens
   const cell =
-    gridWidth > 0 ? Math.floor((gridWidth - (COLS - 1) * GAP) / COLS) : 0;
+    gridWidth > 0
+      ? Math.floor((gridWidth - (weekCount - 1) * GAP) / weekCount)
+      : 0;
 
   return (
     <View className="rounded-[18px] bg-card px-3.5 pb-3.5 pt-3.5">
       <View className="mb-3 flex-row items-baseline justify-between">
         <Text className="font-sans-bold text-[15px] text-text">Activity</Text>
         <Text className="font-mono text-[10px] uppercase tracking-wide text-faint">
-          Last 18 weeks
+          Last {weekCount} weeks
         </Text>
       </View>
       <View onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)}>

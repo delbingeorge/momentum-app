@@ -22,6 +22,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { getCurrentUser } from "@/features/auth";
+import { configurePurchases } from "@/features/paywall";
 import { useSyncEngine } from "@/features/sync";
 import { scheduleReminder } from "@/features/profile";
 import { queryClient } from "@/shared/lib/query-client";
@@ -49,6 +50,11 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
+
+  // RevenueCat: configure + refresh entitlement (no-op without native module)
+  useEffect(() => {
+    void configurePurchases();
+  }, []);
 
   // restore the Supabase session into the auth store on launch
   useEffect(() => {

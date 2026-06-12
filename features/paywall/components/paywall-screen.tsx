@@ -1,26 +1,45 @@
 import { router } from "expo-router";
-import { useState } from "react";
-import { ScrollView, Text, TextInput, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ScrollView, Text, View } from "react-native";
 
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
 import { useAuthStore } from "@/shared/stores";
 import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
 
+import {
+  getPaywallPackages,
+  type PaywallPackage,
+  purchasePremium,
+  restorePremium,
+} from "../api/purchases-api";
+import { TIERS } from "../lib/tiers";
+
 const PERKS = [
+  "Full training history & all-time stats",
   "Google login & cloud backup",
   "Sync your logs across devices",
   "No ads, ever",
   "Pay once, keep it for life",
 ];
 
-// High anchor first makes the suggested tier read as the sensible pick
-const TIERS = [
-  { id: "champion", amount: 999, name: "Champion", blurb: "Go all in and back an indie dev" },
-  { id: "support", amount: 499, name: "Support", blurb: "Fuels development", suggested: true },
-  { id: "unlock", amount: 299, name: "Unlock", blurb: "Just the features" },
-];
-const MIN_AMOUNT = 299;
+interface DisplayTier {
+  id: string;
+  name: string;
+  blurb: string;
+  priceString: string;
+  suggested: boolean;
+  rcPackage: PaywallPackage["rcPackage"] | null;
+}
+
+const placeholderTiers: DisplayTier[] = TIERS.map((tier) => ({
+  id: tier.id,
+  name: tier.name,
+  blurb: tier.blurb,
+  priceString: tier.displayPrice,
+  suggested: Boolean(tier.suggested),
+  rcPackage: null,
+}));
 
 const Radio = ({ on }: { on: boolean }) => (
   <View
@@ -37,34 +56,54 @@ const Radio = ({ on }: { on: boolean }) => (
 
 export const PaywallScreen = () => {
   const setPaid = useAuthStore((state) => state.setPaid);
-  const [selected, setSelected] = useState("support");
-  const [custom, setCustom] = useState("");
+  const [tiers, setTiers] = useState<DisplayTier[]>(placeholderTiers);
+  const [selectedId, setSelectedId] = useState(
+    placeholderTiers.find((tier) => tier.suggested)?.id ?? placeholderTiers[0]?.id,
+  );
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const customAmount = parseInt(custom, 10);
-  const customValid =
-    custom !== "" && !Number.isNaN(customAmount) && customAmount >= MIN_AMOUNT;
-  const amount =
-    selected === "custom"
-      ? customValid
-        ? customAmount
-        : null
-      : (TIERS.find((tier) => tier.id === selected)?.amount ?? null);
+  useEffect(() => {
+    getPaywallPackages().then((packages) => {
+      if (!packages?.length) return;
+      setTiers(packages);
+      setSelectedId(
+        packages.find((pkg) => pkg.suggested)?.id ?? packages[0]?.id,
+      );
+    });
+  }, []);
 
-  // TODO(octane): replace the fake delay with real IAP (RevenueCat) before release
-  const unlock = () => {
-    if (!amount) return;
+  const selected = tiers.find((tier) => tier.id === selectedId);
+
+  const unlock = async () => {
+    if (!selected) return;
     setLoading(true);
-    setTimeout(() => {
-      setPaid(true);
+    setError(null);
+    if (selected.rcPackage) {
+      const result = await purchasePremium(selected.rcPackage);
       setLoading(false);
-      router.back();
-    }, 1200);
+      if (result === "purchased") router.back();
+      else if (result === "error") setError("Purchase failed — try again.");
+    } else {
+      // TODO(octane): remove dev fallback once store builds always have RC configured
+      setTimeout(() => {
+        setPaid(true);
+        setLoading(false);
+        router.back();
+      }, 1200);
+    }
   };
 
-  const restore = () => {
-    setPaid(true);
-    router.back();
+  const restore = async () => {
+    setError(null);
+    if (tiers[0]?.rcPackage) {
+      const result = await restorePremium();
+      if (result === "purchased") router.back();
+      else setError("No previous purchase found.");
+    } else {
+      setPaid(true);
+      router.back();
+    }
   };
 
   return (
@@ -89,8 +128,8 @@ export const PaywallScreen = () => {
           Pay what feels fair.
         </Text>
         <Text className="mb-5 mt-3 font-sans text-[15.5px] leading-[22px] text-mut">
-          Momentum is built by one developer. The whole app is free. Unlock to
-          sync your data and support the work.
+          Momentum is built by one developer. Training stays free forever.
+          Unlock once for your full history, sync, and to support the work.
         </Text>
 
         <View className="mb-5 gap-3">
@@ -105,16 +144,16 @@ export const PaywallScreen = () => {
         </View>
 
         <View className="gap-2.5">
-          {TIERS.map((tier) => (
+          {tiers.map((tier) => (
             <PressableScale
               key={tier.id}
-              onPress={() => setSelected(tier.id)}
+              onPress={() => setSelectedId(tier.id)}
               className={cn(
                 "flex-row items-center gap-3.5 rounded-[18px] p-4",
-                selected === tier.id ? "bg-lime-dim" : "bg-card",
+                selectedId === tier.id ? "bg-lime-dim" : "bg-card",
               )}
             >
-              <Radio on={selected === tier.id} />
+              <Radio on={selectedId === tier.id} />
               <View className="flex-1">
                 <View className="flex-row items-center gap-2">
                   <Text className="font-sans-bold text-base text-text">
@@ -131,47 +170,15 @@ export const PaywallScreen = () => {
                 </Text>
               </View>
               <Text className="font-sans-bold text-[19px] tracking-tight text-text">
-                ₹{tier.amount}
+                {tier.priceString}
               </Text>
             </PressableScale>
           ))}
-
-          <PressableScale
-            onPress={() => setSelected("custom")}
-            className={cn(
-              "flex-row items-center gap-3.5 rounded-[18px] p-4",
-              selected === "custom" ? "bg-lime-dim" : "bg-card",
-            )}
-          >
-            <Radio on={selected === "custom"} />
-            <View className="flex-1">
-              <Text className="font-sans-bold text-base text-text">Custom</Text>
-              <Text className="mt-px font-sans text-[12.5px] text-mut">
-                Any amount from ₹{MIN_AMOUNT}
-              </Text>
-            </View>
-            <View className="flex-row items-center gap-0.5">
-              <Text className="font-sans-bold text-[19px] text-mut">₹</Text>
-              <TextInput
-                value={custom}
-                keyboardType="number-pad"
-                placeholder={String(MIN_AMOUNT)}
-                placeholderTextColor={COLORS.faint}
-                onFocus={() => setSelected("custom")}
-                onChangeText={(text) => {
-                  setCustom(text.replace(/[^0-9]/g, ""));
-                  setSelected("custom");
-                }}
-                className="w-16 p-0 text-right font-sans-bold text-[19px] text-text"
-              />
-            </View>
-          </PressableScale>
-          {selected === "custom" && custom !== "" && !customValid ? (
-            <Text className="font-sans text-[12.5px] text-drop">
-              Minimum ₹{MIN_AMOUNT}.
-            </Text>
-          ) : null}
         </View>
+
+        {error ? (
+          <Text className="pt-3 font-sans text-[12.5px] text-drop">{error}</Text>
+        ) : null}
       </ScrollView>
 
       <View className="px-6 pb-3 pt-2">
@@ -179,16 +186,14 @@ export const PaywallScreen = () => {
           label={
             loading
               ? "Processing…"
-              : amount
-                ? `Pay ₹${amount}`
-                : `Enter at least ₹${MIN_AMOUNT}`
+              : `Pay ${selected?.priceString ?? ""} · ${selected?.name ?? ""}`
           }
           icon={loading ? undefined : "check"}
-          disabled={loading || !amount}
-          onPress={unlock}
+          disabled={loading || !selected}
+          onPress={() => void unlock()}
         />
         <View className="mt-3.5 flex-row items-center justify-center gap-3.5">
-          <PressableScale onPress={restore}>
+          <PressableScale onPress={() => void restore()}>
             <Text className="font-sans-medium text-[13px] text-mut">
               Restore purchase
             </Text>
