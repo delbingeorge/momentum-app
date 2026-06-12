@@ -64,10 +64,7 @@ export const SetRow = ({
     : { backgroundColor: COLORS.card, borderColor: COLORS.line };
 
   return (
-    <View
-      className="overflow-hidden rounded-2xl border px-2 py-3.5"
-      style={rowStyle}
-    >
+    <View className="overflow-hidden rounded-2xl px-2 py-3.5" style={rowStyle}>
       {prev ? (
         <View className="flex-row items-center gap-1.5 px-3 pb-2.5">
           <Icon name="rotate" size={11} color={COLORS.faint} />
@@ -137,7 +134,7 @@ export const SetRow = ({
           className="rounded-lg"
           checkedColor={chrome?.color}
           iconColor={chrome ? COLORS.bg : COLORS.limeText}
-          iconSize={14}
+          iconSize={16}
         />
       </View>
     </View>

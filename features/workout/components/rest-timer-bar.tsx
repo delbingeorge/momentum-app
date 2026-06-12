@@ -23,7 +23,7 @@ export const RestTimerBar = ({
 }: RestTimerBarProps) => {
   const pct = total > 0 ? left / total : 0;
   return (
-    <View className="flex-row items-center gap-4 rounded-[20px] border border-lime/40 bg-lime-dim px-4 py-3.5">
+    <View className="flex-row items-center gap-4 rounded-[20px] bg-lime-dim px-4 py-3.5">
       <View className="h-[58px] w-[58px] items-center justify-center">
         <Svg
           width={58}
