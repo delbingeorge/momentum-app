@@ -10,6 +10,7 @@ import {
   LogBodyweightSheet,
   SessionDetailSheet,
   StreakJourneySheet,
+  WeighInGuideSheet,
 } from "@/features/progress";
 import { ExerciseInfoSheet, ExercisePickerSheet } from "@/features/workout";
 import type { ExerciseInstance, SessionRecord } from "@/shared/types";
@@ -27,6 +28,7 @@ declare module "react-native-actions-sheet" {
       payload: { session: SessionRecord };
     }>;
     "log-bodyweight": SheetDefinition;
+    "weigh-in-guide": SheetDefinition;
     "reminder-config": SheetDefinition;
     "export-data": SheetDefinition;
     "session-recap": SheetDefinition;
@@ -45,6 +47,7 @@ export const AppSheets = () => (
       "exercise-info": ExerciseInfoSheet,
       "session-detail": SessionDetailSheet,
       "log-bodyweight": LogBodyweightSheet,
+      "weigh-in-guide": WeighInGuideSheet,
       "reminder-config": ReminderSheet,
       "export-data": ExportSheet,
       "session-recap": RecapSheet,

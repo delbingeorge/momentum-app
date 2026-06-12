@@ -8,7 +8,9 @@ import { BaseSheet, CtaButton, Icon, PressableScale } from "@/shared/ui";
 
 const KG_PER_LB = 2.2046;
 
-export const LogBodyweightSheet = ({ sheetId }: SheetProps<"log-bodyweight">) => {
+export const LogBodyweightSheet = ({
+  sheetId,
+}: SheetProps<"log-bodyweight">) => {
   const weights = useBodyStore((state) => state.weights);
   const logWeight = useBodyStore((state) => state.logWeight);
   const unit = useSettingsStore((state) => state.unit);
@@ -44,6 +46,15 @@ export const LogBodyweightSheet = ({ sheetId }: SheetProps<"log-bodyweight">) =>
             <Icon name="plus" size={20} color={COLORS.lime} strokeWidth={2.4} />
           </PressableScale>
         </View>
+        <PressableScale
+          onPress={() => SheetManager.show("weigh-in-guide")}
+          className="-mt-2 flex-row items-center justify-center gap-1.5"
+        >
+          <Icon name="info" size={14} color={COLORS.mut} strokeWidth={2} />
+          <Text className="font-sans-semibold text-[12.5px] text-mut">
+            How to weigh properly?
+          </Text>
+        </PressableScale>
         <CtaButton
           label="Save"
           icon="check"
