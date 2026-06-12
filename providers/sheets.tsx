@@ -3,13 +3,10 @@ import {
   SheetRegister,
 } from "react-native-actions-sheet";
 
-import { RecapSheet } from "@/features/home/components/recap.sheet";
-import { ExportSheet } from "@/features/profile/components/export.sheet";
-import { ReminderSheet } from "@/features/profile/components/reminder.sheet";
-import { LogBodyweightSheet } from "@/features/progress/components/log-bodyweight.sheet";
-import { SessionDetailSheet } from "@/features/progress/components/session-detail.sheet";
-import { ExerciseInfoSheet } from "@/features/workout/components/exercise-info.sheet";
-import { ExercisePickerSheet } from "@/features/workout/components/exercise-picker.sheet";
+import { RecapSheet } from "@/features/home";
+import { ExportSheet, ReminderSheet } from "@/features/profile";
+import { LogBodyweightSheet, SessionDetailSheet } from "@/features/progress";
+import { ExerciseInfoSheet, ExercisePickerSheet } from "@/features/workout";
 import type { ExerciseInstance, SessionRecord } from "@/shared/types";
 
 declare module "react-native-actions-sheet" {

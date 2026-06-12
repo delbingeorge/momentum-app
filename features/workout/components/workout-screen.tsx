@@ -15,15 +15,15 @@ import {
   useWorkoutStore,
 } from "@/shared/stores";
 import type { ExerciseInstance } from "@/shared/types";
-import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
+import { Icon, PressableScale, Screen } from "@/shared/ui";
 
 import { useRestTimer } from "../hooks/use-rest-timer";
 import { useSessionTimer } from "../hooks/use-session-timer";
 import { ExerciseMenu } from "./exercise-menu";
 import { ExerciseSwitcher } from "./exercise-switcher";
-import { RestTimerBar } from "./rest-timer-bar";
 import { SessionBanner } from "./session-banner";
 import { SetList } from "./set-list";
+import { WorkoutFooter } from "./workout-footer";
 import { WorkoutHeader } from "./workout-header";
 
 export const WorkoutScreen = () => {
@@ -190,50 +190,20 @@ export const WorkoutScreen = () => {
         />
       </ScrollView>
 
-      <View className="gap-2.5 px-4 pb-2 pt-2">
-        {rest.active ? (
-          <RestTimerBar
-            left={rest.left}
-            total={rest.total}
-            onSkip={rest.skip}
-            onAdd={() => rest.addSeconds(15)}
-          />
-        ) : null}
-        <View className="flex-row gap-2.5">
-          {current > 0 ? (
-            <PressableScale
-              onPress={() => setCurrent(current - 1)}
-              className="h-[58px] w-[58px] items-center justify-center rounded-full bg-card"
-            >
-              <Icon name="chevL" size={22} strokeWidth={2.4} />
-            </PressableScale>
-          ) : null}
-          <View className="flex-1">
-            {isLast ? (
-              <CtaButton
-                label={
-                  allDone
-                    ? "Finish workout"
-                    : `Finish · ${totalDone}/${totalSets}`
-                }
-                icon="check"
-                variant={allDone ? "lime" : "white"}
-                onPress={handleFinish}
-              />
-            ) : (
-              <CtaButton
-                label="Next exercise"
-                icon="chevR"
-                variant={allDone ? "lime" : "white"}
-                onPress={() => {
-                  setCurrent(current + 1);
-                  rest.skip();
-                }}
-              />
-            )}
-          </View>
-        </View>
-      </View>
+      <WorkoutFooter
+        rest={rest}
+        canGoBack={current > 0}
+        isLast={isLast}
+        allDone={allDone}
+        totalDone={totalDone}
+        totalSets={totalSets}
+        onBack={() => setCurrent(current - 1)}
+        onNext={() => {
+          setCurrent(current + 1);
+          rest.skip();
+        }}
+        onFinish={handleFinish}
+      />
 
       <ExerciseMenu
         visible={menuOpen}

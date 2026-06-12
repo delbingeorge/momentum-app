@@ -23,7 +23,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { getCurrentUser } from "@/features/auth";
 import { useSyncEngine } from "@/features/sync";
-import { scheduleReminder } from "@/features/profile/lib/reminder-scheduler";
+import { scheduleReminder } from "@/features/profile";
 import { queryClient } from "@/shared/lib/query-client";
 import { COLORS } from "@/shared/lib/colors";
 import { useAuthStore, useSettingsStore } from "@/shared/stores";

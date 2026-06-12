@@ -27,6 +27,6 @@ export const clearRestNotification = async (): Promise<void> => {
   try {
     await Notifications.cancelScheduledNotificationAsync(DONE_ID);
   } catch {
-    // ignore
+    // best-effort; workout flow must never break on notification errors
   }
 };

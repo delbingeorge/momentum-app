@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import {
+  useAuthStore,
   useBodyStore,
   usePlanStore,
   useSettingsStore,
@@ -8,6 +9,7 @@ import {
 } from "@/shared/stores";
 
 const persistedStores = [
+  useAuthStore,
   usePlanStore,
   useWorkoutStore,
   useBodyStore,

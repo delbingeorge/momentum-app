@@ -91,7 +91,6 @@ export const initLog = (
   return log;
 };
 
-// Build a full session record (for the history list)
 export const buildSession = (
   exList: ExerciseInstance[],
   log: WorkoutLog,
