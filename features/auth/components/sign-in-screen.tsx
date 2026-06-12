@@ -13,7 +13,7 @@ import { fetchPaidFlag, signInWithGoogle, signOut } from "../api/auth-api";
 import { SignInBackdrop } from "./sign-in-backdrop";
 
 export const SignInScreen = () => {
-  // when set, the screen is a step in a flow (e.g. welcome → onboarding)
+  // when set, the screen is a step in a flow (e.g. mid-onboarding)
   // and both closing and signing in continue forward instead of going back
   const { next } = useLocalSearchParams<{ next?: string }>();
   const setUser = useAuthStore((state) => state.setUser);
@@ -66,7 +66,7 @@ export const SignInScreen = () => {
         // anything else drops the unpaid session first
         await signOut();
         useAuthStore.getState().resetAuth();
-        if (choice === "free") router.replace("/welcome");
+        if (choice === "free") router.replace(getPlanRoute());
         // purchase may live on another Google account: rerun the whole
         // flow, the picker shows again since sign-in clears its session
         else if (choice === "switch") return handleSignIn();

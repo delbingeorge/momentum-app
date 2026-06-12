@@ -5,6 +5,7 @@ import { ScrollView, Text, View } from "react-native";
 import { signInWithGoogle, signOut, upsertPaidFlag } from "@/features/auth";
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
+import { getPlanRoute } from "@/shared/lib/plan-route";
 import { toast, useAuthStore } from "@/shared/stores";
 import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
 
@@ -90,11 +91,11 @@ export const PaywallScreen = () => {
   };
 
   // signed in but not paying: drop the session (paid-only sign-in invariant),
-  // local data stays, then start the free flow from the intro
+  // local data stays, then continue free from wherever the plan left off
   const continueFree = async () => {
     await signOut();
     useAuthStore.getState().resetAuth();
-    router.replace("/welcome");
+    router.replace(getPlanRoute());
   };
 
   const unlock = async () => {
