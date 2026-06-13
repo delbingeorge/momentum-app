@@ -3,9 +3,8 @@ import { useState } from "react";
 import { Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
-import { logInPurchases } from "@/features/paywall/api/purchases-api";
-import { reconcileEntitlement } from "@/features/paywall";
-import { syncNow } from "@/features/sync/lib/engine";
+import { logInPurchases, reconcileEntitlement } from "@/features/paywall";
+import { syncNow } from "@/features/sync";
 import { COLORS } from "@/shared/lib/colors";
 import { getPlanRoute } from "@/shared/lib/plan-route";
 import { clearLocalData, toast, useAuthStore } from "@/shared/stores";

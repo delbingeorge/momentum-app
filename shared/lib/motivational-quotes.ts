@@ -19,8 +19,8 @@ const QUOTES = [
   "The gym doesn't care how you feel. Go anyway.",
   "You already know you'll feel better after.",
   "Half-hearted reps still beat no reps.",
-  "Today's effort is tomorrow's strength.", 
-  "It wouldn’t happen overnight, but if you quit, it won’t happen at all.”
+  "Today's effort is tomorrow's strength.",
+  "It wouldn't happen overnight, but if you quit, it won't happen at all.",
 ] as const;
 
 const REST_QUOTES = [
@@ -38,9 +38,16 @@ export const shuffledQuotes = (count: number): string[] => {
   const pool = [...QUOTES];
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [pool[i], pool[j]] = [pool[j]!, pool[i]!];
+    const a = pool[i];
+    const b = pool[j];
+    if (a === undefined || b === undefined) continue;
+    pool[i] = b;
+    pool[j] = a;
   }
-  return Array.from({ length: count }, (_, i) => pool[i % pool.length]!);
+  return Array.from(
+    { length: count },
+    (_, i) => pool[i % pool.length] ?? QUOTES[0],
+  );
 };
 
 export const randomRestQuote = (): string =>

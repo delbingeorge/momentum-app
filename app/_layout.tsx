@@ -34,7 +34,7 @@ import { scheduleReminder } from "@/features/profile";
 import { queryClient } from "@/shared/lib/query-client";
 import { COLORS } from "@/shared/lib/colors";
 import { useAuthStore, useSettingsStore } from "@/shared/stores";
-import { ToastHost } from "@/shared/ui";
+import { ErrorBoundary, ToastHost } from "@/shared/ui";
 import { AppSheets } from "@/providers/sheets";
 
 SplashScreen.preventAutoHideAsync();
@@ -121,6 +121,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
         <StatusBar style="light" />
@@ -150,6 +151,7 @@ export default function RootLayout() {
         <ToastHost />
       </SafeAreaProvider>
       </QueryClientProvider>
+      </ErrorBoundary>
     </GestureHandlerRootView>
   );
 }

@@ -2,7 +2,6 @@ import { z } from "zod";
 
 import type { BodyweightEntry, ExerciseHistory, SessionRecord } from "@/shared/types";
 import {
-  bodyweightEntrySchema,
   dayKeySchema,
   scheduledDaySchema,
   sessionRecordSchema,
