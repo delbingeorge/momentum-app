@@ -114,7 +114,9 @@ export const PaywallScreen = () => {
   const selected = displayTiers.find((tier) => tier.id === selectedId);
   const freeSelected = selectedId === FREE_TIER.id;
 
-  // the gate redirect replaces the stack, so back isn't always available
+  // the gate redirect replaces the stack, so back isn't always available; when
+  // it isn't (e.g. after a purchase unlocked the gate) re-enter the index gate,
+  // which re-resolves the now-paid user to welcome-back or tabs
   const close = () => {
     if (router.canGoBack()) router.back();
     else router.replace("/");

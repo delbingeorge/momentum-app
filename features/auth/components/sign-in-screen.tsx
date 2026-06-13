@@ -20,17 +20,13 @@ export const SignInScreen = () => {
   const setUser = useAuthStore((state) => state.setUser);
   const [loading, setLoading] = useState(false);
 
-  // "Continue" skips sign-in: new users get the app intro, returning free
-  // users resume where they left off (mirrors the index route guard)
+  // "Continue" skips sign-in into a fresh guest session
   const continueFree = () => {
     if (next) return router.replace(next as Href);
-    // fresh guest session: drop any leftover local data first
+    // wiping local data clears the plan, so the user always starts at step one;
+    // push (not replace) keeps a back stack so they can return to sign-in
     clearLocalData();
-    const route = getPlanRoute();
-    // push flows the user can back out of; only a finished plan replaces,
-    // so home never pops back to sign-in
-    if (route === "/(tabs)") router.replace(route);
-    else router.push(route);
+    router.push("/onboarding/goal");
   };
 
   // Sign-in is for paid members only. Settle both entitlement sources
@@ -101,7 +97,7 @@ export const SignInScreen = () => {
         </View>
         <View>
           <Text className="font-sans-bold text-[34px] leading-[38px] tracking-[-0.8px] text-text">
-            Hey, Welcome to{"\n"}Momentum
+            HHey, Welcome to{"\n"}Momentum
           </Text>
           <Text className="mt-3 font-sans text-base leading-[23px] text-mut">
             Build strength, stay consistent, and become the version of you that
