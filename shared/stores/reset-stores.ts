@@ -1,4 +1,5 @@
 import { useBodyStore } from "./body-store";
+import { useLaunchStore } from "./launch-store";
 import { usePlanStore } from "./plan-store";
 import { useSettingsStore } from "./settings-store";
 import { useSyncStore } from "./sync-store";
@@ -12,4 +13,6 @@ export const clearLocalData = () => {
   usePlanStore.getState().resetPlan();
   useSettingsStore.getState().resetSettings();
   useSyncStore.getState().resetSync();
+  // re-arm welcome-back so the next sign-in greets again
+  useLaunchStore.getState().resetWelcomeBack();
 };

@@ -4,6 +4,7 @@ import { Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
 import { logInPurchases } from "@/features/paywall/api/purchases-api";
+import { syncNow } from "@/features/sync/lib/engine";
 import { COLORS } from "@/shared/lib/colors";
 import { getPlanRoute } from "@/shared/lib/plan-route";
 import { clearLocalData, toast, useAuthStore } from "@/shared/stores";
@@ -18,13 +19,6 @@ export const SignInScreen = () => {
   const { next } = useLocalSearchParams<{ next?: string }>();
   const setUser = useAuthStore((state) => state.setUser);
   const [loading, setLoading] = useState(false);
-
-  const leave = () => {
-    if (next) router.replace(next as Href);
-    // as the app's first screen there is no back stack; let the index re-route
-    else if (router.canGoBack()) router.back();
-    else router.replace("/");
-  };
 
   // "Continue" skips sign-in: new users get the app intro, returning free
   // users resume where they left off (mirrors the index route guard)
@@ -54,11 +48,19 @@ export const SignInScreen = () => {
       ) {
         useAuthStore.getState().setPaid(true);
       }
-      setLoading(false);
       if (useAuthStore.getState().isPaid) {
-        leave();
+        // restore plan + history from cloud before routing; otherwise
+        // getPlanRoute reads the just-cleared local plan and sends paid
+        // users back to onboarding step zero
+        await syncNow();
+        setLoading(false);
+        // greet every paid member; welcome-back routes continue/restart from
+        // there based on whether a plan was restored
+        if (next) router.replace(next as Href);
+        else router.replace("/welcome-back");
         return;
       }
+      setLoading(false);
       const choice = await SheetManager.show("no-purchase", {
         payload: { email: signedIn.email },
       });
