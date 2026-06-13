@@ -115,6 +115,10 @@ export default function RootLayout() {
             }}
           >
             <Stack.Screen
+              name="sign-in"
+              options={{ animationTypeForReplace: "pop" }}
+            />
+            <Stack.Screen
               name="workout"
               options={{ gestureEnabled: false }}
             />

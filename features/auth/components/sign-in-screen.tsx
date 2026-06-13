@@ -97,11 +97,11 @@ export const SignInScreen = () => {
         </View>
         <View>
           <Text className="font-sans-bold text-[34px] leading-[38px] tracking-[-0.8px] text-text">
-            Welcome to{"\n"}Momentum
+            Hey, Welcome to{"\n"}Momentum
           </Text>
           <Text className="mt-3 font-sans text-base leading-[23px] text-mut">
-            Build strength, stay consistent, and become the version of you
-            that never skips a workout.
+            Build strength, stay consistent, and become the version of you that
+            never skips a workout.
           </Text>
         </View>
       </View>

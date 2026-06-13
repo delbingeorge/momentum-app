@@ -133,6 +133,15 @@ export const PaywallScreen = () => {
     router.replace(getPlanRoute());
   };
 
+  // gate close: drop the unpaid session (paid-only sign-in invariant) and
+  // return to sign-in, not into the free plan flow
+  const backToSignIn = async () => {
+    setLoading(true);
+    await signOut();
+    useAuthStore.getState().resetAuth();
+    router.replace("/sign-in");
+  };
+
   const unlock = async () => {
     if (!selected) return;
     setLoading(true);
@@ -205,7 +214,7 @@ export const PaywallScreen = () => {
             </Text>
           </View>
           <PressableScale
-            onPress={() => (gate ? void continueFree() : close())}
+            onPress={() => (gate ? void backToSignIn() : close())}
             className="h-9 w-9 items-center justify-center rounded-full bg-card"
           >
             <Icon name="x" size={18} color={COLORS.mut} strokeWidth={2.4} />
