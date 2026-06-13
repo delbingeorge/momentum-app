@@ -31,6 +31,12 @@ describe("resolveLaunchRoute", () => {
     );
   });
 
+  it("skips welcome-back for a fresh paid sign-up with no plan", () => {
+    expect(
+      resolveLaunchRoute({ ...settled, welcomeBackSeen: false, hasPlan: false }),
+    ).toBe("/onboarding/goal");
+  });
+
   it("lands fully set-up members in the app", () => {
     expect(resolveLaunchRoute(settled)).toBe("/(tabs)");
   });

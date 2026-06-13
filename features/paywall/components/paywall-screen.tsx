@@ -114,12 +114,19 @@ export const PaywallScreen = () => {
   const selected = displayTiers.find((tier) => tier.id === selectedId);
   const freeSelected = selectedId === FREE_TIER.id;
 
-  // the gate redirect replaces the stack, so back isn't always available; when
-  // it isn't (e.g. after a purchase unlocked the gate) re-enter the index gate,
-  // which re-resolves the now-paid user to welcome-back or tabs
+  // the gate redirect replaces the stack, so back isn't always available
   const close = () => {
     if (router.canGoBack()) router.back();
     else router.replace("/");
+  };
+
+  // a purchase changed entitlement, so the destination must be re-resolved.
+  // gate flows (launch/auth) push the paywall onto sign-in, so going back would
+  // return to sign-in: re-enter the index gate instead, which routes a fresh
+  // paid sign-up to onboarding. in-app upsells just return to where they came.
+  const afterPurchase = () => {
+    if (gate) router.replace("/");
+    else close();
   };
 
   // signed in but not paying: drop the session (paid-only sign-in invariant),
@@ -166,7 +173,7 @@ export const PaywallScreen = () => {
       setLoading(false);
       if (result === "purchased") {
         void upsertPaidFlag(userId, true);
-        close();
+        afterPurchase();
       } else {
         // no purchase: undo the inline sign-in so an unpaid session
         // doesn't linger behind the paywall
@@ -181,7 +188,7 @@ export const PaywallScreen = () => {
       // to purchase, so unlock locally to keep the flow testable
       setPaid(true);
       setLoading(false);
-      close();
+      afterPurchase();
     }
   };
 
@@ -191,13 +198,13 @@ export const PaywallScreen = () => {
       const result = await restorePremium();
       if (result === "purchased") {
         if (user?.id) void upsertPaidFlag(user.id, true);
-        close();
+        afterPurchase();
       } else {
         toast.error("No previous purchase found.");
       }
     } else {
       setPaid(true);
-      close();
+      afterPurchase();
     }
   };
 

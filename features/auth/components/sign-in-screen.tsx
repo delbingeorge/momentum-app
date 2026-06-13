@@ -47,10 +47,10 @@ export const SignInScreen = () => {
         // users back to onboarding step zero
         await syncNow();
         setLoading(false);
-        // greet every paid member; welcome-back routes continue/restart from
-        // there based on whether a plan was restored
+        // re-enter the index gate so the resolver decides: welcome-back when a
+        // plan was restored, onboarding when this is a fresh paid sign-up
         if (next) router.replace(next as Href);
-        else router.replace("/welcome-back");
+        else router.replace("/");
         return;
       }
       setLoading(false);
@@ -97,7 +97,7 @@ export const SignInScreen = () => {
         </View>
         <View>
           <Text className="font-sans-bold text-[34px] leading-[38px] tracking-[-0.8px] text-text">
-            HHey, Welcome to{"\n"}Momentum
+            Hey, Welcome to{"\n"}Momentum
           </Text>
           <Text className="mt-3 font-sans text-base leading-[23px] text-mut">
             Build strength, stay consistent, and become the version of you that

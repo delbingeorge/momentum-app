@@ -16,7 +16,9 @@ export const resolveLaunchRoute = (state: LaunchRouteState): Href => {
   if (!state.user) return "/sign-in";
   // paid-only sign-in invariant: a signed-in member must be paying
   if (!state.isPaid) return GATE_PAYWALL;
-  if (!state.welcomeBackSeen) return "/welcome-back";
+  // no plan means a fresh sign-up with nothing to resume: skip welcome-back
+  // (it greets returning members) and start onboarding
   if (!state.hasPlan) return "/onboarding/goal";
+  if (!state.welcomeBackSeen) return "/welcome-back";
   return "/(tabs)";
 };
