@@ -6,7 +6,7 @@ import { signInWithGoogle, signOut, upsertPaidFlag } from "@/features/auth";
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
 import { getPlanRoute } from "@/shared/lib/plan-route";
-import { toast, useAuthStore } from "@/shared/stores";
+import { clearLocalData, toast, useAuthStore } from "@/shared/stores";
 import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
 
 import {
@@ -130,6 +130,7 @@ export const PaywallScreen = () => {
     setLoading(true);
     await signOut();
     useAuthStore.getState().resetAuth();
+    clearLocalData();
     router.replace(getPlanRoute());
   };
 

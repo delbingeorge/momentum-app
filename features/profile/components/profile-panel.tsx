@@ -1,6 +1,5 @@
 import { router } from "expo-router";
-import { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { InteractionManager, ScrollView, Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
 import type { ReactNode } from "react";
@@ -8,11 +7,9 @@ import { COLORS } from "@/shared/lib/colors";
 import { GOALS, splitsFor } from "@/shared/lib/program";
 import { weekStreak } from "@/shared/lib/streaks";
 import {
+  clearLocalData,
   useAuthStore,
-  useBodyStore,
   usePlanStore,
-  useSettingsStore,
-  useSyncStore,
   useWorkoutStore,
 } from "@/shared/stores";
 import {
@@ -22,6 +19,7 @@ import {
   type IconName,
   PressableScale,
 } from "@/shared/ui";
+import { wipeCloudData } from "@/features/sync";
 
 import { PreferencesCard } from "./preferences-card";
 
@@ -62,21 +60,26 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
   const splitId = usePlanStore((state) => state.splitId);
   const sessionDates = useWorkoutStore((state) => state.sessionDates);
   const isPaid = useAuthStore((state) => state.isPaid);
-  const [resetArmed, setResetArmed] = useState(false);
 
   const goalName = GOALS.find((g) => g.id === goal)?.name ?? "Custom";
   const splitName =
     splitsFor(days).find((s) => s.id === splitId)?.name ?? "Not set";
   const streak = weekStreak(sessionDates);
 
-  const resetAll = () => {
-    useAuthStore.getState().resetAuth();
-    useSyncStore.getState().resetSync();
-    usePlanStore.getState().resetPlan();
-    useWorkoutStore.getState().resetWorkouts();
-    useBodyStore.getState().resetBody();
-    useSettingsStore.getState().resetSettings();
-    router.replace("/sign-in");
+  const handleReset = async () => {
+    const confirmed = await SheetManager.show("reset-confirm", {
+      payload: { paid: isPaid },
+    });
+    if (!confirmed) return;
+    // stay signed in: start over rebuilds the plan from onboarding
+    router.replace("/onboarding/goal");
+    // defer the wipes until after the transition so the outgoing ScrollView
+    // isn't re-rendered mid-reparent (Fabric reparent crash)
+    InteractionManager.runAfterInteractions(() => {
+      clearLocalData();
+      // paid + signed in: erase the cloud copy too so the reset sticks
+      void wipeCloudData();
+    });
   };
 
   return (
@@ -154,24 +157,17 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
             onPress={() => router.push("/onboarding/goal")}
           />
           <PressableScale
-            onPress={() => {
-              if (resetArmed) resetAll();
-              else setResetArmed(true);
-            }}
-            className={`h-[50px] flex-row items-center justify-center gap-2 rounded-full border ${resetArmed ? "border-danger/60" : "border-line2"}`}
+            onPress={() => void handleReset()}
+            className="h-[50px] flex-row items-center justify-center gap-2 rounded-full border border-line2"
           >
             <Icon
               name="rotate"
               size={17}
-              color={resetArmed ? COLORS.danger : COLORS.mut}
+              color={COLORS.mut}
               strokeWidth={2.2}
             />
-            <Text
-              className={`font-sans-semibold text-[15px] ${resetArmed ? "text-danger" : "text-mut"}`}
-            >
-              {resetArmed
-                ? "Tap again to erase everything"
-                : "Reset & start over"}
+            <Text className="font-sans-semibold text-[15px] text-mut">
+              Reset & start over
             </Text>
           </PressableScale>
         </View>

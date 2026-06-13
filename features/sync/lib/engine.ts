@@ -9,6 +9,7 @@ import {
 import { genderSchema, goalSchema, levelSchema, unitSchema } from "@/shared/types/schemas";
 
 import {
+  clearCloudData,
   fetchBodyweight,
   fetchHistory,
   fetchProfile,
@@ -106,6 +107,23 @@ export const pushDirty = async (force = false): Promise<void> => {
   if (all || dirty.profile)
     tasks.push(pushProfile(buildProfilePayload(), user.id));
   await Promise.all(tasks);
+};
+
+// "Start over" for a paid user: erase logged cloud data and overwrite the
+// profile with the (already cleared) local plan, keeping entitlement. Call
+// AFTER clearLocalData so the profile write mirrors the wiped state.
+export const wipeCloudData = async (): Promise<void> => {
+  const { user } = useAuthStore.getState();
+  if (!canSync() || !user) return;
+  try {
+    await clearCloudData(user.id);
+    await pushProfile(buildProfilePayload(), user.id);
+    useSyncStore.getState().clearDirty();
+    useSyncStore.getState().setLastSyncedAt(Date.now());
+  } catch (error) {
+    console.error("cloud wipe failed:", error);
+    useSyncStore.getState().setStatus("error");
+  }
 };
 
 // Full cycle: pull-merge, push everything, stamp the sync point

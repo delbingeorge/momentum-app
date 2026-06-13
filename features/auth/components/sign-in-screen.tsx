@@ -6,7 +6,7 @@ import { SheetManager } from "react-native-actions-sheet";
 import { logInPurchases } from "@/features/paywall/api/purchases-api";
 import { COLORS } from "@/shared/lib/colors";
 import { getPlanRoute } from "@/shared/lib/plan-route";
-import { toast, useAuthStore } from "@/shared/stores";
+import { clearLocalData, toast, useAuthStore } from "@/shared/stores";
 import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
 
 import { fetchPaidFlag, signInWithGoogle, signOut } from "../api/auth-api";
@@ -30,6 +30,8 @@ export const SignInScreen = () => {
   // users resume where they left off (mirrors the index route guard)
   const continueFree = () => {
     if (next) return router.replace(next as Href);
+    // fresh guest session: drop any leftover local data first
+    clearLocalData();
     const route = getPlanRoute();
     // push flows the user can back out of; only a finished plan replaces,
     // so home never pops back to sign-in
@@ -66,7 +68,10 @@ export const SignInScreen = () => {
         // anything else drops the unpaid session first
         await signOut();
         useAuthStore.getState().resetAuth();
-        if (choice === "free") router.replace(getPlanRoute());
+        if (choice === "free") {
+          clearLocalData();
+          router.replace(getPlanRoute());
+        }
         // purchase may live on another Google account: rerun the whole
         // flow, the picker shows again since sign-in clears its session
         else if (choice === "switch") return handleSignIn();

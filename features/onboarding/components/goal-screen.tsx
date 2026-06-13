@@ -16,7 +16,7 @@ export const GoalScreen = () => {
       step={0}
       title="What's your goal?"
       sub="We'll shape your volume, rep ranges and rest around this."
-      onBack={() => router.back()}
+      onBack={router.canGoBack() ? () => router.back() : undefined}
       footer={
         <CtaButton
           label="Continue"

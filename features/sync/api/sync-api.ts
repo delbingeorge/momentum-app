@@ -92,3 +92,18 @@ export const pushProfile = async (
     .upsert({ ...profile, id: userId, updated_at: new Date().toISOString() });
   if (error) throw new Error(error.message);
 };
+
+// Delete the user's logged data for "start over". Leaves the profiles row so
+// the entitlement mirror (is_paid) survives; the cleared plan is written back
+// separately via pushProfile.
+export const clearCloudData = async (userId: string): Promise<void> => {
+  const db = getSupabase();
+  const results = await Promise.all([
+    db.from("workout_sessions").delete().eq("user_id", userId),
+    db.from("exercise_history").delete().eq("user_id", userId),
+    db.from("bodyweight_logs").delete().eq("user_id", userId),
+  ]);
+  for (const { error } of results) {
+    if (error) throw new Error(error.message);
+  }
+};

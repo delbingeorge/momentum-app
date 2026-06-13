@@ -6,8 +6,7 @@ import { useAuthStore } from "@/shared/stores";
 
 import { TIERS } from "../lib/tiers";
 
-// Entitlement identifier configured in the RevenueCat dashboard
-const ENTITLEMENT_ID = "Momentum Pro";
+const ENTITLEMENT_ID = "Momentum Premium";
 
 const apiKey = (): string | undefined =>
   (Platform.OS === "ios"
@@ -27,8 +26,7 @@ const getPurchases = async () => {
 };
 
 const hasPremium = (info: CustomerInfo): boolean =>
-  ENTITLEMENT_ID in info.entitlements.active ||
-  Object.keys(info.entitlements.active).length > 0;
+  ENTITLEMENT_ID in info.entitlements.active;
 
 let configured = false;
 let configuring: Promise<void> | null = null;
@@ -133,6 +131,7 @@ export const purchasePremium = async (
   if (!Purchases) return "error";
   try {
     const { customerInfo } = await Purchases.purchasePackage(pkg);
+
     if (hasPremium(customerInfo)) {
       useAuthStore.getState().setPaid(true);
       return "purchased";

@@ -1,11 +1,11 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { InteractionManager, Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
 import { Icon, PressableScale } from "@/shared/ui";
 
-import { useAuthStore } from "@/shared/stores";
+import { clearLocalData, useAuthStore } from "@/shared/stores";
 
 import { signOut } from "../api/auth-api";
 
@@ -19,11 +19,18 @@ export const AccountCard = () => {
     setBusy(true);
     try {
       await signOut();
-    } finally {
+    } catch (error) {
+      // revoke can fail offline / on a stale session; clear locally anyway
+      console.error("sign out failed:", error);
+    }
+    router.replace("/sign-in");
+    // wipe after the transition so the outgoing profile ScrollView doesn't
+    // re-render mid-reparent (Fabric "child already has a parent" crash)
+    InteractionManager.runAfterInteractions(() => {
+      clearLocalData();
       resetAuth();
       setBusy(false);
-      router.replace("/sign-in");
-    }
+    });
   };
 
   if (!isPaid) {
