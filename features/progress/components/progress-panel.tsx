@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
@@ -26,20 +27,25 @@ export const ProgressPanel = () => {
   const isPaid = useIsPaid();
 
   // free tier sees a limited window; data itself is never touched
-  const visibleSessions = isPaid
-    ? pastSessions
-    : filterSessionsToFreeWindow(pastSessions);
-  const visibleDates = isPaid
-    ? sessionDates
-    : filterDatesToFreeWindow(sessionDates);
+  const visibleSessions = useMemo(
+    () => (isPaid ? pastSessions : filterSessionsToFreeWindow(pastSessions)),
+    [isPaid, pastSessions],
+  );
+  const visibleDates = useMemo(
+    () => (isPaid ? sessionDates : filterDatesToFreeWindow(sessionDates)),
+    [isPaid, sessionDates],
+  );
   const lockedCount = pastSessions.length - visibleSessions.length;
 
-  const stats = trainingStats(visibleSessions);
-  const allPrs = recentPRs(visibleSessions, 4);
-  const prs = isPaid
-    ? allPrs
-    : allPrs.filter((pr) => pr.ts >= freePrCutoffTs());
-  const streak = weekStreak(visibleDates);
+  const stats = useMemo(
+    () => trainingStats(visibleSessions),
+    [visibleSessions],
+  );
+  const prs = useMemo(() => {
+    const allPrs = recentPRs(visibleSessions, 4);
+    return isPaid ? allPrs : allPrs.filter((pr) => pr.ts >= freePrCutoffTs());
+  }, [isPaid, visibleSessions]);
+  const streak = useMemo(() => weekStreak(visibleDates), [visibleDates]);
 
   const statCards: [string, string, boolean][] = [
     [String(stats.total), "workouts", true],

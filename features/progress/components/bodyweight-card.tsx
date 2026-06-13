@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 import Svg, { Circle, Path } from "react-native-svg";
@@ -46,10 +47,14 @@ export const BodyweightCard = () => {
   const allWeights = useBodyStore((state) => state.weights);
   const unit = useSettingsStore((state) => state.unit);
   const isPaid = useIsPaid();
-  const cutoff = new Date(freeHistoryCutoffTs()).getTime();
-  const weights = isPaid
-    ? allWeights
-    : allWeights.filter((entry) => new Date(entry.date).getTime() >= cutoff);
+  const weights = useMemo(() => {
+    if (isPaid) return allWeights;
+    const cutoff = new Date(freeHistoryCutoffTs()).getTime();
+    return allWeights.filter(
+      (entry) => new Date(entry.date).getTime() >= cutoff,
+    );
+  }, [isPaid, allWeights]);
+  const sparkPts = useMemo(() => weights.slice(-8).map((w) => w.kg), [weights]);
 
   const lastKg = weights[weights.length - 1]?.kg ?? 70;
   const deltaKg = weights.length > 1 ? lastKg - (weights[0]?.kg ?? lastKg) : 0;
@@ -101,9 +106,8 @@ export const BodyweightCard = () => {
             over {weights.length} weigh-ins
           </Text>
         </View>
-        <Sparkline pts={weights.slice(-8).map((w) => w.kg)} />
+        <Sparkline pts={sparkPts} />
       </View>
-
     </View>
   );
 };

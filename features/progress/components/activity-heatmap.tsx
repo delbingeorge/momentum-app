@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
 import { useWorkoutStore } from "@/shared/stores";
@@ -31,18 +31,19 @@ export const ActivityHeatmap = ({
   const pastSessions = useWorkoutStore((state) => state.pastSessions);
   const [gridWidth, setGridWidth] = useState(0);
 
-  // dates older than the kept session records still render, at the base level
-  const setsByDate: Record<string, number> = {};
-  sessionDates.forEach((date) => {
-    setsByDate[date] = 0;
-  });
-  pastSessions.forEach((session) => {
-    setsByDate[session.date] =
-      (setsByDate[session.date] ?? 0) + session.totalSets;
-  });
-
-  const weeks = buildActivity(setsByDate, weekCount);
-  const months = monthLabels(weeks);
+  const { weeks, months } = useMemo(() => {
+    // dates older than the kept session records still render, at the base level
+    const setsByDate: Record<string, number> = {};
+    sessionDates.forEach((date) => {
+      setsByDate[date] = 0;
+    });
+    pastSessions.forEach((session) => {
+      setsByDate[session.date] =
+        (setsByDate[session.date] ?? 0) + session.totalSets;
+    });
+    const grid = buildActivity(setsByDate, weekCount);
+    return { weeks: grid, months: monthLabels(grid) };
+  }, [sessionDates, pastSessions, weekCount]);
 
   // GitHub-sized squares; shrink only when the grid wouldn't fit the card
   const cell =
