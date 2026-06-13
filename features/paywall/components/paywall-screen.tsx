@@ -33,7 +33,7 @@ const PERKS: Perk[] = [
   },
   { label: "Google login & cloud backup" },
   { label: "Sync your logs across devices" },
-  { label: "No ads, ever", freeIncluded: true },
+  { label: "No ads, ever", freeNote: "ads on the free plan" },
   { label: "Pay once, keep it for life" },
 ];
 

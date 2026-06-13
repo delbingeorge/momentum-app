@@ -12,7 +12,7 @@ export const ResetConfirmSheet = ({
     SheetManager.hide(sheetId, { payload: confirmed });
 
   return (
-    <BaseSheet height="42%" sheetId={sheetId} title="Erase everything?">
+    <BaseSheet height="35%" sheetId={sheetId} title="Erase everything?">
       <View className="flex-col gap-5 px-5 py-2">
         <Text className="font-sans text-[14px] leading-5 text-mut">
           This wipes your plan, workouts, bodyweight and history on this device

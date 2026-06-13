@@ -1,6 +1,6 @@
 import { type Href, router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { Linking, Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
 import { logInPurchases, reconcileEntitlement } from "@/features/paywall";
@@ -129,7 +129,14 @@ export const SignInScreen = () => {
           </Text>
         </PressableScale>
         <Text className="text-center font-sans text-xs leading-[17px] text-faint">
-          By continuing you agree to our Terms & Privacy Policy.
+          By continuing you agree to our{" "}
+          <Text
+            className="font-sans-medium text-mut underline"
+            onPress={() => void Linking.openURL("https://octane.team/")}
+          >
+            Terms & Privacy Policy
+          </Text>
+          .
         </Text>
       </View>
     </Screen>
