@@ -10,12 +10,12 @@ import { clearLocalData, toast, useAuthStore } from "@/shared/stores";
 import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
 
 import {
-  getPaywallPackages,
   logInPurchases,
   type PaywallPackage,
   purchasePremium,
   restorePremium,
 } from "../api/purchases-api";
+import { usePaywallPackages } from "../hooks/use-paywall-packages";
 import { TIERS } from "../lib/tiers";
 
 interface Perk {
@@ -54,6 +54,9 @@ const placeholderTiers: DisplayTier[] = TIERS.map((tier) => ({
   suggested: Boolean(tier.suggested),
   rcPackage: null,
 }));
+
+const defaultTierId = (tiers: DisplayTier[]): string | undefined =>
+  tiers.find((tier) => tier.suggested)?.id ?? tiers[0]?.id;
 
 // display-only row, never purchasable; appended in gate mode so picking it
 // shows what staying free costs before the user confirms
@@ -95,25 +98,18 @@ export const PaywallScreen = () => {
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
   const setPaid = useAuthStore((state) => state.setPaid);
-  const [tiers, setTiers] = useState<DisplayTier[]>(placeholderTiers);
-  const [selectedId, setSelectedId] = useState(
-    placeholderTiers.find((tier) => tier.suggested)?.id ??
-      placeholderTiers[0]?.id,
-  );
+  const { data: packages } = usePaywallPackages();
+  const tiers: DisplayTier[] = packages?.length ? packages : placeholderTiers;
+  const [selectedId, setSelectedId] = useState(defaultTierId(placeholderTiers));
   const [loading, setLoading] = useState(false);
 
+  // move the selection onto the live packages once they load
   useEffect(() => {
-    getPaywallPackages().then((packages) => {
-      if (!packages?.length) return;
-      setTiers(packages);
-      setSelectedId(
-        packages.find((pkg) => pkg.suggested)?.id ?? packages[0]?.id,
-      );
-    });
-  }, []);
+    if (packages?.length) setSelectedId(defaultTierId(packages));
+  }, [packages]);
 
-  // derived, not state: the RC package load resets `tiers`, so appending the
-  // free row in state would get wiped
+  // derived, not state: appending the free row in state would get wiped when
+  // the live packages resolve and replace `tiers`
   const displayTiers = gate ? [...tiers, FREE_TIER] : tiers;
   const selected = displayTiers.find((tier) => tier.id === selectedId);
   const freeSelected = selectedId === FREE_TIER.id;
@@ -179,12 +175,11 @@ export const PaywallScreen = () => {
         if (result === "error") toast.error("Purchase failed. Try again.");
       }
     } else {
-      // TODO(octane): remove dev fallback once store builds always have RC configured
-      setTimeout(() => {
-        setPaid(true);
-        setLoading(false);
-        close();
-      }, 1200);
+      // dev only: no RC packages (Expo Go / unconfigured build) means nothing
+      // to purchase, so unlock locally to keep the flow testable
+      setPaid(true);
+      setLoading(false);
+      close();
     }
   };
 

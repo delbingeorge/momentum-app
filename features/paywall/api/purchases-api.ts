@@ -1,34 +1,15 @@
-import { Platform } from "react-native";
-import type { CustomerInfo, PurchasesPackage } from "react-native-purchases";
-
-import { env } from "@/shared/lib/env";
-import { useAuthStore } from "@/shared/stores";
+import type { PurchasesPackage } from "react-native-purchases";
 
 import { TIERS } from "../lib/tiers";
+import {
+  apiKey,
+  getPurchases,
+  hasPremium,
+  isConfigured,
+  markConfigured,
+} from "../lib/rc-client";
+import { reconcileEntitlement } from "../lib/reconcile-entitlement";
 
-const ENTITLEMENT_ID = "Momentum Premium";
-
-const apiKey = (): string | undefined =>
-  (Platform.OS === "ios"
-    ? env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
-    : env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY) ?? env.EXPO_PUBLIC_REVENUECAT_KEY;
-
-// Dynamic import keeps Expo Go (no native module) from crashing at load
-const getPurchases = async () => {
-  const key = apiKey();
-  if (!key) return null;
-  try {
-    const { default: Purchases } = await import("react-native-purchases");
-    return Purchases;
-  } catch {
-    return null;
-  }
-};
-
-const hasPremium = (info: CustomerInfo): boolean =>
-  ENTITLEMENT_ID in info.entitlements.active;
-
-let configured = false;
 let configuring: Promise<void> | null = null;
 
 const doConfigure = async (): Promise<void> => {
@@ -42,30 +23,28 @@ const doConfigure = async (): Promise<void> => {
       // the SDK doesn't log a billing connection error on Android in dev
       shouldShowInAppMessagesAutomatically: !key.startsWith("test_"),
     });
-    configured = true;
-    const info = await Purchases.getCustomerInfo();
-    // only ever upgrade locally — never silently revoke
-    if (hasPremium(info)) useAuthStore.getState().setPaid(true);
+    markConfigured();
   } catch (error) {
     console.error("purchases configure failed:", error);
   }
 };
 
-// Call once at app start; also refreshes the local isPaid flag from the store
+// Call once at app start. Entitlement is reconciled separately by
+// reconcileEntitlement, which owns every write to the isPaid flag.
 export const configurePurchases = (): Promise<void> => {
   configuring ??= doConfigure();
   return configuring;
 };
 
 // Bind the RevenueCat customer to our Supabase user id so purchases follow
-// the account (and any anonymous purchase on this device transfers to it)
+// the account (and any anonymous purchase on this device transfers to it).
+// Does not touch isPaid; callers run reconcileEntitlement after.
 export const logInPurchases = async (userId: string): Promise<void> => {
   await configurePurchases();
   const Purchases = await getPurchases();
-  if (!Purchases || !configured) return;
+  if (!Purchases || !isConfigured()) return;
   try {
-    const { customerInfo } = await Purchases.logIn(userId);
-    if (hasPremium(customerInfo)) useAuthStore.getState().setPaid(true);
+    await Purchases.logIn(userId);
   } catch (error) {
     console.error("purchases login failed:", error);
   }
@@ -73,7 +52,7 @@ export const logInPurchases = async (userId: string): Promise<void> => {
 
 export const logOutPurchases = async (): Promise<void> => {
   const Purchases = await getPurchases();
-  if (!Purchases || !configured) return;
+  if (!Purchases || !isConfigured()) return;
   try {
     await Purchases.logOut();
   } catch {
@@ -96,7 +75,7 @@ export const getPaywallPackages = async (): Promise<
   PaywallPackage[] | null
 > => {
   const Purchases = await getPurchases();
-  if (!Purchases || !configured) return null;
+  if (!Purchases || !isConfigured()) return null;
   try {
     const offerings = await Purchases.getOfferings();
     const packages = offerings.current?.availablePackages ?? [];
@@ -133,7 +112,8 @@ export const purchasePremium = async (
     const { customerInfo } = await Purchases.purchasePackage(pkg);
 
     if (hasPremium(customerInfo)) {
-      useAuthStore.getState().setPaid(true);
+      // reconcile owns the isPaid write; it re-reads the fresh CustomerInfo
+      await reconcileEntitlement();
       return "purchased";
     }
     return "error";
@@ -157,7 +137,7 @@ export const restorePremium = async (): Promise<PurchaseResult> => {
   try {
     const info = await Purchases.restorePurchases();
     if (hasPremium(info)) {
-      useAuthStore.getState().setPaid(true);
+      await reconcileEntitlement();
       return "purchased";
     }
     return "error";

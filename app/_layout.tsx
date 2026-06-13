@@ -16,6 +16,7 @@ import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { AppState } from "react-native";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { SheetProvider } from "react-native-actions-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -26,6 +27,7 @@ import {
   configurePurchases,
   logInPurchases,
   logOutPurchases,
+  reconcileEntitlement,
 } from "@/features/paywall";
 import { useSyncEngine } from "@/features/sync";
 import { scheduleReminder } from "@/features/profile";
@@ -56,17 +58,34 @@ export default function RootLayout() {
     }
   }, [fontsLoaded]);
 
-  // RevenueCat: configure + refresh entitlement (no-op without native module)
+  // RevenueCat: configure then reconcile entitlement from the authority
+  // (no-op without native module). reconcileEntitlement owns the isPaid flag.
   useEffect(() => {
-    void configurePurchases();
+    void configurePurchases().then(() =>
+      reconcileEntitlement({ userId: useAuthStore.getState().user?.id }),
+    );
+  }, []);
+
+  // re-check entitlement when the app returns to the foreground so a lapse or
+  // refund that happened while backgrounded is reflected
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (status) => {
+      if (status === "active") {
+        void reconcileEntitlement({ userId: useAuthStore.getState().user?.id });
+      }
+    });
+    return () => subscription.remove();
   }, []);
 
   // keep the RevenueCat customer bound to the signed-in user so purchases
-  // follow the account; back to anonymous on sign-out
+  // follow the account, then reconcile; back to anonymous on sign-out
   useEffect(() => {
     return useAuthStore.subscribe((state, prev) => {
       if (state.user && state.user !== prev.user) {
-        void logInPurchases(state.user.id);
+        const userId = state.user.id;
+        void logInPurchases(userId).then(() =>
+          reconcileEntitlement({ userId }),
+        );
       } else if (!state.user && prev.user) {
         void logOutPurchases();
       }

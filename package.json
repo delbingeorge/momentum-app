@@ -51,14 +51,23 @@
     "android:prod": "expo run:android --variant release",
     "ios:prod": "expo run:ios --configuration Release",
     "web": "expo start --web",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --ci --coverage",
     "clean": "watchman watch-del-all 2>/dev/null; rm -rf .expo \"$TMPDIR\"metro-* \"$TMPDIR\"haste-map-*",
     "clean:full": "pnpm clean; rm -rf node_modules ios/Pods ios/build android/build android/app/build ~/Library/Developer/Xcode/DerivedData/Momentum-* && pnpm install && npx pod-install"
   },
   "private": true,
   "devDependencies": {
+    "@testing-library/react-native": "^14.0.0",
+    "@types/jest": "^29.5.14",
     "@types/react": "~19.2.14",
+    "babel-jest": "~29.7.0",
     "babel-preset-expo": "~56.0.0",
+    "jest": "^29.7.0",
+    "jest-expo": "~56.0.5",
     "prettier-plugin-tailwindcss": "^0.8.0",
+    "react-test-renderer": "19.2.3",
     "tailwindcss": "^3.4.19",
     "typescript": "~6.0.3"
   }

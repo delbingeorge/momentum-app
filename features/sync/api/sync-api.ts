@@ -17,28 +17,40 @@ import {
   weightsToRows,
 } from "../lib/serializers";
 
-const parseRows = <T>(schema: z.ZodType<T>, rows: unknown[]): T[] =>
-  rows.flatMap((row) => {
-    const parsed = schema.safeParse(row);
-    return parsed.success ? [parsed.data] : [];
+// Drop schema-invalid rows, but surface how many so silent data loss from a
+// schema drift is greppable in device logs instead of vanishing.
+const parseRows = <T>(
+  schema: z.ZodType<T>,
+  rows: unknown[],
+  label: string,
+): T[] => {
+  const parsed = rows.flatMap((row) => {
+    const result = schema.safeParse(row);
+    return result.success ? [result.data] : [];
   });
+  const dropped = rows.length - parsed.length;
+  if (dropped > 0) {
+    console.warn(`sync: dropped ${dropped}/${rows.length} ${label} rows (schema mismatch)`);
+  }
+  return parsed;
+};
 
 export const fetchSessions = async (): Promise<SessionRow[]> => {
   const { data, error } = await getSupabase().from("workout_sessions").select();
   if (error) throw new Error(error.message);
-  return parseRows(sessionRowSchema, data ?? []);
+  return parseRows(sessionRowSchema, data ?? [], "session");
 };
 
 export const fetchHistory = async (): Promise<HistoryRow[]> => {
   const { data, error } = await getSupabase().from("exercise_history").select();
   if (error) throw new Error(error.message);
-  return parseRows(historyRowSchema, data ?? []);
+  return parseRows(historyRowSchema, data ?? [], "history");
 };
 
 export const fetchBodyweight = async (): Promise<BodyweightRow[]> => {
   const { data, error } = await getSupabase().from("bodyweight_logs").select();
   if (error) throw new Error(error.message);
-  return parseRows(bodyweightRowSchema, data ?? []);
+  return parseRows(bodyweightRowSchema, data ?? [], "bodyweight");
 };
 
 export const fetchProfile = async (): Promise<ProfileRow | null> => {
@@ -86,10 +98,15 @@ export const pushBodyweight = async (
 export const pushProfile = async (
   profile: Record<string, unknown>,
   userId: string,
+  // null leaves updated_at untouched so an unchanged profile push from one
+  // device can't make another device's pull treat it as newer
+  updatedAt: string | null,
 ): Promise<void> => {
-  const { error } = await getSupabase()
-    .from("profiles")
-    .upsert({ ...profile, id: userId, updated_at: new Date().toISOString() });
+  const row =
+    updatedAt === null
+      ? { ...profile, id: userId }
+      : { ...profile, id: userId, updated_at: updatedAt };
+  const { error } = await getSupabase().from("profiles").upsert(row);
   if (error) throw new Error(error.message);
 };
 

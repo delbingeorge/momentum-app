@@ -4,13 +4,14 @@ import { Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
 import { logInPurchases } from "@/features/paywall/api/purchases-api";
+import { reconcileEntitlement } from "@/features/paywall";
 import { syncNow } from "@/features/sync/lib/engine";
 import { COLORS } from "@/shared/lib/colors";
 import { getPlanRoute } from "@/shared/lib/plan-route";
 import { clearLocalData, toast, useAuthStore } from "@/shared/stores";
 import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
 
-import { fetchPaidFlag, signInWithGoogle, signOut } from "../api/auth-api";
+import { signInWithGoogle, signOut } from "../api/auth-api";
 import { SignInBackdrop } from "./sign-in-backdrop";
 
 export const SignInScreen = () => {
@@ -41,13 +42,10 @@ export const SignInScreen = () => {
     try {
       const signedIn = await signInWithGoogle();
       setUser(signedIn);
+      // settle both entitlement sources before deciding: RevenueCat authority,
+      // then the profiles mirror when RC is unconfigured
       await logInPurchases(signedIn.id);
-      if (
-        !useAuthStore.getState().isPaid &&
-        (await fetchPaidFlag(signedIn.id))
-      ) {
-        useAuthStore.getState().setPaid(true);
-      }
+      await reconcileEntitlement({ userId: signedIn.id });
       if (useAuthStore.getState().isPaid) {
         // restore plan + history from cloud before routing; otherwise
         // getPlanRoute reads the just-cleared local plan and sends paid

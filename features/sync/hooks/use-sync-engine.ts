@@ -9,9 +9,9 @@ import {
   useWorkoutStore,
 } from "@/shared/stores";
 
-import { type SyncEntity, toast, useSyncStore } from "@/shared/stores";
+import { type SyncEntity, useSyncStore } from "@/shared/stores";
 
-import { canSync, pushDirty, syncNow } from "../lib/engine";
+import { canSync, pushNow, syncNow } from "../lib/engine";
 
 const PUSH_DEBOUNCE_MS = 3000;
 
@@ -27,22 +27,12 @@ export const useSyncEngine = (): void => {
   }, [userId, isPaid]);
 
   useEffect(() => {
+    // pushNow claims the dirty flags, pushes, and restores them on failure, so
+    // a write landing during the debounce or the in-flight request isn't lost
     const schedulePush = () => {
       if (!canSync()) return;
       if (timer.current) clearTimeout(timer.current);
-      timer.current = setTimeout(() => {
-        void pushDirty()
-          .then(() => {
-            useSyncStore.getState().clearDirty();
-            useSyncStore.getState().setLastSyncedAt(Date.now());
-            useSyncStore.getState().setStatus("idle");
-          })
-          .catch((error) => {
-            console.error("push failed:", error);
-            useSyncStore.getState().setStatus("error");
-            toast.error("Sync failed — changes saved on device.");
-          });
-      }, PUSH_DEBOUNCE_MS);
+      timer.current = setTimeout(() => void pushNow(), PUSH_DEBOUNCE_MS);
     };
 
     const markAndPush = (entity: SyncEntity) => {
