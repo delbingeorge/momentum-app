@@ -60,3 +60,30 @@ create policy "own history" on public.exercise_history
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "own bodyweight" on public.bodyweight_logs
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Entitlement lock. The "own profile" policy lets a user write their own row,
+-- which would include is_paid — a client could grant itself premium. is_paid is
+-- the entitlement source of truth, so only the RevenueCat webhook (service_role)
+-- may set it. This trigger forces every client insert/update of is_paid back to
+-- false / its existing value; the service role is exempt.
+create or replace function public.protect_is_paid()
+  returns trigger
+  language plpgsql
+as $$
+begin
+  if auth.role() = 'service_role' then
+    return new;
+  end if;
+  if tg_op = 'INSERT' then
+    new.is_paid := false;
+  else
+    new.is_paid := old.is_paid;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists protect_is_paid on public.profiles;
+create trigger protect_is_paid
+  before insert or update on public.profiles
+  for each row execute function public.protect_is_paid();

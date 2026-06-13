@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 
-import { signInWithGoogle, signOut, upsertPaidFlag } from "@/features/auth";
+import { signInWithGoogle, signOut } from "@/features/auth";
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
 import { getPlanRoute } from "@/shared/lib/plan-route";
@@ -172,7 +172,8 @@ export const PaywallScreen = () => {
       const result = await purchasePremium(selected.rcPackage);
       setLoading(false);
       if (result === "purchased") {
-        void upsertPaidFlag(userId, true);
+        // RC owns the entitlement: reconcile already set the local flag from the
+        // verified receipt, and the RC webhook mirrors is_paid to the cloud
         afterPurchase();
       } else {
         // no purchase: undo the inline sign-in so an unpaid session
@@ -184,11 +185,16 @@ export const PaywallScreen = () => {
         if (result === "error") toast.error("Purchase failed. Try again.");
       }
     } else {
-      // dev only: no RC packages (Expo Go / unconfigured build) means nothing
-      // to purchase, so unlock locally to keep the flow testable
-      setPaid(true);
+      // no RC packages (Expo Go / unconfigured build). Unlock locally ONLY in
+      // dev to keep the flow testable; in production a missing offering must
+      // never grant premium without a verified purchase.
       setLoading(false);
-      afterPurchase();
+      if (__DEV__) {
+        setPaid(true);
+        afterPurchase();
+      } else {
+        toast.error("Purchases are unavailable right now. Try again later.");
+      }
     }
   };
 
@@ -197,14 +203,19 @@ export const PaywallScreen = () => {
       if (user?.id) await logInPurchases(user.id);
       const result = await restorePremium();
       if (result === "purchased") {
-        if (user?.id) void upsertPaidFlag(user.id, true);
+        // reconcile already set the local flag from the restored receipt
         afterPurchase();
       } else {
         toast.error("No previous purchase found.");
       }
     } else {
-      setPaid(true);
-      afterPurchase();
+      setLoading(false);
+      if (__DEV__) {
+        setPaid(true);
+        afterPurchase();
+      } else {
+        toast.error("Purchases are unavailable right now. Try again later.");
+      }
     }
   };
 

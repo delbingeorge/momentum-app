@@ -14,11 +14,17 @@ export const reconcileEntitlement = async (
   const { setPaid } = useAuthStore.getState();
   const current = (): boolean => useAuthStore.getState().isPaid;
 
-  // RC unconfigured (Expo Go / no key): trust the mirror, upgrade only
+  // RC unconfigured (Expo Go / no key): the Supabase mirror is the authority.
+  // is_paid is written only by the RC webhook (the DB trigger blocks clients),
+  // so trust it both ways — but a null read means offline/unknown, so leave the
+  // flag untouched rather than ejecting a paid user who is briefly offline.
   if (!apiKey() || !isConfigured()) {
-    if (opts.userId && (await fetchPaidFlag(opts.userId))) {
-      setPaid(true);
-      return true;
+    if (opts.userId) {
+      const paid = await fetchPaidFlag(opts.userId);
+      if (paid !== null) {
+        setPaid(paid);
+        return paid;
+      }
     }
     return current();
   }

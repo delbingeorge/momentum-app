@@ -9,6 +9,7 @@ module.exports = tseslint.config(
       "android/**",
       ".expo/**",
       "dist/**",
+      "supabase/functions/**",
       "babel.config.js",
       "metro.config.js",
       "*.config.js",

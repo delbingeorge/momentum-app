@@ -78,16 +78,24 @@ describe("reconcileEntitlement with RevenueCat unconfigured", () => {
     mockIsConfigured.mockReturnValue(false);
   });
 
-  it("upgrades from the Supabase mirror", async () => {
+  it("upgrades from the webhook-authoritative mirror", async () => {
     fetchPaidFlag.mockResolvedValue(true);
     const result = await reconcileEntitlement({ userId: "u1" });
     expect(result).toBe(true);
     expect(useAuthStore.getState().isPaid).toBe(true);
   });
 
-  it("never downgrades from the mirror", async () => {
+  it("downgrades when the mirror authoritatively reports unpaid", async () => {
     useAuthStore.getState().setPaid(true);
     fetchPaidFlag.mockResolvedValue(false);
+    const result = await reconcileEntitlement({ userId: "u1" });
+    expect(result).toBe(false);
+    expect(useAuthStore.getState().isPaid).toBe(false);
+  });
+
+  it("keeps the current flag when the mirror is unreachable", async () => {
+    useAuthStore.getState().setPaid(true);
+    fetchPaidFlag.mockResolvedValue(null);
     const result = await reconcileEntitlement({ userId: "u1" });
     expect(result).toBe(true);
     expect(useAuthStore.getState().isPaid).toBe(true);

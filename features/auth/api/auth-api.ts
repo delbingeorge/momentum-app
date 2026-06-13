@@ -55,24 +55,20 @@ export const getCurrentUser = async (): Promise<AuthUser | null> => {
   return data.user ? toAuthUser(data.user) : null;
 };
 
-// Read the mirrored entitlement from profiles; RevenueCat stays the purchase
-// authority, this is the fallback when its check can't confirm premium
-export const fetchPaidFlag = async (userId: string): Promise<boolean> => {
-  if (!isCloudConfigured) return false;
-  const { data } = await getSupabase()
+// Read the entitlement mirror from profiles. is_paid is written only by the
+// RevenueCat webhook (the DB trigger blocks client writes), so this value is
+// authoritative. Returns null when it can't be determined (offline / cloud not
+// configured) so callers can tell "authoritatively unpaid" apart from "unknown"
+// and never eject an offline paid user.
+export const fetchPaidFlag = async (
+  userId: string,
+): Promise<boolean | null> => {
+  if (!isCloudConfigured) return null;
+  const { data, error } = await getSupabase()
     .from("profiles")
     .select("is_paid")
     .eq("id", userId)
     .maybeSingle();
+  if (error) return null;
   return data?.is_paid === true;
-};
-
-export const upsertPaidFlag = async (
-  userId: string,
-  isPaid: boolean,
-): Promise<void> => {
-  if (!isCloudConfigured) return;
-  await getSupabase()
-    .from("profiles")
-    .upsert({ id: userId, is_paid: isPaid, updated_at: new Date().toISOString() });
 };
