@@ -19,7 +19,8 @@ const QUOTES = [
   "The gym doesn't care how you feel. Go anyway.",
   "You already know you'll feel better after.",
   "Half-hearted reps still beat no reps.",
-  "Today's effort is tomorrow's strength.",
+  "Today's effort is tomorrow's strength.", 
+  "It wouldn’t happen overnight, but if you quit, it won’t happen at all.”
 ] as const;
 
 const REST_QUOTES = [

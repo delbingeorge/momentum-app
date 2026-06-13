@@ -3,12 +3,13 @@ import { Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
 import { getPlanRoute } from "@/shared/lib/plan-route";
-import { useLaunchStore, usePlanStore } from "@/shared/stores";
+import { useAuthStore, useLaunchStore, usePlanStore } from "@/shared/stores";
 import { CtaButton, Icon, Screen } from "@/shared/ui";
 
 export const WelcomeBackScreen = () => {
   const markSeen = useLaunchStore((state) => state.markWelcomeBackSeen);
   const resetPlan = usePlanStore((state) => state.resetPlan);
+  const user = useAuthStore((state) => state.user);
 
   const continuePrevious = () => {
     markSeen();
@@ -35,10 +36,10 @@ export const WelcomeBackScreen = () => {
           />
         </View>
         <Text className="font-sans-extrabold text-4xl tracking-tight text-text">
-          Welcome back, champ!
+          Welcome back, {user ? user?.name : "champ"}!
         </Text>
         <Text className="font-sans text-lg leading-7 text-mut">
-          Show up. Even on the bad days. Especially on the bad days.
+          Show up. {"\n"}Even on the bad days. {"\n"}Especially on the bad days.
         </Text>
       </View>
       <View className="gap-3 pb-2">
