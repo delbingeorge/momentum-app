@@ -22,6 +22,7 @@ import {
 import { wipeCloudData } from "@/features/sync";
 
 import { PreferencesCard } from "./preferences-card";
+import { RetentionBanner } from "./retention-banner";
 
 const SectionLabel = ({ children }: { children: string }) => (
   <Text className="mb-2.5 mt-5 font-mono text-[11px] uppercase tracking-wider text-faint">
@@ -95,9 +96,14 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
             <Icon name="user" size={30} color={COLORS.mut} />
           </View>
           <View>
-            <Text className="font-sans-bold text-[21px] tracking-tight text-text">
-              {user ? user.name : "Athlete"}
-            </Text>
+            <View className="flex-row items-center gap-1.5">
+              <Text className="font-sans-bold text-[21px] tracking-tight text-text">
+                {user ? user.name : "Athlete"}
+              </Text>
+              {isPaid ? (
+                <Icon name="crown" size={16} color={COLORS.lime} strokeWidth={2.2} />
+              ) : null}
+            </View>
             <View className="mt-1.5 flex-row items-center gap-1.5 self-start rounded-lg bg-lime-dim px-2.5 py-1">
               <Icon name="fire" size={12} color={COLORS.lime} />
               <Text className="font-mono text-[11.5px] text-lime">
@@ -106,6 +112,8 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
             </View>
           </View>
         </View>
+
+        <RetentionBanner />
 
         <SectionLabel>Account</SectionLabel>
         {accountSlot}

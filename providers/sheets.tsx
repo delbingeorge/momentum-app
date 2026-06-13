@@ -5,7 +5,12 @@ import {
 
 import { NoPurchaseSheet } from "@/features/auth";
 import { RecapSheet } from "@/features/home";
-import { ExportSheet, ReminderSheet, ResetConfirmSheet } from "@/features/profile";
+import {
+  DataWarningSheet,
+  ExportSheet,
+  ReminderSheet,
+  ResetConfirmSheet,
+} from "@/features/profile";
 import {
   LogBodyweightSheet,
   SessionDetailSheet,
@@ -35,6 +40,7 @@ declare module "react-native-actions-sheet" {
       payload: { paid: boolean };
       returnValue: boolean;
     }>;
+    "data-warning": SheetDefinition;
     "session-recap": SheetDefinition;
     "streak-journey": SheetDefinition;
     "no-purchase": SheetDefinition<{
@@ -55,6 +61,7 @@ export const AppSheets = () => (
       "reminder-config": ReminderSheet,
       "export-data": ExportSheet,
       "reset-confirm": ResetConfirmSheet,
+      "data-warning": DataWarningSheet,
       "session-recap": RecapSheet,
       "streak-journey": StreakJourneySheet,
       "no-purchase": NoPurchaseSheet,

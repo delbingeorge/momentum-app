@@ -2,8 +2,9 @@ import { isoDate } from "@/shared/lib/dates";
 import { useAuthStore } from "@/shared/stores";
 import type { SessionRecord } from "@/shared/types";
 
-// Free tier sees a limited look-back window; data is never deleted — paid
-// unlock simply widens the view to all-time.
+// Free tier sees a limited look-back window, and data past it is pruned on
+// launch (see retention.ts). Paid unlock widens the view to all-time and stops
+// the pruning.
 export const FREE_HISTORY_WEEKS = 8;
 export const FREE_PR_DAYS = 30;
 
