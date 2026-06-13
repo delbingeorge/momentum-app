@@ -7,52 +7,49 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
-import Svg, {
-  Circle,
-  Defs,
-  LinearGradient,
-  Mask,
-  Pattern,
-  RadialGradient,
-  Rect,
-  Stop,
-} from "react-native-svg";
+import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
 
 import { COLORS } from "@/shared/lib/colors";
 
-// A soft radial glow circle; RN has no CSS blur, the gradient falloff does the job
-const Flare = ({
-  size,
+// A soft radial glow that fills the whole canvas; cx/cy place it, rx/ry spread it.
+// RN has no CSS blur, the gradient falloff does the job.
+const Glow = ({
+  width,
+  height,
+  cx,
+  cy,
+  rx,
+  ry,
   color,
   peak,
-  mid,
-  midStop,
 }: {
-  size: number;
+  width: number;
+  height: number;
+  cx: string;
+  cy: string;
+  rx: string;
+  ry: string;
   color: string;
   peak: number;
-  mid: number;
-  midStop: number;
 }) => (
-  <Svg width={size} height={size}>
+  <Svg width={width} height={height} style={{ position: "absolute" }}>
     <Defs>
-      <RadialGradient id="flare" cx="50%" cy="50%" r="50%">
+      <RadialGradient id="aura" cx={cx} cy={cy} rx={rx} ry={ry}>
         <Stop offset="0%" stopColor={color} stopOpacity={peak} />
-        <Stop offset={`${midStop}%`} stopColor={color} stopOpacity={mid} />
         <Stop offset="100%" stopColor={color} stopOpacity={0} />
       </RadialGradient>
     </Defs>
-    <Circle cx={size / 2} cy={size / 2} r={size / 2} fill="url(#flare)" />
+    <Rect width="100%" height="100%" fill="url(#aura)" />
   </Svg>
 );
 
-// Looping drift used by both flares; mirrors the MVP's keyframe animations
-const useDrift = (dx: number, dy: number, scaleTo: number, seconds: number) => {
+// Gentle breathing loop so the aura feels alive without distracting.
+const useBreathe = (seconds: number, scaleTo: number) => {
   const t = useSharedValue(0);
   useEffect(() => {
     t.value = withRepeat(
       withTiming(1, {
-        duration: (seconds * 1000) / 2,
+        duration: seconds * 1000,
         easing: Easing.inOut(Easing.ease),
       }),
       -1,
@@ -60,115 +57,35 @@ const useDrift = (dx: number, dy: number, scaleTo: number, seconds: number) => {
     );
   }, [t, seconds]);
   return useAnimatedStyle(() => ({
-    opacity: 0.85 + t.value * 0.15,
-    transform: [
-      { translateX: t.value * dx },
-      { translateY: t.value * dy },
-      { scale: 1 + t.value * (scaleTo - 1) },
-    ],
+    opacity: 0.8 + t.value * 0.2,
+    transform: [{ scale: 1 + t.value * (scaleTo - 1) }],
   }));
 };
 
 export const SignInBackdrop = () => {
   const { width, height } = useWindowDimensions();
 
-  const flareA = useDrift(-18, 22, 1.12, 14);
-  const flareB = useDrift(24, -16, 1.1, 18);
-
-  const halo = useSharedValue(0);
-  useEffect(() => {
-    halo.value = withRepeat(
-      withTiming(1, { duration: 4500, easing: Easing.inOut(Easing.ease) }),
-      -1,
-      true,
-    );
-  }, [halo]);
-  const haloStyle = useAnimatedStyle(() => ({
-    opacity: 0.55 + halo.value * 0.3,
-    transform: [{ scale: 1 + halo.value * 0.15 }],
-  }));
+  const topRight = useBreathe(9, 1.06);
 
   return (
     <View pointerEvents="none" className="absolute inset-0">
-      <Svg width={width} height={height} style={{ position: "absolute" }}>
-        <Defs>
-          <Pattern
-            id="dots"
-            width={22}
-            height={22}
-            patternUnits="userSpaceOnUse"
-          >
-            <Circle cx={1} cy={1} r={1} fill="rgba(255,255,255,0.05)" />
-          </Pattern>
-          <RadialGradient id="dotFade" cx="70%" cy="18%" rx="60%" ry="40%">
-            <Stop offset="0%" stopColor="#fff" stopOpacity={1} />
-            <Stop offset="72%" stopColor="#fff" stopOpacity={0} />
-          </RadialGradient>
-          <Mask id="dotMask">
-            <Rect width="100%" height="100%" fill="url(#dotFade)" />
-          </Mask>
-        </Defs>
-        <Rect
-          width="100%"
-          height="100%"
-          fill="url(#dots)"
-          mask="url(#dotMask)"
-          opacity={0.5}
-        />
-      </Svg>
-      <Animated.View
-        style={[{ position: "absolute", top: -150, right: -110 }, flareA]}
-      >
-        <Flare
-          size={420}
+      {/* Solid near-black base so the glow reads against it */}
+      <View
+        style={{ position: "absolute", inset: 0, backgroundColor: COLORS.bg }}
+      />
+      {/* Dominant lime aura anchored top-right, bleeding down into the dark */}
+      <Animated.View style={[{ position: "absolute", inset: 0 }, topRight]}>
+        <Glow
+          width={width}
+          height={height}
+          cx="92%"
+          cy="2%"
+          rx="110%"
+          ry="80%"
           color={COLORS.lime}
-          peak={0.22}
-          mid={0.05}
-          midStop={45}
+          peak={0.55}
         />
       </Animated.View>
-      <Animated.View
-        style={[{ position: "absolute", bottom: -170, left: -140 }, flareB]}
-      >
-        <Flare
-          size={380}
-          color={COLORS.green}
-          peak={0.14}
-          mid={0.03}
-          midStop={48}
-        />
-      </Animated.View>
-      <Animated.View
-        style={[
-          {
-            position: "absolute",
-            top: height * 0.34 - 150,
-            left: width * 0.3 - 150,
-          },
-          haloStyle,
-        ]}
-      >
-        <Flare
-          size={300}
-          color={COLORS.lime}
-          peak={0.1}
-          mid={0.04}
-          midStop={40}
-        />
-      </Animated.View>
-      <Svg
-        width={width}
-        height={240}
-        style={{ position: "absolute", bottom: 0 }}
-      >
-        <Defs>
-          <LinearGradient id="vignette" x1="0" y1="1" x2="0" y2="0">
-            <Stop offset="8%" stopColor={COLORS.bg} stopOpacity={1} />
-            <Stop offset="100%" stopColor={COLORS.bg} stopOpacity={0} />
-          </LinearGradient>
-        </Defs>
-        <Rect width="100%" height="100%" fill="url(#vignette)" />
-      </Svg>
     </View>
   );
 };

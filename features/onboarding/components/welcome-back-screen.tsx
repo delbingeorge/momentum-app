@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { Text, View } from "react-native";
 
+import { SignInBackdrop } from "@/features/auth/components/sign-in-backdrop";
 import { COLORS } from "@/shared/lib/colors";
 import { getPlanRoute } from "@/shared/lib/plan-route";
 import { useAuthStore, useLaunchStore, usePlanStore } from "@/shared/stores";
@@ -26,6 +27,8 @@ export const WelcomeBackScreen = () => {
 
   return (
     <Screen className="px-7">
+      <SignInBackdrop />
+
       <View className="flex-1 items-start justify-center gap-5">
         <View className="h-14 w-14 items-center justify-center rounded-2xl bg-lime">
           <Icon
