@@ -26,7 +26,7 @@ export const GOALS: GoalOption[] = [
   {
     id: "strength",
     name: "Get Stronger",
-    icon: "medal",
+    icon: "muscle",
     blurb: "Strength & raw power",
     tag: "Heavy loads · low reps",
   },
@@ -36,7 +36,7 @@ export const LEVELS: LevelOption[] = [
   {
     id: "beginner",
     name: "Beginner",
-    icon: "activity",
+    icon: "kid",
     blurb: "New to lifting, or back after a long break",
   },
   {

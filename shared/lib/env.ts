@@ -4,7 +4,7 @@ import { z } from "zod";
 // before the backend is configured; auth features guard on isCloudConfigured.
 const envSchema = z.object({
   EXPO_PUBLIC_SUPABASE_URL: z.string().url().optional(),
-  EXPO_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).optional(),
+  EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1).optional(),
   EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: z.string().min(1).optional(),
   EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: z.string().min(1).optional(),
   EXPO_PUBLIC_REVENUECAT_KEY: z.string().min(1).optional(),
@@ -14,7 +14,8 @@ const envSchema = z.object({
 
 export const env = envSchema.parse({
   EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
-  EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+  EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
+    process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID:
     process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
   EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID:
@@ -26,5 +27,5 @@ export const env = envSchema.parse({
 });
 
 export const isCloudConfigured = Boolean(
-  env.EXPO_PUBLIC_SUPABASE_URL && env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+  env.EXPO_PUBLIC_SUPABASE_URL && env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
 );

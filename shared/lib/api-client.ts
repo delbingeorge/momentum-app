@@ -9,13 +9,13 @@ let client: SupabaseClient | null = null;
 export const getSupabase = (): SupabaseClient => {
   if (!isCloudConfigured) {
     throw new Error(
-      "Cloud is not configured. Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY.",
+      "Cloud is not configured. Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY.",
     );
   }
   if (!client) {
     client = createClient(
       env.EXPO_PUBLIC_SUPABASE_URL ?? "",
-      env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? "",
+      env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
       {
         auth: {
           storage: AsyncStorage,

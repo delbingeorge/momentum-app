@@ -42,6 +42,8 @@ import {
   Video01Icon,
   WeightScale01Icon,
   ZapIcon,
+  BodyPartMuscleIcon,
+  KidIcon,
 } from "@hugeicons/core-free-icons";
 
 import { COLORS } from "@/shared/lib/colors";
@@ -90,6 +92,8 @@ const ICONS = {
   videoCam: Video01Icon,
   x: Cancel01Icon,
   zap: ZapIcon,
+  muscle: BodyPartMuscleIcon,
+  kid: KidIcon,
 } as const;
 
 export type IconName = keyof typeof ICONS;

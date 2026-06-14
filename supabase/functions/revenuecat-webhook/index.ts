@@ -2,7 +2,9 @@
 //
 // Deploy:  supabase functions deploy revenuecat-webhook --no-verify-jwt
 // Secrets: supabase secrets set RC_WEBHOOK_AUTH=<shared secret> \
-//                               SUPABASE_SERVICE_ROLE_KEY=<service role key>
+//                               SB_SECRET_KEY=<sb_secret_... key>
+// (Supabase reserves the SUPABASE_ prefix for user-set secrets, hence SB_.)
+// SUPABASE_URL is auto-injected by the edge runtime.
 // In the RevenueCat dashboard set the webhook URL to this function and the
 // Authorization header to the same RC_WEBHOOK_AUTH value.
 //
@@ -56,7 +58,7 @@ Deno.serve(async (req) => {
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    Deno.env.get("SB_SECRET_KEY") ?? "",
   );
   const { error } = await supabase
     .from("profiles")
