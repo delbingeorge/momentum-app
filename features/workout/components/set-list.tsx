@@ -2,7 +2,7 @@ import { Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
 import { haptics } from "@/shared/lib/haptics";
-import { isWorkingSet } from "@/shared/lib/program";
+import { isDumbbell, isWorkingSet } from "@/shared/lib/program";
 import { useWorkoutStore } from "@/shared/stores";
 import type {
   ExerciseHistory,
@@ -78,7 +78,8 @@ export const SetList = ({
           Set
         </Text>
         <Text className="flex-1 text-center font-mono text-[10.5px] uppercase text-faint">
-          Weight ({unit})
+          Weight ({unit}
+          {isDumbbell(exercise.name) ? "/hand" : ""})
         </Text>
         <Text className="flex-1 text-center font-mono text-[10.5px] uppercase text-faint">
           Reps

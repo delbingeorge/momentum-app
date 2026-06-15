@@ -4,6 +4,7 @@ export {
   defaultKgFor,
   EX,
   isCompound,
+  isDumbbell,
   LIB,
   makeExercise,
   muscleOf,
