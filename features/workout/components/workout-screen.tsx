@@ -30,6 +30,7 @@ export const WorkoutScreen = () => {
   const goal = usePlanStore((state) => state.goal) ?? "muscle";
   const level = usePlanStore((state) => state.level) ?? "intermediate";
   const schedule = usePlanStore((state) => state.schedule);
+  const setTodayIndex = usePlanStore((state) => state.setTodayIndex);
   const unit = useSettingsStore((state) => state.unit);
   const restSec = useSettingsStore((state) => state.restSec);
   const active = useWorkoutStore((state) => state.active);
@@ -140,6 +141,8 @@ export const WorkoutScreen = () => {
   const handleFinish = () => {
     rest.skip();
     finishWorkout(buildSession(exList, log, elapsed, day), active.deload);
+    // Advance the rotation to the next training day so home is ready to go
+    setTodayIndex((active.dayIndex + 1) % schedule.length);
     router.replace("/workout-done");
   };
 
