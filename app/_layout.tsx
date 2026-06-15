@@ -34,16 +34,12 @@ import { scheduleReminder } from "@/features/profile";
 import { useAuthGuard } from "@/shared/hooks/use-auth-guard";
 import { useRetentionLaunch } from "@/shared/hooks/use-retention-launch";
 import { queryClient } from "@/shared/lib/query-client";
-import { runStorageProbe } from "@/shared/lib/storage-probe";
 import { COLORS } from "@/shared/lib/colors";
 import { useAuthStore, useSettingsStore } from "@/shared/stores";
 import { ErrorBoundary, ToastHost } from "@/shared/ui";
 import { AppSheets } from "@/providers/sheets";
 
 SplashScreen.preventAutoHideAsync();
-
-// TEMPORARY persistence diagnostic — remove once storage is confirmed.
-runStorageProbe();
 
 export default function RootLayout() {
   useSyncEngine();

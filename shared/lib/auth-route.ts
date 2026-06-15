@@ -13,7 +13,9 @@ const GATE_PAYWALL: Href = { pathname: "/paywall", params: { gate: "1" } };
 // declaratively; imperative flows derive their destinations from the same rule
 // so there is one place that decides where a user belongs on launch.
 export const resolveLaunchRoute = (state: LaunchRouteState): Href => {
-  if (!state.user) return "/sign-in";
+  // signed-out guest (free tier): resume into the app once onboarding is done,
+  // otherwise start at sign-in so a first launch still leads into the flow
+  if (!state.user) return state.hasPlan ? "/(tabs)" : "/sign-in";
   // paid-only sign-in invariant: a signed-in member must be paying
   if (!state.isPaid) return GATE_PAYWALL;
   // no plan means a fresh sign-up with nothing to resume: skip welcome-back

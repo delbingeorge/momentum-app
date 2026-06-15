@@ -8,8 +8,14 @@ describe("resolveLaunchRoute", () => {
     hasPlan: true,
   };
 
-  it("sends signed-out users to sign-in", () => {
-    expect(resolveLaunchRoute({ ...settled, user: false })).toBe("/sign-in");
+  it("resumes a signed-out guest with a plan into the app", () => {
+    expect(resolveLaunchRoute({ ...settled, user: false })).toBe("/(tabs)");
+  });
+
+  it("sends a signed-out guest without a plan to sign-in", () => {
+    expect(
+      resolveLaunchRoute({ ...settled, user: false, hasPlan: false }),
+    ).toBe("/sign-in");
   });
 
   it("gates signed-in unpaid users to the paywall", () => {
