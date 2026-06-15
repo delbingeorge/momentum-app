@@ -74,12 +74,30 @@ export interface PaywallPackage {
 export const getPaywallPackages = async (): Promise<
   PaywallPackage[] | null
 > => {
+  // configure may still be in flight at app start; await the shared promise so
+  // the offerings read doesn't lose a race and cache a null result for staleTime
+  await configurePurchases();
   const Purchases = await getPurchases();
-  if (!Purchases || !isConfigured()) return null;
+  if (!Purchases || !isConfigured()) {
+    // distinguishes a missing key / unconfigured SDK (path A) from an empty
+    // RC offering (path B) — both otherwise surface the same paywall toast
+    console.warn("paywall: no Purchases SDK or not configured", {
+      hasPurchases: Boolean(Purchases),
+      configured: isConfigured(),
+      hasKey: Boolean(apiKey()),
+    });
+    return null;
+  }
   try {
     const offerings = await Purchases.getOfferings();
     const packages = offerings.current?.availablePackages ?? [];
-    if (!packages.length) return null;
+    if (!packages.length) {
+      console.warn("paywall: RC returned no packages", {
+        hasCurrent: Boolean(offerings.current),
+        allOfferings: Object.keys(offerings.all ?? {}),
+      });
+      return null;
+    }
     const mapped = packages.map((pkg) => {
       const tier = TIERS.find((t) => t.sku === pkg.product.identifier);
       return {
