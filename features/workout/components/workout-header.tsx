@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-import { fmtDur } from "@/shared/lib/dates";
+import { fmtHMS } from "@/shared/lib/dates";
 import { Icon, PressableScale } from "@/shared/ui";
 
 interface WorkoutHeaderProps {
@@ -33,7 +33,7 @@ export const WorkoutHeader = ({
             {dayName}
           </Text>
           <Text className="mt-px font-mono text-[11px] text-faint">
-            <Text className="text-lime">{fmtDur(elapsed)}</Text> · {totalDone}/
+            <Text className="text-lime">{fmtHMS(elapsed)}</Text> · {totalDone}/
             {totalSets} sets
           </Text>
         </View>

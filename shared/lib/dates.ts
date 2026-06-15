@@ -1,6 +1,22 @@
 export const fmtDur = (totalSec: number): string =>
   `${Math.floor(totalSec / 60)}:${String(totalSec % 60).padStart(2, "0")}`;
 
+// HH:MM:SS for workout durations (always shows hours)
+export const fmtHMS = (totalSec: number): string => {
+  const s = Math.max(0, Math.floor(totalSec));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return [h, m, s % 60].map((n) => String(n).padStart(2, "0")).join(":");
+};
+
+// HH:MM for workout durations where seconds aren't needed
+export const fmtHM = (totalSec: number): string => {
+  const s = Math.max(0, Math.floor(totalSec));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return [h, m].map((n) => String(n).padStart(2, "0")).join(":");
+};
+
 export const isoDate = (date: Date = new Date()): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");

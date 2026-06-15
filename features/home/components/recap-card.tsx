@@ -2,10 +2,11 @@ import { Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
 import { COLORS } from "@/shared/lib/colors";
+import { fmtHMS } from "@/shared/lib/dates";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
 import { Icon, PressableScale } from "@/shared/ui";
 
-import { analyzeRecap, recapDur, relDate } from "../lib/recap";
+import { analyzeRecap, relDate } from "../lib/recap";
 
 const KG_PER_LB = 2.2046;
 
@@ -22,7 +23,7 @@ export const RecapCard = () => {
   const stats: [string, string][] = [
     [`${vol} ${unit}`, "volume"],
     [String(recap.last.totalSets), "sets"],
-    [recapDur(recap.last.durationSec), "time"],
+    [fmtHMS(recap.last.durationSec), "time"],
   ];
 
   return (

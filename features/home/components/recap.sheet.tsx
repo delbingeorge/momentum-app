@@ -3,10 +3,11 @@ import { SheetManager, type SheetProps } from "react-native-actions-sheet";
 
 import { ExerciseSetTable } from "@/features/workout";
 import { COLORS } from "@/shared/lib/colors";
+import { fmtHMS } from "@/shared/lib/dates";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
 import { BaseSheet, Icon, PressableScale, SheetScrollView } from "@/shared/ui";
 
-import { analyzeRecap, recapDur, relDate } from "../lib/recap";
+import { analyzeRecap, relDate } from "../lib/recap";
 
 const KG_PER_LB = 2.2046;
 
@@ -23,7 +24,7 @@ export const RecapSheet = ({ sheetId }: SheetProps<"session-recap">) => {
   const stats: { k: string; v: string; u: string }[] = [
     { k: "Volume", v: vol, u: unit },
     { k: "Sets", v: String(recap.last.totalSets), u: "working" },
-    { k: "Time", v: recapDur(recap.last.durationSec), u: "" },
+    { k: "Time", v: fmtHMS(recap.last.durationSec), u: "" },
   ];
 
   return (

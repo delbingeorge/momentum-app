@@ -16,9 +16,6 @@ export const relDate = (ts: number): string => {
   });
 };
 
-export const recapDur = (sec: number): string =>
-  `${Math.floor(sec / 60)}m ${String(sec % 60).padStart(2, "0")}s`;
-
 export interface Recap {
   last: SessionRecord;
 }
