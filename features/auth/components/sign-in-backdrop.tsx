@@ -11,6 +11,23 @@ import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
 
 import { COLORS } from "@/shared/lib/colors";
 
+// A buttery radial falloff sampled into many stops. A plain 2-stop gradient
+// interpolates opacity linearly and bands badly over a large radius; densely
+// sampling a soft curve removes every visible ring.
+//
+// We use a Gaussian bell (exp(-k·t²)) rather than smoothstep: it has no point
+// where the slope snaps to flat, so the glow melts into the dark with no seam.
+// Re-normalised so the very edge lands exactly on 0 (the bell's tiny residual
+// would otherwise leave a faint hard rim).
+const SAMPLES = 32;
+const FALLOFF = 5.5; // higher = tighter core, longer soft tail
+const EDGE = Math.exp(-FALLOFF);
+const STOPS = Array.from({ length: SAMPLES + 1 }, (_, i) => {
+  const t = i / SAMPLES;
+  const bell = (Math.exp(-FALLOFF * t * t) - EDGE) / (1 - EDGE);
+  return { offset: t, opacity: Math.max(0, bell) };
+});
+
 // A soft radial glow that fills the whole canvas; cx/cy place it, rx/ry spread it.
 // RN has no CSS blur, the gradient falloff does the job.
 const Glow = ({
@@ -35,8 +52,14 @@ const Glow = ({
   <Svg width={width} height={height} style={{ position: "absolute" }}>
     <Defs>
       <RadialGradient id="aura" cx={cx} cy={cy} rx={rx} ry={ry}>
-        <Stop offset="0%" stopColor={color} stopOpacity={peak} />
-        <Stop offset="100%" stopColor={color} stopOpacity={0} />
+        {STOPS.map((s) => (
+          <Stop
+            key={s.offset}
+            offset={`${s.offset * 100}%`}
+            stopColor={color}
+            stopOpacity={peak * s.opacity}
+          />
+        ))}
       </RadialGradient>
     </Defs>
     <Rect width="100%" height="100%" fill="url(#aura)" />
