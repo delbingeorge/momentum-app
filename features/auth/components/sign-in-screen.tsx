@@ -132,7 +132,9 @@ export const SignInScreen = () => {
           By continuing you agree to our{" "}
           <Text
             className="font-sans-medium text-mut underline"
-            onPress={() => void Linking.openURL("https://octane.team/")}
+            onPress={() =>
+              void Linking.openURL("https://momentum.octane.team/privacy")
+            }
           >
             Terms & Privacy Policy
           </Text>
