@@ -2,7 +2,7 @@ import { Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
 import { COLORS } from "@/shared/lib/colors";
-import { fmtHMS } from "@/shared/lib/dates";
+import { fmtHM } from "@/shared/lib/dates";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
 import { Icon, PressableScale } from "@/shared/ui";
 
@@ -23,7 +23,7 @@ export const RecapCard = () => {
   const stats: [string, string][] = [
     [`${vol} ${unit}`, "volume"],
     [String(recap.last.totalSets), "sets"],
-    [fmtHMS(recap.last.durationSec), "time"],
+    [fmtHM(recap.last.durationSec), "time"],
   ];
 
   return (
