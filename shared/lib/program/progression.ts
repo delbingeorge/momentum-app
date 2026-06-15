@@ -4,6 +4,7 @@ import type {
   ExerciseHistory,
   ExerciseInstance,
   Goal,
+  Level,
   ProgressionSuggestion,
   ScheduledDay,
   SessionRecord,
@@ -11,18 +12,28 @@ import type {
   WorkoutLog,
 } from "@/shared/types";
 
-import { defaultKgFor, isCompound } from "./exercises";
+import { defaultKgFor, isCompound, isDumbbell } from "./exercises";
 
 // Warmups don't count toward progression or working volume
 export const isWorkingSet = (set: { type?: SessionSet["type"] }): boolean =>
   (set.type ?? "normal") !== "warmup";
 
-// kg to add when last session cleared the top of its rep range, by goal
-export const progressIncrement = (name: string, goal: Goal): number => {
+// Beginners can add load faster (linear progression); advanced lifters slower.
+const LEVEL_INCREMENT_FACTOR: Record<Level, number> = {
+  beginner: 1.5,
+  intermediate: 1,
+  advanced: 0.5,
+};
+
+// kg to add when last session cleared the top of its rep range, by goal & level
+export const progressIncrement = (
+  name: string,
+  goal: Goal,
+  level: Level,
+): number => {
   const base = isCompound(name) ? 2.5 : 1.25;
-  if (goal === "strength") return base;
-  if (goal === "fatloss") return base * 0.5;
-  return base;
+  const goalFactor = goal === "fatloss" ? 0.5 : 1;
+  return base * goalFactor * LEVEL_INCREMENT_FACTOR[level];
 };
 
 // Suggest next-session load. Bumps weight when last working sets cleared the
@@ -31,6 +42,7 @@ export const progressionFor = (
   name: string,
   lastSets: SessionSet[] | undefined,
   goal: Goal,
+  level: Level,
   deload: boolean,
   target?: string,
 ): ProgressionSuggestion => {
@@ -42,7 +54,7 @@ export const progressionFor = (
   const work = (lastSets ?? []).filter(isWorkingSet);
   const baseKg = work.length
     ? Math.max(...work.map((set) => set.kg))
-    : defaultKgFor(name);
+    : defaultKgFor(name, level);
   if (deload) {
     return {
       kg: round5(baseKg * 0.6),
@@ -53,7 +65,7 @@ export const progressionFor = (
   const cleared = work.length > 0 && work.every((set) => set.reps >= topReps);
   if (cleared) {
     return {
-      kg: round5(baseKg + progressIncrement(name, goal)),
+      kg: round5(baseKg + progressIncrement(name, goal, level)),
       reps: botReps,
       note: "overload",
     };
@@ -65,7 +77,7 @@ export const progressionFor = (
 export const initLog = (
   day: ScheduledDay,
   history: ExerciseHistory,
-  opts: { goal: Goal; deload: boolean },
+  opts: { goal: Goal; level: Level; deload: boolean },
 ): WorkoutLog => {
   const log: WorkoutLog = {};
   day.exercises
@@ -75,6 +87,7 @@ export const initLog = (
         exercise.name,
         history[exercise.name],
         opts.goal,
+        opts.level,
         opts.deload,
         exercise.target,
       );
@@ -106,14 +119,16 @@ export const buildSession = (
         .map((set) => ({ kg: set.kg, reps: set.reps, type: set.type })),
     }))
     .filter((exercise) => exercise.sets.length > 0);
-  const volume = exercises.reduce(
-    (total, exercise) =>
+  // Dumbbell loads are stored per hand, so their volume counts both hands.
+  const volume = exercises.reduce((total, exercise) => {
+    const hands = isDumbbell(exercise.name) ? 2 : 1;
+    return (
       total +
       exercise.sets
         .filter(isWorkingSet)
-        .reduce((sum, set) => sum + set.kg * set.reps, 0),
-    0,
-  );
+        .reduce((sum, set) => sum + set.kg * set.reps * hands, 0)
+    );
+  }, 0);
   const totalSets = exercises.reduce(
     (total, exercise) => total + exercise.sets.filter(isWorkingSet).length,
     0,

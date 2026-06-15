@@ -8,6 +8,7 @@ import type {
   ExerciseHistory,
   ExerciseInstance,
   Goal,
+  Level,
   LoggedSet,
   ScheduledDay,
   SessionRecord,
@@ -40,6 +41,7 @@ interface WorkoutState {
     day: ScheduledDay,
     dayIndex: number,
     goal: Goal,
+    level: Level,
     deload: boolean,
   ) => void;
   updateSet: (
@@ -89,11 +91,11 @@ export const useWorkoutStore = create<WorkoutState>()(
   persist(
     (set, get) => ({
       ...initialState,
-      startWorkout: (day, dayIndex, goal, deload) =>
+      startWorkout: (day, dayIndex, goal, level, deload) =>
         set((state) => ({
           log: {
             ...state.log,
-            ...initLog(day, state.history, { goal, deload }),
+            ...initLog(day, state.history, { goal, level, deload }),
           },
           active: {
             dayIndex,

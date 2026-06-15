@@ -17,6 +17,7 @@ export const TodayPanel = () => {
   const todayIndex = usePlanStore((state) => state.todayIndex);
   const setTodayIndex = usePlanStore((state) => state.setTodayIndex);
   const goal = usePlanStore((state) => state.goal);
+  const level = usePlanStore((state) => state.level);
   const days = usePlanStore((state) => state.days);
   const active = useWorkoutStore((state) => state.active);
   const sinceDeload = useWorkoutStore((state) => state.sinceDeload);
@@ -36,7 +37,7 @@ export const TodayPanel = () => {
   const deloadDue = sinceDeload >= days * 4;
 
   const handleStart = () => {
-    startWorkout(day, todayIndex, goal ?? "muscle", deloadDue);
+    startWorkout(day, todayIndex, goal ?? "muscle", level ?? "intermediate", deloadDue);
     router.push("/workout");
   };
 

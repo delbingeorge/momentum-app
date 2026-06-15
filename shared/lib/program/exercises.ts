@@ -1,4 +1,5 @@
-import type { ExerciseInstance, Muscle } from "@/shared/types";
+import { round5 } from "@/shared/lib/units";
+import type { ExerciseInstance, Level, Muscle } from "@/shared/types";
 
 export const EX: Record<string, Muscle> = {
   "Barbell Bench Press": "Chest",
@@ -48,17 +49,19 @@ export const LIB: Partial<Record<Muscle, string[]>> = (() => {
   return grouped;
 })();
 
+// First-session starting loads. Dumbbell lifts (see DUMBBELL) are per hand;
+// everything else is the total on the bar/stack/machine.
 export const DEFAULT_KG: Record<string, number> = {
   "Barbell Bench Press": 60,
-  "Incline Dumbbell Press": 24,
-  "Flat Dumbbell Press": 26,
+  "Incline Dumbbell Press": 12,
+  "Flat Dumbbell Press": 13,
   "Incline Machine Press": 40,
   "Cable Chest Fly": 15,
-  "Seated Shoulder Press": 22,
+  "Seated Shoulder Press": 11,
   "Overhead Barbell Press": 40,
-  "Lateral Raises": 10,
+  "Lateral Raises": 5,
   "Cable Lateral Raise": 9,
-  "Rear Delt Fly": 12,
+  "Rear Delt Fly": 6,
   "Reverse Fly": 12,
   "Face Pulls": 25,
   "Tricep Rope Pushdown": 30,
@@ -69,15 +72,15 @@ export const DEFAULT_KG: Record<string, number> = {
   "Lat Pulldown": 50,
   "Wide-Grip Lat Pulldown": 50,
   "Seated Cable Row": 50,
-  "Chest-Supported Row": 40,
+  "Chest-Supported Row": 20,
   "Single-Arm Cable Row": 22,
   "EZ-Bar Curl": 30,
-  "Hammer Curl": 14,
-  "Incline Dumbbell Curl": 14,
+  "Hammer Curl": 7,
+  "Incline Dumbbell Curl": 7,
   "Preacher Curl": 30,
   "Barbell Back Squat": 80,
   "Leg Press": 120,
-  "Walking Lunges": 20,
+  "Walking Lunges": 10,
   "Leg Curl": 45,
   "Standing Calf Raise": 60,
   "Hanging Leg Raise": 0,
@@ -85,7 +88,54 @@ export const DEFAULT_KG: Record<string, number> = {
   "Romanian Deadlift": 70,
 };
 
-export const defaultKgFor = (name: string): number => DEFAULT_KG[name] ?? 20;
+// Scale the (intermediate-baseline) default loads to the user's experience.
+// First-session only — once history exists, progression takes over.
+export const LEVEL_KG_FACTOR: Record<Level, number> = {
+  beginner: 0.6,
+  intermediate: 1,
+  advanced: 1.3,
+};
+
+// An Olympic barbell weighs 20kg. Novices start barbell lifts here and ramp up
+// via progression, rather than from a scaled estimate that overshoots the bar.
+export const EMPTY_BAR_KG = 20;
+
+const BARBELL = new Set([
+  "Barbell Bench Press",
+  "Overhead Barbell Press",
+  "Barbell Row",
+  "Barbell Back Squat",
+  "Close-Grip Bench Press",
+  "Deadlift",
+  "Romanian Deadlift",
+]);
+
+export const isBarbell = (name: string): boolean => BARBELL.has(name);
+
+// Two-dumbbell (one per hand) lifts. Their loads are stored PER HAND — the
+// number the user sees and enters is the weight of a single dumbbell, matching
+// standard lifting convention. Volume counts both hands (see buildSession).
+const DUMBBELL = new Set([
+  "Incline Dumbbell Press",
+  "Flat Dumbbell Press",
+  "Lateral Raises",
+  "Rear Delt Fly",
+  "Hammer Curl",
+  "Incline Dumbbell Curl",
+  "Seated Shoulder Press",
+  "Walking Lunges",
+  "Chest-Supported Row",
+]);
+
+export const isDumbbell = (name: string): boolean => DUMBBELL.has(name);
+
+export const defaultKgFor = (
+  name: string,
+  level: Level = "intermediate",
+): number => {
+  if (level === "beginner" && isBarbell(name)) return EMPTY_BAR_KG;
+  return round5((DEFAULT_KG[name] ?? 20) * LEVEL_KG_FACTOR[level]);
+};
 
 // Compound (big) lifts progress in bigger jumps than isolation work
 const COMPOUND = [

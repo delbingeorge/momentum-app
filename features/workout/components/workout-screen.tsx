@@ -28,6 +28,7 @@ import { WorkoutHeader } from "./workout-header";
 
 export const WorkoutScreen = () => {
   const goal = usePlanStore((state) => state.goal) ?? "muscle";
+  const level = usePlanStore((state) => state.level) ?? "intermediate";
   const schedule = usePlanStore((state) => state.schedule);
   const unit = useSettingsStore((state) => state.unit);
   const restSec = useSettingsStore((state) => state.restSec);
@@ -64,6 +65,7 @@ export const WorkoutScreen = () => {
     exercise.name,
     history[exercise.name],
     goal,
+    level,
     active.deload,
     exercise.target,
   );
@@ -73,6 +75,7 @@ export const WorkoutScreen = () => {
       added.name,
       history[added.name],
       goal,
+      level,
       active.deload,
       added.target,
     );
