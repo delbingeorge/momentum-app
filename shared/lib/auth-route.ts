@@ -3,7 +3,7 @@ import type { Href } from "expo-router";
 export interface LaunchRouteState {
   user: boolean;
   isPaid: boolean;
-  welcomeBackSeen: boolean;
+  welcomeBackPending: boolean;
   hasPlan: boolean;
 }
 
@@ -21,6 +21,8 @@ export const resolveLaunchRoute = (state: LaunchRouteState): Href => {
   // no plan means a fresh sign-up with nothing to resume: skip welcome-back
   // (it greets returning members) and start onboarding
   if (!state.hasPlan) return "/onboarding/goal";
-  if (!state.welcomeBackSeen) return "/welcome-back";
+  // greet only when a sign-in armed the intent; a plain cold launch leaves
+  // this false and resumes straight into the app
+  if (state.welcomeBackPending) return "/welcome-back";
   return "/(tabs)";
 };

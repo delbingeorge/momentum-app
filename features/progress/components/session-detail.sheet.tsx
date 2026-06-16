@@ -2,7 +2,7 @@ import { Text, View } from "react-native";
 import type { SheetProps } from "react-native-actions-sheet";
 
 import { ExerciseSetTable } from "@/features/workout";
-import { fmtHMS } from "@/shared/lib/dates";
+import { fmtHM } from "@/shared/lib/dates";
 import { useSettingsStore } from "@/shared/stores";
 import { BaseSheet, SheetScrollView } from "@/shared/ui";
 
@@ -21,7 +21,7 @@ export const SessionDetailSheet = ({
   const stats: [string, string][] = [
     ["Volume", `${vol.toLocaleString()} ${unit}`],
     ["Sets", String(session.totalSets)],
-    ["Time", fmtHMS(session.durationSec)],
+    ["Time", fmtHM(session.durationSec)],
   ];
 
   return (

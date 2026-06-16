@@ -8,18 +8,18 @@ import { useAuthStore, useLaunchStore, usePlanStore } from "@/shared/stores";
 import { CtaButton, Icon, Screen } from "@/shared/ui";
 
 export const WelcomeBackScreen = () => {
-  const markSeen = useLaunchStore((state) => state.markWelcomeBackSeen);
+  const clearWelcomeBack = useLaunchStore((state) => state.clearWelcomeBack);
   const resetPlan = usePlanStore((state) => state.resetPlan);
   const user = useAuthStore((state) => state.user);
 
   const continuePrevious = () => {
-    markSeen();
+    clearWelcomeBack();
     // tabs when a plan was restored; onboarding when there is nothing to resume
     router.replace(getPlanRoute());
   };
 
   const createNew = () => {
-    markSeen();
+    clearWelcomeBack();
     resetPlan();
     // push (not replace) so goal keeps a back stack to welcome-back
     router.push("/onboarding/goal");

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
-import { fmtHMS } from "@/shared/lib/dates";
+import { fmtHM } from "@/shared/lib/dates";
 import type { SessionRecord, Unit } from "@/shared/types";
 import { Icon, PressableScale } from "@/shared/ui";
 
@@ -74,7 +74,7 @@ export const SessionHistoryList = ({
                       month: "short",
                       day: "numeric",
                     })}{" "}
-                    · {session.totalSets} sets · {fmtHMS(session.durationSec)}
+                    · {session.totalSets} sets · {fmtHM(session.durationSec)}
                   </Text>
                 </View>
                 <View className="items-end">

@@ -13,6 +13,6 @@ export const clearLocalData = () => {
   usePlanStore.getState().resetPlan();
   useSettingsStore.getState().resetSettings();
   useSyncStore.getState().resetSync();
-  // re-arm welcome-back so the next sign-in greets again
-  useLaunchStore.getState().resetWelcomeBack();
+  // drop any pending greeting: this is a sign-out / guest reset, not a sign-in
+  useLaunchStore.getState().clearWelcomeBack();
 };

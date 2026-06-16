@@ -7,7 +7,12 @@ import { logInPurchases, reconcileEntitlement } from "@/features/paywall";
 import { syncNow } from "@/features/sync";
 import { COLORS } from "@/shared/lib/colors";
 import { getPlanRoute } from "@/shared/lib/plan-route";
-import { clearLocalData, toast, useAuthStore } from "@/shared/stores";
+import {
+  clearLocalData,
+  toast,
+  useAuthStore,
+  useLaunchStore,
+} from "@/shared/stores";
 import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
 
 import { signInWithGoogle, signOut } from "../api/auth-api";
@@ -47,8 +52,10 @@ export const SignInScreen = () => {
         // users back to onboarding step zero
         await syncNow();
         setLoading(false);
-        // re-enter the index gate so the resolver decides: welcome-back when a
+        // arm the one-shot greeting: the index gate shows welcome-back when a
         // plan was restored, onboarding when this is a fresh paid sign-up
+        useLaunchStore.getState().requestWelcomeBack();
+        // re-enter the index gate so the resolver decides where to land
         if (next) router.replace(next as Href);
         else router.replace("/");
         return;

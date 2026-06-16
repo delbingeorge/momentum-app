@@ -9,12 +9,12 @@ export const fmtHMS = (totalSec: number): string => {
   return [h, m, s % 60].map((n) => String(n).padStart(2, "0")).join(":");
 };
 
-// HH:MM for workout durations where seconds aren't needed
+// "00h 00m" for workout durations where seconds aren't needed
 export const fmtHM = (totalSec: number): string => {
   const s = Math.max(0, Math.floor(totalSec));
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
-  return [h, m].map((n) => String(n).padStart(2, "0")).join(":");
+  return `${String(h).padStart(2, "0")}h ${String(m).padStart(2, "0")}m`;
 };
 
 export const isoDate = (date: Date = new Date()): string => {

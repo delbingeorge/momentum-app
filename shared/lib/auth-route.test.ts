@@ -4,7 +4,7 @@ describe("resolveLaunchRoute", () => {
   const settled = {
     user: true,
     isPaid: true,
-    welcomeBackSeen: true,
+    welcomeBackPending: false,
     hasPlan: true,
   };
 
@@ -25,9 +25,15 @@ describe("resolveLaunchRoute", () => {
     });
   });
 
-  it("greets returning paid members once per launch", () => {
-    expect(resolveLaunchRoute({ ...settled, welcomeBackSeen: false })).toBe(
+  it("greets a paid member when sign-in armed the welcome-back intent", () => {
+    expect(resolveLaunchRoute({ ...settled, welcomeBackPending: true })).toBe(
       "/welcome-back",
+    );
+  });
+
+  it("resumes a paid member straight into the app on a plain cold launch", () => {
+    expect(resolveLaunchRoute({ ...settled, welcomeBackPending: false })).toBe(
+      "/(tabs)",
     );
   });
 
@@ -39,7 +45,11 @@ describe("resolveLaunchRoute", () => {
 
   it("skips welcome-back for a fresh paid sign-up with no plan", () => {
     expect(
-      resolveLaunchRoute({ ...settled, welcomeBackSeen: false, hasPlan: false }),
+      resolveLaunchRoute({
+        ...settled,
+        welcomeBackPending: true,
+        hasPlan: false,
+      }),
     ).toBe("/onboarding/goal");
   });
 
@@ -52,7 +62,7 @@ describe("resolveLaunchRoute", () => {
       resolveLaunchRoute({
         user: false,
         isPaid: false,
-        welcomeBackSeen: false,
+        welcomeBackPending: false,
         hasPlan: false,
       }),
     ).toBe("/sign-in");
