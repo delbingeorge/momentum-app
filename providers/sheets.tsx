@@ -8,6 +8,7 @@ import { RecapSheet } from "@/features/home";
 import {
   DataWarningSheet,
   ExportSheet,
+  FeedbackSheet,
   ReminderSheet,
   ResetConfirmSheet,
 } from "@/features/profile";
@@ -36,6 +37,7 @@ declare module "react-native-actions-sheet" {
     "weigh-in-guide": SheetDefinition;
     "reminder-config": SheetDefinition;
     "export-data": SheetDefinition;
+    feedback: SheetDefinition;
     "reset-confirm": SheetDefinition<{
       payload: { paid: boolean };
       returnValue: boolean;
@@ -60,6 +62,7 @@ export const AppSheets = () => (
       "weigh-in-guide": WeighInGuideSheet,
       "reminder-config": ReminderSheet,
       "export-data": ExportSheet,
+      feedback: FeedbackSheet,
       "reset-confirm": ResetConfirmSheet,
       "data-warning": DataWarningSheet,
       "session-recap": RecapSheet,

@@ -157,6 +157,25 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
           )}
         </PressableScale>
 
+        <SectionLabel>Support</SectionLabel>
+        <PressableScale
+          onPress={() => SheetManager.show("feedback")}
+          className="flex-row items-center gap-3 rounded-[18px] bg-card px-4 py-3.5"
+        >
+          <View className="h-[38px] w-[38px] items-center justify-center rounded-xl bg-lime-dim">
+            <Icon name="message" size={18} color={COLORS.lime} />
+          </View>
+          <View className="flex-1">
+            <Text className="font-sans-semibold text-[15px] text-text">
+              Send feedback
+            </Text>
+            <Text className="mt-0.5 font-sans text-xs text-mut">
+              Report a bug or suggest a feature
+            </Text>
+          </View>
+          <Icon name="chevR" size={16} color={COLORS.faint} />
+        </PressableScale>
+
         <View className="mt-6 gap-3">
           <CtaButton
             label="Edit plan"
