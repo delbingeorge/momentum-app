@@ -6,17 +6,24 @@ import { ensureNotificationChannel } from "@/shared/lib/notifications";
 const DONE_ID = "rest-done";
 
 // Fires "rest complete" at the end time even if the app is backgrounded;
-// the OS owns the timing, not our JS interval.
-export const startRestNotification = async (seconds: number): Promise<void> => {
+// the OS owns the timing, not our JS interval. Takes the absolute end
+// timestamp (not a duration) so the lead time is derived right before
+// enqueue — the channel/cancel awaits above can take tens of ms, and anchoring
+// to endAt keeps delivery aligned with the on-screen timer instead of drifting
+// later by that latency. TIME_INTERVAL fires far more precisely than a short
+// DATE/calendar trigger on iOS.
+export const startRestNotification = async (endAt: number): Promise<void> => {
   try {
     await ensureNotificationChannel();
     await Notifications.cancelScheduledNotificationAsync(DONE_ID);
+    const seconds = Math.max(1, Math.round((endAt - Date.now()) / 1000));
     await Notifications.scheduleNotificationAsync({
       identifier: DONE_ID,
       content: { title: "Rest complete", body: randomRestQuote() },
       trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DATE,
-        date: new Date(Date.now() + seconds * 1000),
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds,
+        repeats: false,
       },
     });
   } catch {

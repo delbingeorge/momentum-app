@@ -47,14 +47,15 @@ export const useRestTimer = (): RestTimer => {
     total: rest?.total ?? 0,
     left: rest ? Math.max(0, Math.ceil((rest.endAt - Date.now()) / 1000)) : 0,
     start: (totalSec) => {
-      setRest({ total: totalSec, endAt: Date.now() + totalSec * 1000 });
-      void startRestNotification(totalSec);
+      const endAt = Date.now() + totalSec * 1000;
+      setRest({ total: totalSec, endAt });
+      void startRestNotification(endAt);
     },
     addSeconds: (sec) =>
       setRest((prev) => {
         if (!prev) return prev;
         const endAt = prev.endAt + sec * 1000;
-        void startRestNotification(Math.ceil((endAt - Date.now()) / 1000));
+        void startRestNotification(endAt);
         return { total: prev.total + sec, endAt };
       }),
     skip: () => {
