@@ -45,6 +45,7 @@ import {
   ZapIcon,
   BodyPartMuscleIcon,
   KidIcon,
+  Bug01Icon,
 } from "@hugeicons/core-free-icons";
 
 import { COLORS } from "@/shared/lib/colors";
@@ -96,6 +97,7 @@ const ICONS = {
   zap: ZapIcon,
   muscle: BodyPartMuscleIcon,
   kid: KidIcon,
+  bug: Bug01Icon,
 } as const;
 
 export type IconName = keyof typeof ICONS;

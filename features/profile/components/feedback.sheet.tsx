@@ -18,7 +18,7 @@ import { type FeedbackType, submitFeedback } from "../api/feedback-api";
 const MAX_LEN = 1000;
 
 const TYPES: { id: FeedbackType; icon: IconName; label: string }[] = [
-  { id: "bug", icon: "info", label: "Bug" },
+  { id: "bug", icon: "bug", label: "Bug" },
   { id: "feature", icon: "zap", label: "Feature" },
   { id: "other", icon: "message", label: "Other" },
 ];

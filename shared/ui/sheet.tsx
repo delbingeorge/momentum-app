@@ -41,6 +41,7 @@ export const BaseSheet = ({
         width: 42,
         marginTop: 10,
       }}
+      defaultOverlayOpacity={0.6}
     >
       <View className={fixedHeight !== undefined ? "h-full" : undefined}>
         {title ? (
