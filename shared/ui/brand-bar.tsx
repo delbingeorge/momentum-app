@@ -1,4 +1,5 @@
-import { Text, View } from "react-native";
+import { router } from "expo-router";
+import { Pressable, Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
 import { COLORS } from "@/shared/lib/colors";
@@ -15,7 +16,10 @@ export const BrandBar = () => {
 
   return (
     <View className="flex-row items-center justify-between px-5 pb-3.5 pt-1">
-      <View className="flex-row justify-center items-center gap-1">
+      <Pressable
+        onLongPress={() => router.push("/about")}
+        className="flex-row items-center justify-center gap-1"
+      >
         <View className="h-8 w-8 items-center justify-center">
           <Icon name="logo" size={23} color={COLORS.lime} strokeWidth={2.2} />
         </View>
@@ -25,7 +29,7 @@ export const BrandBar = () => {
         {isPaid ? (
           <Icon name="crown" size={12} color={COLORS.lime} strokeWidth={2.2} />
         ) : null}
-      </View>
+      </Pressable>
       <PressableScale
         onPress={() => SheetManager.show("streak-journey")}
         className="flex-row items-center gap-1.5 rounded-full bg-card py-1.5 pl-2.5 pr-3"

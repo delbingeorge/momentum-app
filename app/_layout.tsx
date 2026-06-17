@@ -152,6 +152,7 @@ export default function RootLayout() {
               name="workout-done"
               options={{ gestureEnabled: false }}
             />
+            <Stack.Screen name="about" options={{ animation: "fade" }} />
           </Stack>
         </SheetProvider>
         <ToastHost />
