@@ -2,7 +2,7 @@ import { memo } from "react";
 import { Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
-import { dispToKg, kgToDisp, stepKg } from "@/shared/lib/units";
+import { dispToKg, kgToDisp, stepKgBy } from "@/shared/lib/units";
 import type { LoggedSet, SessionSet, Unit } from "@/shared/types";
 import { Checkbox, Icon, PressableScale } from "@/shared/ui";
 
@@ -114,10 +114,8 @@ const SetRowComponent = ({
             <Stepper
               big
               value={kgToDisp(set.kg, unit)}
-              onDec={() =>
-                onUpdate(index, { kg: Math.max(0, set.kg - stepKg(unit)) })
-              }
-              onInc={() => onUpdate(index, { kg: set.kg + stepKg(unit) })}
+              onDec={() => onUpdate(index, { kg: stepKgBy(set.kg, unit, -1) })}
+              onInc={() => onUpdate(index, { kg: stepKgBy(set.kg, unit, 1) })}
               onInput={(value) =>
                 onUpdate(index, { kg: Math.max(0, dispToKg(value, unit)) })
               }

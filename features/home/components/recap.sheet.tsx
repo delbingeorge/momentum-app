@@ -4,12 +4,11 @@ import { SheetManager, type SheetProps } from "react-native-actions-sheet";
 import { ExerciseSetTable } from "@/features/workout";
 import { COLORS } from "@/shared/lib/colors";
 import { fmtHM } from "@/shared/lib/dates";
+import { volumeToDisp } from "@/shared/lib/units";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
 import { BaseSheet, Icon, PressableScale, SheetScrollView } from "@/shared/ui";
 
 import { analyzeRecap, relDate } from "../lib/recap";
-
-const KG_PER_LB = 2.2046;
 
 export const RecapSheet = ({ sheetId }: SheetProps<"session-recap">) => {
   const pastSessions = useWorkoutStore((state) => state.pastSessions);
@@ -17,9 +16,7 @@ export const RecapSheet = ({ sheetId }: SheetProps<"session-recap">) => {
   const recap = analyzeRecap(pastSessions);
   if (!recap) return null;
 
-  const vol = Math.round(
-    unit === "kg" ? recap.last.volume : recap.last.volume * KG_PER_LB,
-  ).toLocaleString();
+  const vol = volumeToDisp(recap.last.volume, unit).toLocaleString();
 
   const stats: { k: string; v: string; u: string }[] = [
     { k: "Volume", v: vol, u: unit },

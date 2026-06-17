@@ -6,10 +6,9 @@ import { SignInBackdrop } from "@/features/auth/components/sign-in-backdrop";
 import { COLORS } from "@/shared/lib/colors";
 import { fmtHM } from "@/shared/lib/dates";
 import { haptics } from "@/shared/lib/haptics";
+import { volumeToDisp } from "@/shared/lib/units";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
 import { CtaButton, Icon, Screen } from "@/shared/ui";
-
-const KG_PER_LB = 2.2046;
 
 export const FinishSummary = () => {
   const session = useWorkoutStore((state) => state.pastSessions[0]);
@@ -20,9 +19,7 @@ export const FinishSummary = () => {
   }, []);
 
   if (!session) return null;
-  const volume = Math.round(
-    unit === "kg" ? session.volume : session.volume * KG_PER_LB,
-  );
+  const volume = volumeToDisp(session.volume, unit);
 
   const stats: [string, string][] = [
     ["Sets", String(session.totalSets)],

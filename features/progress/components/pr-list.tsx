@@ -1,13 +1,11 @@
 import { Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
-import { round5 } from "@/shared/lib/units";
+import { kgToDisp } from "@/shared/lib/units";
 import type { Unit } from "@/shared/types";
 import { Icon } from "@/shared/ui";
 
 import type { PersonalRecord } from "../lib/training-stats";
-
-const KG_PER_LB = 2.2046;
 
 interface PrListProps {
   prs: PersonalRecord[];
@@ -63,7 +61,7 @@ export const PrList = ({ prs, unit }: PrListProps) => (
               />
               <Text className="font-sans-bold text-sm text-green">
                 {pr.kg !== undefined
-                  ? `${unit === "kg" ? round5(pr.kg) : Math.round(pr.kg * KG_PER_LB)} ${unit}`
+                  ? `${kgToDisp(pr.kg, unit)} ${unit}`
                   : `${pr.reps} reps`}
               </Text>
             </View>

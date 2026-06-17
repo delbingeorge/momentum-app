@@ -4,10 +4,10 @@ import { Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
 import { fmtHM } from "@/shared/lib/dates";
+import { volumeToDisp } from "@/shared/lib/units";
 import type { SessionRecord, Unit } from "@/shared/types";
 import { Icon, PressableScale } from "@/shared/ui";
 
-const KG_PER_LB = 2.2046;
 const PAGE_SIZE = 10;
 
 interface SessionHistoryListProps {
@@ -44,10 +44,7 @@ export const SessionHistoryList = ({
       ) : (
         <View className="gap-2">
           {visible.map((session) => {
-            const vol =
-              unit === "kg"
-                ? session.volume
-                : Math.round(session.volume * KG_PER_LB);
+            const vol = volumeToDisp(session.volume, unit);
             return (
               <PressableScale
                 key={session.id}

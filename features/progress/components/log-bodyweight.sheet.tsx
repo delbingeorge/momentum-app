@@ -3,10 +3,9 @@ import { Text, View } from "react-native";
 import { SheetManager, type SheetProps } from "react-native-actions-sheet";
 
 import { COLORS } from "@/shared/lib/colors";
+import { KG_PER_LB } from "@/shared/lib/units";
 import { useBodyStore, useSettingsStore } from "@/shared/stores";
 import { BaseSheet, CtaButton, Icon, PressableScale } from "@/shared/ui";
-
-const KG_PER_LB = 2.2046;
 
 export const LogBodyweightSheet = ({
   sheetId,

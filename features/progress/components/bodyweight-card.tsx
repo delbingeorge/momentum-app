@@ -5,10 +5,10 @@ import Svg, { Circle, Path } from "react-native-svg";
 
 import { COLORS } from "@/shared/lib/colors";
 import { freeHistoryCutoffTs, useIsPaid } from "@/shared/lib/entitlements";
+import { KG_PER_LB } from "@/shared/lib/units";
 import { useBodyStore, useSettingsStore } from "@/shared/stores";
 import { Icon, PressableScale } from "@/shared/ui";
 
-const KG_PER_LB = 2.2046;
 const W = 72;
 const H = 34;
 

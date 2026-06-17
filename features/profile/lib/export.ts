@@ -9,6 +9,7 @@ import {
   useSettingsStore,
   useWorkoutStore,
 } from "@/shared/stores";
+import { KG_PER_LB } from "@/shared/lib/units";
 import type { Unit } from "@/shared/types";
 
 export type ExportDest = "share" | "save";
@@ -38,7 +39,9 @@ const toCsv = (rows: (string | number)[][]): string =>
   rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
 
 const kgToUnit = (kg: number, unit: Unit): number =>
-  unit === "kg" ? Math.round(kg * 10) / 10 : Math.round(kg * 2.2046 * 10) / 10;
+  unit === "kg"
+    ? Math.round(kg * 10) / 10
+    : Math.round(kg * KG_PER_LB * 10) / 10;
 
 const deliver = async (
   opts: DeliverOpts,

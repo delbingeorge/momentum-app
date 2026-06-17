@@ -5,12 +5,11 @@ import { Text, TextInput, View } from "react-native";
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
 import { GENDERS } from "@/shared/lib/program";
+import { KG_PER_LB } from "@/shared/lib/units";
 import { usePlanStore, useSettingsStore } from "@/shared/stores";
 import { CtaButton, Icon, PressableScale } from "@/shared/ui";
 
 import { OnboardingShell } from "./onboarding-shell";
-
-const KG_PER_LB = 2.2046;
 
 export const AboutScreen = () => {
   const gender = usePlanStore((state) => state.gender);

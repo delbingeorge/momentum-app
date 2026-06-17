@@ -3,12 +3,11 @@ import { SheetManager } from "react-native-actions-sheet";
 
 import { COLORS } from "@/shared/lib/colors";
 import { fmtHM } from "@/shared/lib/dates";
+import { volumeToDisp } from "@/shared/lib/units";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
 import { Icon, PressableScale } from "@/shared/ui";
 
 import { analyzeRecap, relDate } from "../lib/recap";
-
-const KG_PER_LB = 2.2046;
 
 export const RecapCard = () => {
   const pastSessions = useWorkoutStore((state) => state.pastSessions);
@@ -16,9 +15,7 @@ export const RecapCard = () => {
   const recap = analyzeRecap(pastSessions);
   if (!recap) return null;
 
-  const vol = Math.round(
-    unit === "kg" ? recap.last.volume : recap.last.volume * KG_PER_LB,
-  ).toLocaleString();
+  const vol = volumeToDisp(recap.last.volume, unit).toLocaleString();
 
   const stats: [string, string][] = [
     [`${vol} ${unit}`, "volume"],

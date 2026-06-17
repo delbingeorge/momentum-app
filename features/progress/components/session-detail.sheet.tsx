@@ -3,10 +3,9 @@ import type { SheetProps } from "react-native-actions-sheet";
 
 import { ExerciseSetTable } from "@/features/workout";
 import { fmtHM } from "@/shared/lib/dates";
+import { volumeToDisp } from "@/shared/lib/units";
 import { useSettingsStore } from "@/shared/stores";
 import { BaseSheet, SheetScrollView } from "@/shared/ui";
-
-const KG_PER_LB = 2.2046;
 
 export const SessionDetailSheet = ({
   sheetId,
@@ -16,8 +15,7 @@ export const SessionDetailSheet = ({
   const session = payload?.session;
   if (!session) return null;
 
-  const vol =
-    unit === "kg" ? session.volume : Math.round(session.volume * KG_PER_LB);
+  const vol = volumeToDisp(session.volume, unit);
   const stats: [string, string][] = [
     ["Volume", `${vol.toLocaleString()} ${unit}`],
     ["Sets", String(session.totalSets)],
