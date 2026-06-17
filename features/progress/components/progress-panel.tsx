@@ -10,6 +10,7 @@ import {
   PAID_HISTORY_WEEKS,
   useIsPaid,
 } from "@/shared/lib/entitlements";
+import { cn } from "@/shared/lib/cn";
 import { weekStreak } from "@/shared/lib/streaks";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
 import { BrandBar } from "@/shared/ui";
@@ -70,7 +71,10 @@ export const ProgressPanel = () => {
               className="flex-1 rounded-[18px] bg-card px-3.5 py-3.5"
             >
               <Text
-                className={`font-sans-bold text-2xl tracking-tight ${highlight ? "text-lime" : "text-text"}`}
+                className={cn(
+                  "font-sans-bold text-2xl tracking-tight",
+                  highlight ? "text-lime" : "text-text",
+                )}
               >
                 {value}
               </Text>

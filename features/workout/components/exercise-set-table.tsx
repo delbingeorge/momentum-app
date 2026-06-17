@@ -1,5 +1,6 @@
 import { Text, View } from "react-native";
 
+import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
 import { kgToDisp } from "@/shared/lib/units";
 import { useSettingsStore } from "@/shared/stores";
@@ -10,7 +11,10 @@ const TYPE_COLOR = { warmup: COLORS.warmup, drop: COLORS.drop } as const;
 
 const HeaderCell = ({ label, flex }: { label: string; flex?: boolean }) => (
   <Text
-    className={`font-mono text-[9.5px] uppercase tracking-wide text-faint ${flex ? "flex-1" : "w-12"}`}
+    className={cn(
+      "font-mono text-[9.5px] uppercase tracking-wide text-faint",
+      flex ? "flex-1" : "w-12",
+    )}
   >
     {label}
   </Text>

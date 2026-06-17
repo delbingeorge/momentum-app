@@ -3,6 +3,7 @@ import { InteractionManager, ScrollView, Text, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
 import type { ReactNode } from "react";
+import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
 import { GOALS, splitsFor } from "@/shared/lib/program";
 import { weekStreak } from "@/shared/lib/streaks";
@@ -42,7 +43,10 @@ const PlanRow = ({
   last?: boolean;
 }) => (
   <View
-    className={`flex-row items-center gap-3 px-4 py-3.5 ${last ? "" : "border-b border-line"}`}
+    className={cn(
+      "flex-row items-center gap-3 px-4 py-3.5",
+      !last && "border-b border-line",
+    )}
   >
     <Icon name={icon} size={19} color={COLORS.mut} />
     <Text className="flex-1 font-sans text-[15px] text-text">{label}</Text>
