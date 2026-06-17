@@ -11,6 +11,7 @@ import {
   FeedbackSheet,
   ReminderSheet,
   ResetConfirmSheet,
+  ReviewSheet,
 } from "@/features/profile";
 import {
   BodyweightHistorySheet,
@@ -45,6 +46,7 @@ declare module "react-native-actions-sheet" {
       returnValue: boolean;
     }>;
     "data-warning": SheetDefinition;
+    review: SheetDefinition;
     "session-recap": SheetDefinition;
     "streak-journey": SheetDefinition;
     "no-purchase": SheetDefinition<{
@@ -68,6 +70,7 @@ export const AppSheets = () => (
       feedback: FeedbackSheet,
       "reset-confirm": ResetConfirmSheet,
       "data-warning": DataWarningSheet,
+      review: ReviewSheet,
       "session-recap": RecapSheet,
       "streak-journey": StreakJourneySheet,
       "no-purchase": NoPurchaseSheet,

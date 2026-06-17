@@ -17,10 +17,14 @@ interface SettingsState {
   restSec: number;
   reminder: ReminderConfig;
   hapticsEnabled: boolean;
+  reviewPromptDone: boolean;
+  reviewPromptNextTs: number;
   setUnit: (unit: Unit) => void;
   setRestSec: (restSec: number) => void;
   setReminder: (reminder: ReminderConfig) => void;
   setHapticsEnabled: (hapticsEnabled: boolean) => void;
+  completeReviewPrompt: () => void;
+  snoozeReviewPrompt: (nextTs: number) => void;
   resetSettings: () => void;
 }
 
@@ -35,6 +39,8 @@ const initialState = {
   restSec: 90,
   reminder: DEFAULT_REMINDER,
   hapticsEnabled: true,
+  reviewPromptDone: false,
+  reviewPromptNextTs: 0,
 };
 
 const persistedSchema = z.object({
@@ -46,6 +52,8 @@ const persistedSchema = z.object({
     days: z.array(z.number()),
   }),
   hapticsEnabled: z.boolean().catch(true),
+  reviewPromptDone: z.boolean().catch(false),
+  reviewPromptNextTs: z.number().catch(0),
 });
 
 export const useSettingsStore = create<SettingsState>()(
@@ -56,6 +64,8 @@ export const useSettingsStore = create<SettingsState>()(
       setRestSec: (restSec) => set({ restSec }),
       setReminder: (reminder) => set({ reminder }),
       setHapticsEnabled: (hapticsEnabled) => set({ hapticsEnabled }),
+      completeReviewPrompt: () => set({ reviewPromptDone: true }),
+      snoozeReviewPrompt: (nextTs) => set({ reviewPromptNextTs: nextTs }),
       resetSettings: () => set(initialState),
     }),
     {

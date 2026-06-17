@@ -4,4 +4,5 @@ export { ExportSheet } from "./components/export.sheet";
 export { FeedbackSheet } from "./components/feedback.sheet";
 export { ReminderSheet } from "./components/reminder.sheet";
 export { ResetConfirmSheet } from "./components/reset-confirm.sheet";
+export { ReviewSheet } from "./components/review.sheet";
 export { scheduleReminder } from "./lib/reminder-scheduler";
