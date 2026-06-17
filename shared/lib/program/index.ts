@@ -3,6 +3,7 @@ export {
   bodyweightLoad,
   DEFAULT_KG,
   defaultKgFor,
+  defaultTargetFor,
   EX,
   isBodyweight,
   isCompound,

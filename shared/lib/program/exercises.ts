@@ -67,9 +67,28 @@ export const EX: Record<string, Muscle> = {
   "Standing Calf Raise": "Calves",
   "Seated Calf Raise": "Calves",
   "Hanging Leg Raise": "Core",
+  "Hanging Knee Raise": "Core",
+  "Toes to Bar": "Core",
+  "Lying Leg Raise": "Core",
+  "Reverse Crunch": "Core",
+  "Crunch": "Core",
+  "Sit-up": "Core",
+  "Decline Sit-up": "Core",
+  "Bicycle Crunch": "Core",
+  "V-Up": "Core",
+  "Dead Bug": "Core",
+  "Ab Wheel Rollout": "Core",
   "Cable Crunch": "Core",
-  "Plank": "Core",
+  "Machine Crunch": "Core",
   "Russian Twist": "Core",
+  "Cable Woodchopper": "Core",
+  "Landmine Twist": "Core",
+  "Pallof Press": "Core",
+  "Plank": "Core",
+  "Side Plank": "Core",
+  "Hollow Hold": "Core",
+  "Flutter Kicks": "Core",
+  "Mountain Climbers": "Core",
 };
 
 export const muscleOf = (name: string): Muscle => EX[name] ?? "Full body";
@@ -149,9 +168,28 @@ export const DEFAULT_KG: Record<string, number> = {
   "Standing Calf Raise": 60,
   "Seated Calf Raise": 40,
   "Hanging Leg Raise": 0,
+  "Hanging Knee Raise": 0,
+  "Toes to Bar": 0,
+  "Lying Leg Raise": 0,
+  "Reverse Crunch": 0,
+  Crunch: 0,
+  "Sit-up": 0,
+  "Decline Sit-up": 0,
+  "Bicycle Crunch": 0,
+  "V-Up": 0,
+  "Dead Bug": 0,
+  "Ab Wheel Rollout": 0,
   "Cable Crunch": 30,
-  "Plank": 0,
+  "Machine Crunch": 45,
   "Russian Twist": 5,
+  "Cable Woodchopper": 20,
+  "Landmine Twist": 20,
+  "Pallof Press": 15,
+  "Plank": 0,
+  "Side Plank": 0,
+  "Hollow Hold": 0,
+  "Flutter Kicks": 0,
+  "Mountain Climbers": 0,
   Deadlift: 100,
   "Romanian Deadlift": 70,
 };
@@ -212,12 +250,36 @@ export const isDumbbell = (name: string): boolean => DUMBBELL.has(name);
 
 // Bodyweight core/calisthenics — their default load is 0, so they progress via
 // reps (or held seconds for timed holds), not added weight. See progressionFor.
-const BODYWEIGHT = new Set(["Plank", "Hanging Leg Raise"]);
+const BODYWEIGHT = new Set([
+  "Hanging Leg Raise",
+  "Hanging Knee Raise",
+  "Toes to Bar",
+  "Lying Leg Raise",
+  "Reverse Crunch",
+  "Crunch",
+  "Sit-up",
+  "Decline Sit-up",
+  "Bicycle Crunch",
+  "V-Up",
+  "Dead Bug",
+  "Ab Wheel Rollout",
+  "Plank",
+  "Side Plank",
+  "Hollow Hold",
+  "Flutter Kicks",
+  "Mountain Climbers",
+]);
 
 export const isBodyweight = (name: string): boolean => BODYWEIGHT.has(name);
 
 // Timed holds — the "reps" we log and progress are seconds, not repetitions.
-const TIMED = new Set(["Plank"]);
+const TIMED = new Set([
+  "Plank",
+  "Side Plank",
+  "Hollow Hold",
+  "Flutter Kicks",
+  "Mountain Climbers",
+]);
 
 export const isTimed = (name: string): boolean => TIMED.has(name);
 
@@ -230,7 +292,18 @@ const BODYWEIGHT_LOAD: Record<string, number> = {
   "Tricep Dips": 1,
   "Push-ups": 0.64,
   "Inverted Row": 0.6,
+  "Toes to Bar": 0.55,
   "Hanging Leg Raise": 0.5,
+  "Decline Sit-up": 0.5,
+  "Ab Wheel Rollout": 0.5,
+  "V-Up": 0.45,
+  "Hanging Knee Raise": 0.4,
+  "Lying Leg Raise": 0.4,
+  "Sit-up": 0.4,
+  "Reverse Crunch": 0.3,
+  "Bicycle Crunch": 0.3,
+  Crunch: 0.25,
+  "Dead Bug": 0.2,
 };
 
 export const bodyweightLoad = (name: string, bodyweightKg: number): number =>
@@ -268,11 +341,16 @@ const COMPOUND = [
 
 export const isCompound = (name: string): boolean => COMPOUND.includes(name);
 
+// Default rep/time target for an exercise added from the library: timed holds
+// are prescribed in seconds, everything else in reps.
+export const defaultTargetFor = (name: string): string =>
+  isTimed(name) ? "30–45s" : "8–12";
+
 // Unique id so duplicates can coexist mid-workout
 export const makeExercise = (
   name: string,
   sets = 3,
-  target = "8–12",
+  target = defaultTargetFor(name),
 ): ExerciseInstance => ({
   id: `${name}#${Math.random().toString(36).slice(2, 6)}`,
   name,
