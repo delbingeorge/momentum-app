@@ -3,7 +3,8 @@ import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 
 import { cn } from "@/shared/lib/cn";
-import { usePlanStore } from "@/shared/stores";
+import { isoDate } from "@/shared/lib/dates";
+import { useBodyStore, usePlanStore } from "@/shared/stores";
 import type { ExerciseInstance } from "@/shared/types";
 import { CtaButton, PressableScale } from "@/shared/ui";
 
@@ -52,6 +53,15 @@ export const ExerciseCustomizeScreen = () => {
 
   const finish = () => {
     setTodayIndex(0);
+    // Seed the bodyweight trend with the weight captured at onboarding. Plan
+    // weightKg drives starting loads; the trend reads the body store, which
+    // would otherwise stay empty until the first manual log. Skip if today is
+    // already logged so we never clobber a real same-day weigh-in.
+    const { weightKg } = usePlanStore.getState();
+    const { weights, logWeight } = useBodyStore.getState();
+    if (!weights.some((entry) => entry.date === isoDate())) {
+      logWeight(Math.round(weightKg * 10) / 10);
+    }
     // collapse the onboarding stack first so back from home can't reveal
     // sign-in/onboarding, then swap the root for tabs. canDismiss guards the
     // no-history case so dismissAll never warns.

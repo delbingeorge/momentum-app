@@ -17,6 +17,7 @@ export const AboutScreen = () => {
   const weightKg = usePlanStore((state) => state.weightKg);
   const setWeightKg = usePlanStore((state) => state.setWeightKg);
   const unit = useSettingsStore((state) => state.unit);
+  const setUnit = useSettingsStore((state) => state.setUnit);
 
   const isLb = unit === "lb";
   const shown = isLb ? Math.round(weightKg * KG_PER_LB) : Math.round(weightKg);
@@ -84,9 +85,32 @@ export const AboutScreen = () => {
         </View>
 
         <View>
-          <Text className="mb-2.5 font-sans-semibold text-sm text-mut">
-            Bodyweight
-          </Text>
+          <View className="mb-2.5 flex-row items-center justify-between">
+            <Text className="font-sans-semibold text-sm text-mut">
+              Bodyweight
+            </Text>
+            <View className="flex-row rounded-full bg-card p-[3px]">
+              {(["kg", "lb"] as const).map((option) => (
+                <PressableScale
+                  key={option}
+                  onPress={() => setUnit(option)}
+                  className={cn(
+                    "rounded-full px-3 py-1",
+                    unit === option && "bg-lime",
+                  )}
+                >
+                  <Text
+                    className={cn(
+                      "font-mono text-[11.5px]",
+                      unit === option ? "text-lime-text" : "text-mut",
+                    )}
+                  >
+                    {option}
+                  </Text>
+                </PressableScale>
+              ))}
+            </View>
+          </View>
           <View className="flex-row items-center justify-between rounded-[20px] bg-card p-4">
             <PressableScale
               onPress={() => commitShown(shown - 1)}
