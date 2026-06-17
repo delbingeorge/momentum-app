@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { haptics } from "@/shared/lib/haptics";
 
@@ -42,25 +42,33 @@ export const useRestTimer = (): RestTimer => {
 
   useEffect(() => () => void clearRestNotification(), []);
 
+  // Stable identities so callers (e.g. SetList's onRest) can memoize cleanly.
+  const start = useCallback((totalSec: number) => {
+    const endAt = Date.now() + totalSec * 1000;
+    setRest({ total: totalSec, endAt });
+    void startRestNotification(endAt);
+  }, []);
+
+  const addSeconds = useCallback((sec: number) => {
+    setRest((prev) => {
+      if (!prev) return prev;
+      const endAt = prev.endAt + sec * 1000;
+      void startRestNotification(endAt);
+      return { total: prev.total + sec, endAt };
+    });
+  }, []);
+
+  const skip = useCallback(() => {
+    setRest(null);
+    void clearRestNotification();
+  }, []);
+
   return {
     active: rest !== null,
     total: rest?.total ?? 0,
     left: rest ? Math.max(0, Math.ceil((rest.endAt - Date.now()) / 1000)) : 0,
-    start: (totalSec) => {
-      const endAt = Date.now() + totalSec * 1000;
-      setRest({ total: totalSec, endAt });
-      void startRestNotification(endAt);
-    },
-    addSeconds: (sec) =>
-      setRest((prev) => {
-        if (!prev) return prev;
-        const endAt = prev.endAt + sec * 1000;
-        void startRestNotification(endAt);
-        return { total: prev.total + sec, endAt };
-      }),
-    skip: () => {
-      setRest(null);
-      void clearRestNotification();
-    },
+    start,
+    addSeconds,
+    skip,
   };
 };

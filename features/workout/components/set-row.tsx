@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
@@ -18,12 +19,13 @@ interface SetRowProps {
   workingIndex: number;
   prev: SessionSet | null;
   unit: Unit;
-  onUpdate: (patch: Partial<LoggedSet>) => void;
-  onToggleDone: () => void;
-  onCycleType: () => void;
+  // index-passing so parent handlers stay referentially stable (memo-safe)
+  onUpdate: (index: number, patch: Partial<LoggedSet>) => void;
+  onToggleDone: (index: number) => void;
+  onCycleType: (index: number) => void;
 }
 
-export const SetRow = ({
+const SetRowComponent = ({
   set,
   index,
   workingIndex,
@@ -89,7 +91,7 @@ export const SetRow = ({
       <View className="flex-row justify-between items-center px-2">
         <View className="flex-row items-center justify-between gap-4">
           <PressableScale
-            onPress={onCycleType}
+            onPress={() => onCycleType(index)}
             className="h-7 w-7 items-center justify-center rounded-full"
           >
             <View
@@ -112,25 +114,27 @@ export const SetRow = ({
             <Stepper
               big
               value={kgToDisp(set.kg, unit)}
-              onDec={() => onUpdate({ kg: Math.max(0, set.kg - stepKg(unit)) })}
-              onInc={() => onUpdate({ kg: set.kg + stepKg(unit) })}
+              onDec={() =>
+                onUpdate(index, { kg: Math.max(0, set.kg - stepKg(unit)) })
+              }
+              onInc={() => onUpdate(index, { kg: set.kg + stepKg(unit) })}
               onInput={(value) =>
-                onUpdate({ kg: Math.max(0, dispToKg(value, unit)) })
+                onUpdate(index, { kg: Math.max(0, dispToKg(value, unit)) })
               }
             />
             <Stepper
               value={set.reps}
-              onDec={() => onUpdate({ reps: Math.max(0, set.reps - 1) })}
-              onInc={() => onUpdate({ reps: set.reps + 1 })}
+              onDec={() => onUpdate(index, { reps: Math.max(0, set.reps - 1) })}
+              onInc={() => onUpdate(index, { reps: set.reps + 1 })}
               onInput={(value) =>
-                onUpdate({ reps: Math.max(0, Math.round(value)) })
+                onUpdate(index, { reps: Math.max(0, Math.round(value)) })
               }
             />
           </View>
         </View>
         <Checkbox
           checked={set.done}
-          onCheckedChange={onToggleDone}
+          onCheckedChange={() => onToggleDone(index)}
           className="rounded-lg"
           checkedColor={chrome?.color}
           iconColor={chrome ? COLORS.bg : COLORS.limeText}
@@ -140,3 +144,5 @@ export const SetRow = ({
     </View>
   );
 };
+
+export const SetRow = memo(SetRowComponent);

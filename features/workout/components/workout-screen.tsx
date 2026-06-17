@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { SheetManager } from "react-native-actions-sheet";
 import { ScrollView, Text, View } from "react-native";
 
@@ -44,6 +44,7 @@ export const WorkoutScreen = () => {
 
   const elapsed = useSessionTimer(active?.startedAt ?? null);
   const rest = useRestTimer();
+  const onRest = useCallback(() => rest.start(restSec), [rest.start, restSec]);
 
   if (!active || !schedule) return null;
   const day = schedule[active.dayIndex];
@@ -192,7 +193,7 @@ export const WorkoutScreen = () => {
           sets={sets}
           history={history}
           unit={unit}
-          onRest={() => rest.start(restSec)}
+          onRest={onRest}
         />
       </ScrollView>
 

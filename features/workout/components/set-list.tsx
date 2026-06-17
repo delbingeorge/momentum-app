@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
@@ -34,24 +35,38 @@ export const SetList = ({
 }: SetListProps) => {
   const { updateSet, setExerciseSets } = useWorkoutStore.getState();
 
-  const toggleDone = (index: number) => {
-    const set = sets[index];
-    if (!set) return;
-    const willDone = !set.done;
-    if (willDone) haptics.success();
-    else haptics.select();
-    updateSet(exercise.id, index, { done: willDone });
-    // warmups don't trigger rest
-    if (willDone && isWorkingSet(set)) onRest();
-  };
+  // Read the live set from the store (not the `sets` prop) so these handlers
+  // keep a stable identity across renders, letting memoized rows skip re-render.
+  const handleUpdate = useCallback(
+    (index: number, patch: Partial<LoggedSet>) =>
+      updateSet(exercise.id, index, patch),
+    [exercise.id, updateSet],
+  );
 
-  const cycleType = (index: number) => {
-    const set = sets[index];
-    if (!set) return;
-    const next =
-      TYPE_ORDER[(TYPE_ORDER.indexOf(set.type) + 1) % TYPE_ORDER.length];
-    if (next) updateSet(exercise.id, index, { type: next });
-  };
+  const toggleDone = useCallback(
+    (index: number) => {
+      const set = useWorkoutStore.getState().log[exercise.id]?.[index];
+      if (!set) return;
+      const willDone = !set.done;
+      if (willDone) haptics.success();
+      else haptics.select();
+      updateSet(exercise.id, index, { done: willDone });
+      // warmups don't trigger rest
+      if (willDone && isWorkingSet(set)) onRest();
+    },
+    [exercise.id, updateSet, onRest],
+  );
+
+  const cycleType = useCallback(
+    (index: number) => {
+      const set = useWorkoutStore.getState().log[exercise.id]?.[index];
+      if (!set) return;
+      const next =
+        TYPE_ORDER[(TYPE_ORDER.indexOf(set.type) + 1) % TYPE_ORDER.length];
+      if (next) updateSet(exercise.id, index, { type: next });
+    },
+    [exercise.id, updateSet],
+  );
 
   const addSet = () => {
     const last = sets[sets.length - 1];
@@ -102,9 +117,9 @@ export const SetList = ({
               workingIndex={workingIndex}
               prev={prev}
               unit={unit}
-              onUpdate={(patch) => updateSet(exercise.id, index, patch)}
-              onToggleDone={() => toggleDone(index)}
-              onCycleType={() => cycleType(index)}
+              onUpdate={handleUpdate}
+              onToggleDone={toggleDone}
+              onCycleType={cycleType}
             />
           );
         })}

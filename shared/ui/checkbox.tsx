@@ -1,9 +1,14 @@
 import * as CheckboxPrimitive from "@rn-primitives/checkbox";
-import { View } from "react-native";
+import { type Insets, View } from "react-native";
 
 import { cn } from "@/shared/lib/cn";
 import { COLORS } from "@/shared/lib/colors";
 import { Icon } from "@/shared/ui/icon";
+
+// The visual box is small (24px); extend the tap area past it so taps register
+// reliably mid-workout. Left inset is kept small to avoid overlapping the reps
+// stepper to its left; right slop runs toward the (empty) screen edge.
+const DEFAULT_HIT_SLOP: Insets = { top: 14, bottom: 14, left: 6, right: 16 };
 
 interface CheckboxProps {
   checked: boolean;
@@ -14,6 +19,7 @@ interface CheckboxProps {
   checkedColor?: string;
   iconColor?: string;
   iconSize?: number;
+  hitSlop?: Insets;
 }
 
 export const Checkbox = ({
@@ -24,11 +30,13 @@ export const Checkbox = ({
   checkedColor,
   iconColor = COLORS.limeText,
   iconSize = 15,
+  hitSlop = DEFAULT_HIT_SLOP,
 }: CheckboxProps) => (
   <CheckboxPrimitive.Root
     checked={checked}
     onCheckedChange={onCheckedChange}
     disabled={disabled}
+    hitSlop={hitSlop}
   >
     <View
       className={cn(
