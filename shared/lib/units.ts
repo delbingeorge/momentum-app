@@ -29,3 +29,9 @@ export const stepKgBy = (kg: number, unit: Unit, dir: 1 | -1): number =>
 // Total session volume shown in the active unit (whole number — it's large).
 export const volumeToDisp = (volumeKg: number, unit: Unit): number =>
   Math.round(unit === "kg" ? volumeKg : volumeKg * KG_PER_LB);
+
+// Bodyweight (and bodyweight deltas) shown in the active unit, to 0.1 — finer
+// than lift weights since a daily weigh-in moves in tenths. Linear, so it works
+// for both absolute weights and signed deltas.
+export const bodyToDisp = (kg: number, unit: Unit): number =>
+  Math.round((unit === "kg" ? kg : kg * KG_PER_LB) * 10) / 10;

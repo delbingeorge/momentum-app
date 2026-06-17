@@ -5,9 +5,11 @@ import Svg, { Circle, Path } from "react-native-svg";
 
 import { COLORS } from "@/shared/lib/colors";
 import { freeHistoryCutoffTs, useIsPaid } from "@/shared/lib/entitlements";
-import { KG_PER_LB } from "@/shared/lib/units";
-import { useBodyStore, useSettingsStore } from "@/shared/stores";
+import { bodyToDisp } from "@/shared/lib/units";
+import { useBodyStore, usePlanStore, useSettingsStore } from "@/shared/stores";
 import { Icon, PressableScale } from "@/shared/ui";
+
+import { analyzeTrend } from "../lib/bodyweight-trend";
 
 const W = 72;
 const H = 34;
@@ -56,12 +58,23 @@ export const BodyweightCard = () => {
   }, [isPaid, allWeights]);
   const sparkPts = useMemo(() => weights.slice(-8).map((w) => w.kg), [weights]);
 
+  const goal = usePlanStore((state) => state.goal);
+  const trend = useMemo(() => analyzeTrend(weights, goal), [weights, goal]);
   const lastKg = weights[weights.length - 1]?.kg ?? 70;
-  const deltaKg = weights.length > 1 ? lastKg - (weights[0]?.kg ?? lastKg) : 0;
-  const disp = (kg: number) =>
-    unit === "kg"
-      ? Math.round(kg * 10) / 10
-      : Math.round(kg * KG_PER_LB * 10) / 10;
+
+  const sentimentColor =
+    trend?.sentiment === "good"
+      ? COLORS.green
+      : trend?.sentiment === "bad"
+        ? COLORS.warmup
+        : COLORS.mut;
+  const dirIcon =
+    trend?.direction === "up"
+      ? "arrowUp"
+      : trend?.direction === "down"
+        ? "chevD"
+        : "minus";
+  const rate = trend ? bodyToDisp(trend.ratePerWeek, unit) : 0;
 
   return (
     <View>
@@ -82,29 +95,40 @@ export const BodyweightCard = () => {
         <View className="flex-1">
           <View className="flex-row items-baseline gap-1.5">
             <Text className="font-sans-bold text-2xl tracking-tight text-text">
-              {disp(lastKg)}
+              {bodyToDisp(lastKg, unit)}
             </Text>
             <Text className="font-sans text-[13px] text-mut">{unit}</Text>
-            {weights.length > 1 ? (
-              <View className="flex-row items-center gap-0.5">
-                <Icon
-                  name={deltaKg >= 0 ? "arrowUp" : "chevD"}
-                  size={12}
-                  color={deltaKg >= 0 ? COLORS.green : COLORS.warmup}
-                  strokeWidth={2.4}
-                />
-                <Text
-                  className="font-sans-semibold text-[12.5px]"
-                  style={{ color: deltaKg >= 0 ? COLORS.green : COLORS.warmup }}
-                >
-                  {Math.abs(disp(deltaKg))} {unit}
-                </Text>
-              </View>
-            ) : null}
           </View>
-          <Text className="mt-0.5 font-mono text-[10.5px] text-faint">
-            over {weights.length} weigh-ins
-          </Text>
+          {trend ? (
+            <View className="mt-1 flex-row items-center gap-1.5">
+              <Icon
+                name={dirIcon}
+                size={13}
+                color={sentimentColor}
+                strokeWidth={2.6}
+              />
+              <Text
+                className="font-sans-semibold text-[12.5px]"
+                style={{ color: sentimentColor }}
+              >
+                {trend.direction === "flat"
+                  ? trend.label
+                  : `${rate > 0 ? "+" : ""}${rate} ${unit}/wk`}
+              </Text>
+              {trend.direction !== "flat" ? (
+                <Text
+                  numberOfLines={1}
+                  className="flex-1 font-mono text-[10.5px] text-faint"
+                >
+                  · {trend.label}
+                </Text>
+              ) : null}
+            </View>
+          ) : (
+            <Text className="mt-1 font-mono text-[10.5px] text-faint">
+              Log a few weigh-ins to see your trend
+            </Text>
+          )}
         </View>
         <Sparkline pts={sparkPts} />
       </View>
