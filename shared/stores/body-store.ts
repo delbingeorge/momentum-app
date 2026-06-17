@@ -10,6 +10,7 @@ import { bodyweightEntrySchema } from "@/shared/types/schemas";
 interface BodyState {
   weights: BodyweightEntry[];
   logWeight: (kg: number) => void;
+  removeWeight: (date: string) => void;
   setWeights: (weights: BodyweightEntry[]) => void;
   resetBody: () => void;
 }
@@ -32,6 +33,10 @@ export const useBodyStore = create<BodyState>()(
             ),
           };
         }),
+      removeWeight: (date) =>
+        set((state) => ({
+          weights: state.weights.filter((entry) => entry.date !== date),
+        })),
       setWeights: (weights) => set({ weights }),
       resetBody: () => set({ weights: [] }),
     }),

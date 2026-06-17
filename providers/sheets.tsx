@@ -13,6 +13,7 @@ import {
   ResetConfirmSheet,
 } from "@/features/profile";
 import {
+  BodyweightHistorySheet,
   LogBodyweightSheet,
   SessionDetailSheet,
   StreakJourneySheet,
@@ -34,6 +35,7 @@ declare module "react-native-actions-sheet" {
       payload: { session: SessionRecord };
     }>;
     "log-bodyweight": SheetDefinition;
+    "bodyweight-history": SheetDefinition;
     "weigh-in-guide": SheetDefinition;
     "reminder-config": SheetDefinition;
     "export-data": SheetDefinition;
@@ -59,6 +61,7 @@ export const AppSheets = () => (
       "exercise-info": ExerciseInfoSheet,
       "session-detail": SessionDetailSheet,
       "log-bodyweight": LogBodyweightSheet,
+      "bodyweight-history": BodyweightHistorySheet,
       "weigh-in-guide": WeighInGuideSheet,
       "reminder-config": ReminderSheet,
       "export-data": ExportSheet,

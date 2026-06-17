@@ -1,3 +1,4 @@
+import { COLORS } from "@/shared/lib/colors";
 import type { BodyweightEntry, Goal } from "@/shared/types";
 
 // How recent a window to judge the trend on. A cut/bulk is read over weeks,
@@ -25,7 +26,14 @@ const dayDiff = (fromIso: string, toIso: string): number =>
     (new Date(toIso).getTime() - new Date(fromIso).getTime()) / 86_400_000,
   );
 
-const sentimentFor = (
+// Signed weight change → direction, with a dead zone so daily noise reads flat.
+export const directionOf = (
+  deltaKg: number,
+  flatKg = FLAT_KG,
+): TrendDirection =>
+  Math.abs(deltaKg) < flatKg ? "flat" : deltaKg > 0 ? "up" : "down";
+
+export const sentimentFor = (
   direction: TrendDirection,
   goal: Goal | null,
 ): TrendSentiment => {
@@ -35,6 +43,14 @@ const sentimentFor = (
   if (goal === "fatloss") return direction === "down" ? "good" : "bad";
   return "neutral";
 };
+
+// Shared mapping so the card and history sheet color sentiment identically.
+export const sentimentColor = (sentiment: TrendSentiment): string =>
+  sentiment === "good"
+    ? COLORS.green
+    : sentiment === "bad"
+      ? COLORS.warmup
+      : COLORS.mut;
 
 const labelFor = (
   direction: TrendDirection,
@@ -71,8 +87,7 @@ export const analyzeTrend = (
   const spanDays = Math.max(1, dayDiff(first.date, latest.date));
   const ratePerWeek = (deltaKg / spanDays) * 7;
 
-  const direction: TrendDirection =
-    Math.abs(deltaKg) < FLAT_KG ? "flat" : deltaKg > 0 ? "up" : "down";
+  const direction = directionOf(deltaKg);
   const sentiment = sentimentFor(direction, goal);
 
   return {

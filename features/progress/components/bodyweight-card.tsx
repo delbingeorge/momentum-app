@@ -9,7 +9,7 @@ import { bodyToDisp } from "@/shared/lib/units";
 import { useBodyStore, usePlanStore, useSettingsStore } from "@/shared/stores";
 import { Icon, PressableScale } from "@/shared/ui";
 
-import { analyzeTrend } from "../lib/bodyweight-trend";
+import { analyzeTrend, sentimentColor } from "../lib/bodyweight-trend";
 
 const W = 72;
 const H = 34;
@@ -62,12 +62,7 @@ export const BodyweightCard = () => {
   const trend = useMemo(() => analyzeTrend(weights, goal), [weights, goal]);
   const lastKg = weights[weights.length - 1]?.kg ?? 70;
 
-  const sentimentColor =
-    trend?.sentiment === "good"
-      ? COLORS.green
-      : trend?.sentiment === "bad"
-        ? COLORS.warmup
-        : COLORS.mut;
+  const trendColor = sentimentColor(trend?.sentiment ?? "neutral");
   const dirIcon =
     trend?.direction === "up"
       ? "arrowUp"
@@ -88,7 +83,10 @@ export const BodyweightCard = () => {
           </Text>
         </PressableScale>
       </View>
-      <View className="flex-row items-center gap-3.5 rounded-[18px] bg-card px-4 py-4">
+      <PressableScale
+        onPress={() => SheetManager.show("bodyweight-history")}
+        className="flex-row items-center gap-3.5 rounded-[18px] bg-card px-4 py-4"
+      >
         <View className="h-11 w-11 items-center justify-center rounded-xl bg-lime-dim">
           <Icon name="scale" size={22} color={COLORS.lime} strokeWidth={1.9} />
         </View>
@@ -104,12 +102,12 @@ export const BodyweightCard = () => {
               <Icon
                 name={dirIcon}
                 size={13}
-                color={sentimentColor}
+                color={trendColor}
                 strokeWidth={2.6}
               />
               <Text
                 className="font-sans-semibold text-[12.5px]"
-                style={{ color: sentimentColor }}
+                style={{ color: trendColor }}
               >
                 {trend.direction === "flat"
                   ? trend.label
@@ -131,7 +129,8 @@ export const BodyweightCard = () => {
           )}
         </View>
         <Sparkline pts={sparkPts} />
-      </View>
+        <Icon name="chevR" size={17} color={COLORS.faint} />
+      </PressableScale>
     </View>
   );
 };
