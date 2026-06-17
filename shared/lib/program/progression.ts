@@ -12,7 +12,14 @@ import type {
   WorkoutLog,
 } from "@/shared/types";
 
-import { defaultKgFor, isCompound, isDumbbell } from "./exercises";
+import {
+  bodyweightLoad,
+  defaultKgFor,
+  isBodyweight,
+  isCompound,
+  isDumbbell,
+  isTimed,
+} from "./exercises";
 
 // Warmups don't count toward progression or working volume
 export const isWorkingSet = (set: { type?: SessionSet["type"] }): boolean =>
@@ -47,30 +54,45 @@ export const progressionFor = (
   target?: string,
 ): ProgressionSuggestion => {
   const range = target ?? "8–12";
-  const topMatch = range.match(/(\d+)\s*$/);
-  const botMatch = range.match(/^(\d+)/);
-  const topReps = topMatch?.[1] ? parseInt(topMatch[1], 10) : 12;
-  const botReps = botMatch?.[1] ? parseInt(botMatch[1], 10) : 8;
+  // Pull the bounds out of any target string — "12–15", "30–45s" (timed),
+  // "10 ea" (per side), or a single number all resolve correctly.
+  const nums = (range.match(/\d+/g) ?? []).map((n) => parseInt(n, 10));
+  const botReps = nums[0] ?? 8;
+  const topReps = nums[1] ?? nums[0] ?? 12;
   const work = (lastSets ?? []).filter(isWorkingSet);
+  const bodyweight = isBodyweight(name);
   const baseKg = work.length
     ? Math.max(...work.map((set) => set.kg))
     : defaultKgFor(name, level);
   if (deload) {
     return {
-      kg: round5(baseKg * 0.6),
+      kg: bodyweight ? 0 : round5(baseKg * 0.6),
       reps: Math.round((topReps + botReps) / 2),
       note: "deload",
     };
   }
   const cleared = work.length > 0 && work.every((set) => set.reps >= topReps);
   if (cleared) {
+    // Bodyweight work has no load to add, so it overloads by reps — or by a
+    // few seconds for timed holds — instead of weight.
+    if (bodyweight) {
+      return {
+        kg: 0,
+        reps: topReps + (isTimed(name) ? 5 : 1),
+        note: "overload",
+      };
+    }
     return {
       kg: round5(baseKg + progressIncrement(name, goal, level)),
       reps: botReps,
       note: "overload",
     };
   }
-  return { kg: baseKg, reps: work[0]?.reps ?? botReps, note: null };
+  return {
+    kg: bodyweight ? 0 : baseKg,
+    reps: work[0]?.reps ?? botReps,
+    note: null,
+  };
 };
 
 // Pre-fill each exercise's sets from goal-driven progression (or a deload)
@@ -109,6 +131,7 @@ export const buildSession = (
   log: WorkoutLog,
   elapsedSec: number,
   day: Pick<ScheduledDay, "key" | "name">,
+  bodyweightKg = 0,
 ): SessionRecord => {
   const exercises = exList
     .map((exercise) => ({
@@ -120,13 +143,16 @@ export const buildSession = (
     }))
     .filter((exercise) => exercise.sets.length > 0);
   // Dumbbell loads are stored per hand, so their volume counts both hands.
+  // Bodyweight movements credit a share of bodyweight per rep (plus any added
+  // load); see bodyweightLoad.
   const volume = exercises.reduce((total, exercise) => {
     const hands = isDumbbell(exercise.name) ? 2 : 1;
+    const bwLoad = bodyweightLoad(exercise.name, bodyweightKg);
     return (
       total +
       exercise.sets
         .filter(isWorkingSet)
-        .reduce((sum, set) => sum + set.kg * set.reps * hands, 0)
+        .reduce((sum, set) => sum + (set.kg * hands + bwLoad) * set.reps, 0)
     );
   }, 0);
   const totalSets = exercises.reduce(

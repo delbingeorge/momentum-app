@@ -55,8 +55,8 @@ export const DAY: Record<DayKey, DayTemplate> = {
     key: "legs",
     name: "Leg Day",
     sub: "Quads & hamstrings",
-    dur: 60,
-    muscles: ["Quads", "Hamstrings", "Calves", "Core"],
+    dur: 55,
+    muscles: ["Quads", "Hamstrings", "Calves"],
     exercises: [
       ex("Barbell Back Squat", 4, "6–8"),
       ex("Leg Press", 3, "10–12"),
@@ -64,7 +64,6 @@ export const DAY: Record<DayKey, DayTemplate> = {
       ex("Romanian Deadlift", 3, "8–10"),
       ex("Leg Curl", 3, "12"),
       ex("Standing Calf Raise", 4, "12–15"),
-      ex("Hanging Leg Raise", 3, "12–15"),
     ],
   },
   pushB: {
@@ -205,4 +204,29 @@ export const dayOf = (key: DayKey, label: string): ScheduledDay => ({
   ...DAY[key],
   exercises: DAY[key].exercises.map((exercise) => ({ ...exercise })),
   label,
+});
+
+// Core is trained as a rotating finisher appended to a subset of training days
+// (see buildSchedule) rather than baked into any one template. This keeps core
+// coverage consistent across every split and rotates the movement by function:
+// lower-abs → flexion → rotation → anti-extension.
+export const CORE_POOL: ExerciseInstance[] = [
+  ex("Hanging Leg Raise", 3, "12–15"),
+  ex("Cable Crunch", 3, "12–15"),
+  ex("Russian Twist", 3, "15–20"),
+  ex("Plank", 3, "30–45s"),
+];
+
+// Append a core finisher to a scheduled day — reflecting it in the day's muscle
+// chips and adding a few minutes to the estimated duration.
+export const withCore = (
+  day: ScheduledDay,
+  finisher: ExerciseInstance,
+): ScheduledDay => ({
+  ...day,
+  dur: day.dur + 5,
+  muscles: day.muscles.includes("Core")
+    ? day.muscles
+    : [...day.muscles, "Core"],
+  exercises: [...day.exercises, { ...finisher }],
 });

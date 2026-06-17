@@ -10,6 +10,7 @@ import {
   progressionFor,
 } from "@/shared/lib/program";
 import {
+  useBodyStore,
   usePlanStore,
   useSettingsStore,
   useWorkoutStore,
@@ -31,6 +32,8 @@ export const WorkoutScreen = () => {
   const level = usePlanStore((state) => state.level) ?? "intermediate";
   const schedule = usePlanStore((state) => state.schedule);
   const setTodayIndex = usePlanStore((state) => state.setTodayIndex);
+  const onboardWeightKg = usePlanStore((state) => state.weightKg);
+  const weightLog = useBodyStore((state) => state.weights);
   const unit = useSettingsStore((state) => state.unit);
   const restSec = useSettingsStore((state) => state.restSec);
   const active = useWorkoutStore((state) => state.active);
@@ -141,7 +144,13 @@ export const WorkoutScreen = () => {
 
   const handleFinish = () => {
     rest.skip();
-    finishWorkout(buildSession(exList, log, elapsed, day), active.deload);
+    // Latest logged bodyweight (entries are date-sorted), falling back to the
+    // figure captured at onboarding — credits bodyweight movements toward volume.
+    const bodyweightKg = weightLog[weightLog.length - 1]?.kg ?? onboardWeightKg;
+    finishWorkout(
+      buildSession(exList, log, elapsed, day, bodyweightKg),
+      active.deload,
+    );
     // Advance the rotation to the next training day so home is ready to go
     setTodayIndex((active.dayIndex + 1) % schedule.length);
     router.replace("/workout-done");

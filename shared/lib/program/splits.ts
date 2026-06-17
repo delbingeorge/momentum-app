@@ -6,7 +6,7 @@ import type {
   Split,
 } from "@/shared/types";
 
-import { dayOf } from "./day-templates";
+import { CORE_POOL, dayOf, withCore } from "./day-templates";
 
 export const GOALS: GoalOption[] = [
   {
@@ -158,9 +158,28 @@ const REST_PATTERNS: Record<number, number[]> = {
   6: [0, 1, 2, 4, 5, 6],
 };
 
+// Pick which training days get a core finisher: ~1 per 2 training days, capped
+// at 3, spread evenly across the week (offset off day 0 so the heaviest
+// compound day stays uncluttered).
+const coreDayIndices = (planLength: number, days: number): Set<number> => {
+  const count = Math.min(3, Math.max(1, Math.floor(days / 2)));
+  const step = planLength / count;
+  const indices = new Set<number>();
+  for (let i = 0; i < count; i += 1) {
+    indices.add(Math.min(planLength - 1, Math.floor(i * step + step / 2)));
+  }
+  return indices;
+};
+
 export const buildSchedule = (split: Split, days: number): ScheduledDay[] => {
   const slots = REST_PATTERNS[days] ?? REST_PATTERNS[FALLBACK_DAYS] ?? [];
-  return split.plan.map((key, index) =>
-    dayOf(key, WD[slots[index] ?? index] ?? "Mon"),
-  );
+  const coreDays = coreDayIndices(split.plan.length, days);
+  let coreTurn = 0;
+  return split.plan.map((key, index) => {
+    const day = dayOf(key, WD[slots[index] ?? index] ?? "Mon");
+    if (!coreDays.has(index)) return day;
+    const finisher = CORE_POOL[coreTurn % CORE_POOL.length];
+    coreTurn += 1;
+    return finisher ? withCore(day, finisher) : day;
+  });
 };

@@ -1,10 +1,13 @@
-export { DAY, dayOf } from "./day-templates";
+export { CORE_POOL, DAY, dayOf, withCore } from "./day-templates";
 export {
+  bodyweightLoad,
   DEFAULT_KG,
   defaultKgFor,
   EX,
+  isBodyweight,
   isCompound,
   isDumbbell,
+  isTimed,
   LIB,
   makeExercise,
   muscleOf,

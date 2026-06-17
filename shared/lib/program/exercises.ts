@@ -210,6 +210,32 @@ const DUMBBELL = new Set([
 
 export const isDumbbell = (name: string): boolean => DUMBBELL.has(name);
 
+// Bodyweight core/calisthenics — their default load is 0, so they progress via
+// reps (or held seconds for timed holds), not added weight. See progressionFor.
+const BODYWEIGHT = new Set(["Plank", "Hanging Leg Raise"]);
+
+export const isBodyweight = (name: string): boolean => BODYWEIGHT.has(name);
+
+// Timed holds — the "reps" we log and progress are seconds, not repetitions.
+const TIMED = new Set(["Plank"]);
+
+export const isTimed = (name: string): boolean => TIMED.has(name);
+
+// Fraction of bodyweight that acts as resistance for each bodyweight movement,
+// used to credit it toward session volume (any added weight — a dip belt, a
+// plate on the hips — is counted on top). Timed holds like Plank are excluded:
+// their "reps" are seconds, so kg × reps volume doesn't apply.
+const BODYWEIGHT_LOAD: Record<string, number> = {
+  "Pull-ups": 1,
+  "Tricep Dips": 1,
+  "Push-ups": 0.64,
+  "Inverted Row": 0.6,
+  "Hanging Leg Raise": 0.5,
+};
+
+export const bodyweightLoad = (name: string, bodyweightKg: number): number =>
+  (BODYWEIGHT_LOAD[name] ?? 0) * bodyweightKg;
+
 export const defaultKgFor = (
   name: string,
   level: Level = "intermediate",
