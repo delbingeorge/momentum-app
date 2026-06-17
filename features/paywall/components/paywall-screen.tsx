@@ -163,8 +163,9 @@ export const PaywallScreen = () => {
           userId = signedIn.id;
           signedInInline = true;
         } catch (err) {
+          console.error("paywall sign-in failed:", err);
           setLoading(false);
-          toast.error(err instanceof Error ? err.message : "Sign-in failed.");
+          toast.error("Sign-in failed. Please try again.");
           return;
         }
       }

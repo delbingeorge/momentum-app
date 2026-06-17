@@ -84,7 +84,8 @@ export const SignInScreen = () => {
         else if (choice === "switch") return handleSignIn();
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Sign-in failed.");
+      console.error("sign-in failed:", err);
+      toast.error("Sign-in failed. Please try again.");
     } finally {
       setLoading(false);
     }
