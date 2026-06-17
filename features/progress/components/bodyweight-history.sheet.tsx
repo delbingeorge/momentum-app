@@ -131,7 +131,12 @@ export const BodyweightHistorySheet = ({
   const rows = [...ranged].reverse();
 
   return (
-    <BaseSheet sheetId={sheetId} title="Bodyweight history" fullHeight>
+    <BaseSheet
+      sheetId={sheetId}
+      height="70%"
+      title="Bodyweight history"
+      fullHeight
+    >
       {visible.length === 0 ? (
         <View className="flex-1 items-center justify-center px-5 pb-16">
           <View className="h-14 w-14 items-center justify-center rounded-2xl bg-lime-dim">
