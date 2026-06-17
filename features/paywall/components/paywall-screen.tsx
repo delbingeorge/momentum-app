@@ -26,7 +26,7 @@ interface Perk {
 }
 
 const PERKS: Perk[] = [
-  { label: "Form demo videos for every exercise" },
+  { label: "Form videos for every exercise" },
   {
     label: "Full training history & all-time stats",
     freeNote: "8 weeks, recent stats only",

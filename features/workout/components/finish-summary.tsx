@@ -2,13 +2,12 @@ import { router } from "expo-router";
 import { useEffect } from "react";
 import { Text, View } from "react-native";
 
-import { SignInBackdrop } from "@/features/auth/components/sign-in-backdrop";
 import { COLORS } from "@/shared/lib/colors";
 import { fmtHM } from "@/shared/lib/dates";
 import { haptics } from "@/shared/lib/haptics";
 import { volumeToDisp } from "@/shared/lib/units";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
-import { CtaButton, Icon, Screen } from "@/shared/ui";
+import { CtaButton, Icon, Screen, SignInBackdrop } from "@/shared/ui";
 
 export const FinishSummary = () => {
   const session = useWorkoutStore((state) => state.pastSessions[0]);

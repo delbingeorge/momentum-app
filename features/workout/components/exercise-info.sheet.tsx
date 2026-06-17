@@ -55,7 +55,7 @@ export const ExerciseInfoSheet = ({
             <View className="flex-row items-center gap-1.5 rounded-lg bg-black/45 px-2.5 py-1.5">
               <Icon name="videoCam" size={13} color={COLORS.lime} />
               <Text className="font-mono text-[10px] tracking-wider text-text">
-                FORM DEMO
+                FORM VIDEO
               </Text>
             </View>
           </View>
@@ -74,7 +74,7 @@ export const ExerciseInfoSheet = ({
             </View>
             <View className="flex-1">
               <Text className="font-sans-semibold text-[15px] text-text">
-                Form demo video
+                Form video
               </Text>
               <Text className="mt-0.5 font-mono text-[10.5px] text-faint">
                 Unlock to watch how each rep should look

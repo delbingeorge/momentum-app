@@ -1,11 +1,10 @@
 import { router } from "expo-router";
 import { Text, View } from "react-native";
 
-import { SignInBackdrop } from "@/features/auth/components/sign-in-backdrop";
 import { COLORS } from "@/shared/lib/colors";
 import { getPlanRoute } from "@/shared/lib/plan-route";
 import { useAuthStore, useLaunchStore, usePlanStore } from "@/shared/stores";
-import { CtaButton, Icon, Screen } from "@/shared/ui";
+import { CtaButton, Icon, Screen, SignInBackdrop } from "@/shared/ui";
 
 export const WelcomeBackScreen = () => {
   const clearWelcomeBack = useLaunchStore((state) => state.clearWelcomeBack);

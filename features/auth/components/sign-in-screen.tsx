@@ -13,10 +13,15 @@ import {
   useAuthStore,
   useLaunchStore,
 } from "@/shared/stores";
-import { CtaButton, Icon, PressableScale, Screen } from "@/shared/ui";
+import {
+  CtaButton,
+  Icon,
+  PressableScale,
+  Screen,
+  SignInBackdrop,
+} from "@/shared/ui";
 
 import { signInWithGoogle, signOut } from "../api/auth-api";
-import { SignInBackdrop } from "./sign-in-backdrop";
 
 export const SignInScreen = () => {
   // when set, the screen is a step in a flow (e.g. mid-onboarding)
