@@ -1,12 +1,15 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
+import { SheetManager } from "react-native-actions-sheet";
 
 import { cn } from "@/shared/lib/cn";
+import { COLORS } from "@/shared/lib/colors";
 import { isoDate } from "@/shared/lib/dates";
+import { makeExercise } from "@/shared/lib/program";
 import { useBodyStore, usePlanStore } from "@/shared/stores";
 import type { ExerciseInstance } from "@/shared/types";
-import { CtaButton, PressableScale } from "@/shared/ui";
+import { CtaButton, Icon, PressableScale } from "@/shared/ui";
 
 import { ExerciseToggleRow } from "./exercise-toggle-row";
 import { OnboardingShell } from "./onboarding-shell";
@@ -48,6 +51,28 @@ export const ExerciseCustomizeScreen = () => {
       ...exercise,
       sets: Math.max(1, Math.min(8, exercise.sets + delta)),
     }));
+
+  const swap = async (exerciseId: string, sets: number) => {
+    const name = await SheetManager.show("exercise-picker", {
+      payload: { title: "Swap exercise" },
+    });
+    if (!name) return;
+    patchDay(exerciseId, () => makeExercise(name, sets));
+  };
+
+  const addExercise = async () => {
+    const name = await SheetManager.show("exercise-picker", {
+      payload: { title: "Add exercise" },
+    });
+    if (!name) return;
+    setSchedule(
+      schedule.map((entry, index) =>
+        index !== activeDay
+          ? entry
+          : { ...entry, exercises: [...entry.exercises, makeExercise(name, 3)] },
+      ),
+    );
+  };
 
   const activeCount = day.exercises.filter((exercise) => !exercise.off).length;
 
@@ -128,8 +153,18 @@ export const ExerciseCustomizeScreen = () => {
             exercise={exercise}
             onToggle={() => toggle(exercise.id)}
             onBump={(delta) => bump(exercise.id, delta)}
+            onSwap={() => swap(exercise.id, exercise.sets)}
           />
         ))}
+        <PressableScale
+          onPress={addExercise}
+          className="mt-0.5 flex-row items-center justify-center gap-2 rounded-2xl border border-dashed border-line py-3.5"
+        >
+          <Icon name="plus" size={16} color={COLORS.lime} strokeWidth={2.6} />
+          <Text className="font-sans-semibold text-[14px] text-mut">
+            Add exercise
+          </Text>
+        </PressableScale>
       </View>
     </OnboardingShell>
   );
