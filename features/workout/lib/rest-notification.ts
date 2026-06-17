@@ -26,15 +26,17 @@ export const startRestNotification = async (endAt: number): Promise<void> => {
         repeats: false,
       },
     });
-  } catch {
+  } catch (error) {
     // best-effort; workout flow must never break on notification errors
+    console.warn("rest notification schedule failed:", error);
   }
 };
 
 export const clearRestNotification = async (): Promise<void> => {
   try {
     await Notifications.cancelScheduledNotificationAsync(DONE_ID);
-  } catch {
+  } catch (error) {
     // best-effort; workout flow must never break on notification errors
+    console.warn("rest notification clear failed:", error);
   }
 };

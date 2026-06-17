@@ -104,7 +104,7 @@ export default function RootLayout() {
       .then((user) => {
         if (user) useAuthStore.getState().setUser(user);
       })
-      .catch(() => undefined);
+      .catch((error) => console.warn("session restore failed:", error));
   }, []);
 
   // re-arm the daily reminder silently on every launch (OS may drop schedules)

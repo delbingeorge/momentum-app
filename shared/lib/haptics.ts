@@ -4,7 +4,7 @@ import { useSettingsStore } from "@/shared/stores";
 
 const fire = (effect: () => Promise<void>) => {
   if (!useSettingsStore.getState().hapticsEnabled) return;
-  void effect().catch(() => {});
+  void effect().catch((error) => console.warn("haptics failed:", error));
 };
 
 export const haptics = {
