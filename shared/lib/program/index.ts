@@ -1,4 +1,5 @@
 export { CORE_POOL, DAY, dayOf, withCore } from "./day-templates";
+export { type ExerciseGroup, searchExercises } from "./exercise-search";
 export {
   bodyweightLoad,
   DEFAULT_KG,
@@ -20,11 +21,4 @@ export {
   progressIncrement,
   progressionFor,
 } from "./progression";
-export {
-  buildSchedule,
-  GENDERS,
-  GOALS,
-  LEVELS,
-  splitsFor,
-  WD,
-} from "./splits";
+export { buildSchedule, GENDERS, GOALS, LEVELS, splitsFor, WD } from "./splits";
