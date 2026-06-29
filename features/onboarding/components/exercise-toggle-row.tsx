@@ -9,12 +9,14 @@ interface ExerciseToggleRowProps {
   exercise: ExerciseInstance;
   onToggle: () => void;
   onBump: (delta: number) => void;
+  onSwap?: () => void;
 }
 
 export const ExerciseToggleRow = ({
   exercise,
   onToggle,
   onBump,
+  onSwap,
 }: ExerciseToggleRowProps) => {
   const off = Boolean(exercise.off);
   return (
@@ -39,6 +41,14 @@ export const ExerciseToggleRow = ({
           {exercise.muscle}
         </Text>
       </View>
+      {onSwap ? (
+        <PressableScale
+          onPress={onSwap}
+          className="h-7 w-7 items-center justify-center rounded-full bg-bg"
+        >
+          <Icon name="replace" size={14} color={COLORS.mut} strokeWidth={2} />
+        </PressableScale>
+      ) : null}
       <View className="flex-row items-center gap-0.5 rounded-full bg-bg p-0.5">
         <PressableScale
           onPress={() => onBump(-1)}
