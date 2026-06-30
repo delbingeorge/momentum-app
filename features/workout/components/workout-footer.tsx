@@ -1,6 +1,6 @@
 import { View } from "react-native";
 
-import { CtaButton, Icon, PressableScale } from "@/shared/ui";
+import { CtaButton, HoldButton, Icon, PressableScale } from "@/shared/ui";
 
 import { RestTimerBar } from "./rest-timer-bar";
 
@@ -53,13 +53,14 @@ export const WorkoutFooter = ({
       ) : null}
       <View className="flex-1">
         {isLast ? (
-          <CtaButton
+          <HoldButton
             label={
-              allDone ? "Finish workout" : `Finish · ${totalDone}/${totalSets}`
+              allDone
+                ? "Hold to finish"
+                : `Hold to finish · ${totalDone}/${totalSets}`
             }
             icon="check"
-            variant={allDone ? "lime" : "white"}
-            onPress={onFinish}
+            onComplete={onFinish}
           />
         ) : (
           <CtaButton

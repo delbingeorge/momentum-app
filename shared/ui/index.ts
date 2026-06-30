@@ -2,6 +2,7 @@ export { BrandBar } from "./brand-bar";
 export { Checkbox } from "./checkbox";
 export { CtaButton } from "./cta-button";
 export { ErrorBoundary } from "./error-boundary";
+export { HoldButton } from "./hold-button";
 export { Icon, type IconName } from "./icon";
 export { OptionCard } from "./option-card";
 export { PressableScale } from "./pressable-scale";
