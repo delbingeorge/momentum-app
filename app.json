@@ -19,6 +19,7 @@
     },
     "android": {
       "package": "com.octane.momentum",
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=com.octane.momentum",
       "adaptiveIcon": {
         "backgroundColor": "#0A0A0B",
         "foregroundImage": "./assets/android-icon-foreground.png",

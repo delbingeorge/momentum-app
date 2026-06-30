@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { Linking, Text, View } from "react-native";
 import { SheetManager, type SheetProps } from "react-native-actions-sheet";
 import * as StoreReview from "expo-store-review";
 
@@ -15,13 +15,21 @@ export const ReviewSheet = ({ sheetId }: SheetProps<"review">) => {
   const rate = async () => {
     completeReviewPrompt();
     await SheetManager.hide(sheetId);
+    // Native in-app review only works in store-distributed builds. In dev /
+    // sideloaded builds the Play In-App Review API surfaces its own "server
+    // error" dialog, so don't trigger it there.
+    if (__DEV__) return;
     try {
       if (await StoreReview.isAvailableAsync()) {
         await StoreReview.requestReview();
+        return;
       }
     } catch (error) {
       console.warn("store review failed:", error);
     }
+    // Fallback: open the store listing directly (uses the *StoreUrl in app.json).
+    const url = StoreReview.storeUrl();
+    if (url) Linking.openURL(url).catch(() => {});
   };
 
   const remindLater = () => SheetManager.hide(sheetId);
