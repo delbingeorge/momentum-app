@@ -23,7 +23,6 @@ import {
 import { wipeCloudData } from "@/features/sync";
 
 import { PreferencesCard } from "./preferences-card";
-import { RetentionBanner } from "./retention-banner";
 
 const SectionLabel = ({ children }: { children: string }) => (
   <Text className="mb-2.5 mt-5 font-mono text-[11px] uppercase tracking-wider text-faint">
@@ -116,8 +115,6 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
             </View>
           </View>
         </View>
-
-        <RetentionBanner />
 
         <SectionLabel>Account</SectionLabel>
         {accountSlot}

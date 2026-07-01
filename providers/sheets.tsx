@@ -3,10 +3,8 @@ import {
   SheetRegister,
 } from "react-native-actions-sheet";
 
-import { NoPurchaseSheet } from "@/features/auth";
 import { RecapSheet } from "@/features/home";
 import {
-  DataWarningSheet,
   ExportSheet,
   FeedbackSheet,
   ReminderSheet,
@@ -45,16 +43,11 @@ declare module "react-native-actions-sheet" {
       payload: { paid: boolean };
       returnValue: boolean;
     }>;
-    "data-warning": SheetDefinition;
     review: SheetDefinition;
     "session-recap": SheetDefinition<{
       payload: { session: SessionRecord };
     }>;
     "streak-journey": SheetDefinition;
-    "no-purchase": SheetDefinition<{
-      payload: { email: string | null };
-      returnValue: "purchase" | "free" | "switch";
-    }>;
   }
 }
 
@@ -71,11 +64,9 @@ export const AppSheets = () => (
       "export-data": ExportSheet,
       feedback: FeedbackSheet,
       "reset-confirm": ResetConfirmSheet,
-      "data-warning": DataWarningSheet,
       review: ReviewSheet,
       "session-recap": RecapSheet,
       "streak-journey": StreakJourneySheet,
-      "no-purchase": NoPurchaseSheet,
     }}
   />
 );

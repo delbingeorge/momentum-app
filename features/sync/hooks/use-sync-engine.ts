@@ -15,16 +15,16 @@ import { canSync, pushNow, syncNow } from "../lib/engine";
 
 const PUSH_DEBOUNCE_MS = 3000;
 
-// Mounted once in the root layout. Free or signed-out users: every path no-ops.
+// Mounted once in the root layout. Signed-out users: every path no-ops. Free
+// users sync too now (their backup is just capped to a window, see engine.ts).
 export const useSyncEngine = (): void => {
   const userId = useAuthStore((state) => state.user?.id ?? null);
-  const isPaid = useAuthStore((state) => state.isPaid);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // full sync whenever a paid user lands (sign-in or app start)
+  // full sync whenever a user lands (sign-in or app start), paid or free
   useEffect(() => {
-    if (userId && isPaid) void syncNow();
-  }, [userId, isPaid]);
+    if (userId) void syncNow();
+  }, [userId]);
 
   useEffect(() => {
     // pushNow claims the dirty flags, pushes, and restores them on failure, so

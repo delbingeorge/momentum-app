@@ -32,7 +32,6 @@ import {
 import { useSyncEngine } from "@/features/sync";
 import { scheduleReminder } from "@/features/profile";
 import { useAuthGuard } from "@/shared/hooks/use-auth-guard";
-import { useRetentionLaunch } from "@/shared/hooks/use-retention-launch";
 import { queryClient } from "@/shared/lib/query-client";
 import { COLORS } from "@/shared/lib/colors";
 import { useAuthStore, useSettingsStore } from "@/shared/stores";
@@ -43,10 +42,8 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useSyncEngine();
-  // reactive paid-only sign-in invariant, complements the index launch gate
+  // reactive sign-in-required invariant, complements the index launch gate
   useAuthGuard();
-  // free-tier retention: prune expired data, warn before deletion
-  useRetentionLaunch();
   const [fontsLoaded] = useFonts({
     HankenGrotesk_400Regular,
     HankenGrotesk_500Medium,

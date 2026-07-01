@@ -17,11 +17,10 @@ const ago = (ts: number): string => {
 
 export const SyncStatusRow = () => {
   const user = useAuthStore((state) => state.user);
-  const isPaid = useAuthStore((state) => state.isPaid);
   const status = useSyncStore((state) => state.status);
   const lastSyncedAt = useSyncStore((state) => state.lastSyncedAt);
 
-  if (!isPaid || !user) return null;
+  if (!user) return null;
 
   return (
     <View className="mt-2 flex-row items-center gap-2.5 rounded-[18px] border border-line bg-card px-4 py-3">

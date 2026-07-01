@@ -3,6 +3,7 @@ import { useState } from "react";
 import { InteractionManager, Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
+import { FREE_CLOUD_WEEKS } from "@/shared/lib/entitlements";
 import { Icon, PressableScale } from "@/shared/ui";
 
 import { clearLocalData, useAuthStore } from "@/shared/stores";
@@ -33,6 +34,18 @@ export const AccountCard = () => {
     });
   };
 
+  const accountRow = user ? (
+    <View className="flex-row items-center gap-3 px-4 py-3.5">
+      <Icon name="check" size={18} color={COLORS.green} strokeWidth={2.6} />
+      <View className="flex-1">
+        <Text className="font-sans text-[14.5px] text-text">{user.email}</Text>
+      </View>
+      <PressableScale onPress={handleSignOut} disabled={busy}>
+        <Text className="font-sans-semibold text-[13px] text-mut">Sign out</Text>
+      </PressableScale>
+    </View>
+  ) : null;
+
   if (!isPaid) {
     return (
       <View className="overflow-hidden rounded-[18px] border border-line bg-card">
@@ -42,21 +55,17 @@ export const AccountCard = () => {
           </View>
           <View className="flex-1">
             <Text className="font-sans-semibold text-[15px] text-text">
-              Free · local only
+              Free · last {FREE_CLOUD_WEEKS} weeks backed up
             </Text>
             <Text className="mt-px font-sans text-xs text-mut">
-              Your data lives on this device.
+              Older workouts aren&apos;t kept. Upgrade for your full history.
             </Text>
           </View>
         </View>
-        <View className="flex-row items-center gap-3 px-4 py-3 opacity-50">
-          <Icon name="rotate" size={18} color={COLORS.mut} />
-          <Text className="flex-1 font-sans text-[14.5px] text-text">
-            Sign in to sync
-          </Text>
-          <Icon name="medal" size={15} color={COLORS.faint} />
-        </View>
-        <View className="px-3.5 pb-3.5 pt-1">
+        {accountRow ? (
+          <View className="border-b border-line">{accountRow}</View>
+        ) : null}
+        <View className="px-3.5 pb-3.5 pt-3">
           <PressableScale
             onPress={() => router.push("/paywall")}
             className="h-12 flex-row items-center justify-center gap-2 rounded-full bg-lime"
@@ -91,33 +100,7 @@ export const AccountCard = () => {
           </Text>
         </View>
       </View>
-      {user ? (
-        <View className="flex-row items-center gap-3 px-4 py-3.5">
-          <Icon name="check" size={18} color={COLORS.green} strokeWidth={2.6} />
-          <View className="flex-1">
-            <Text className="font-sans text-[14.5px] text-text">
-              {user ? `${user.email}` : ""}
-            </Text>
-          </View>
-          <PressableScale onPress={handleSignOut} disabled={busy}>
-            <Text className="font-sans-semibold text-[13px] text-mut">
-              Sign out
-            </Text>
-          </PressableScale>
-        </View>
-      ) : (
-        <View className="px-3.5 pb-3.5 pt-3">
-          <PressableScale
-            onPress={() => router.push("/sign-in")}
-            className="h-12 flex-row items-center justify-center gap-2 rounded-full bg-white"
-          >
-            <Icon name="user" size={16} color={COLORS.bg} strokeWidth={2.2} />
-            <Text className="font-sans-bold text-[15px] text-bg">
-              Sign in with Google to sync
-            </Text>
-          </PressableScale>
-        </View>
-      )}
+      {accountRow}
     </View>
   );
 };

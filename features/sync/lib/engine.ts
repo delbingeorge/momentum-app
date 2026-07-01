@@ -1,3 +1,7 @@
+import {
+  capSessionsToCloudWindow,
+  capWeightsToCloudWindow,
+} from "@/shared/lib/entitlements";
 import { isCloudConfigured } from "@/shared/lib/env";
 import {
   useAuthStore,
@@ -32,9 +36,12 @@ const CLEAN: DirtyMap = {
   bodyweight: false,
 };
 
+// Every signed-in user syncs now, paid or free. Entitlement no longer gates
+// access to the cloud — it only caps how much a free user backs up (see the
+// window filter in pushClaimed).
 export const canSync = (): boolean => {
-  const { user, isPaid } = useAuthStore.getState();
-  return isCloudConfigured && isPaid && user !== null;
+  const { user } = useAuthStore.getState();
+  return isCloudConfigured && user !== null;
 };
 
 const buildProfilePayload = (): Record<string, unknown> => {
@@ -126,16 +133,25 @@ const pushClaimed = async (
   claimed: DirtyMap,
   opts: { all?: boolean } = {},
 ): Promise<void> => {
-  const { user } = useAuthStore.getState();
+  const { user, isPaid } = useAuthStore.getState();
   if (!user) return;
   const all = opts.all ?? false;
 
+  // Free users back up only the recent window; paid users back up everything.
+  // The server-side prune (schema.sql) is the authoritative backstop — this
+  // client filter just avoids uploading rows that would be trimmed anyway.
   const workout = useWorkoutStore.getState();
+  const sessions = isPaid
+    ? workout.pastSessions
+    : capSessionsToCloudWindow(workout.pastSessions);
+  const weights = isPaid
+    ? useBodyStore.getState().weights
+    : capWeightsToCloudWindow(useBodyStore.getState().weights);
+
   const tasks: Promise<void>[] = [];
-  if (all || claimed.sessions) tasks.push(pushSessions(workout.pastSessions, user.id));
+  if (all || claimed.sessions) tasks.push(pushSessions(sessions, user.id));
   if (all || claimed.history) tasks.push(pushHistory(workout.history, user.id));
-  if (all || claimed.bodyweight)
-    tasks.push(pushBodyweight(useBodyStore.getState().weights, user.id));
+  if (all || claimed.bodyweight) tasks.push(pushBodyweight(weights, user.id));
   if (all || claimed.profile) tasks.push(pushProfileIfChanged(user.id));
   await Promise.all(tasks);
 };

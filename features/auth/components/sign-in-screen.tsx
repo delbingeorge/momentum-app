@@ -1,92 +1,43 @@
-import { type Href, router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import { useState } from "react";
 import { Linking, Text, View } from "react-native";
-import { SheetManager } from "react-native-actions-sheet";
 
 import { logInPurchases, reconcileEntitlement } from "@/features/paywall";
 import { syncNow } from "@/features/sync";
 import { COLORS } from "@/shared/lib/colors";
-import { getPlanRoute } from "@/shared/lib/plan-route";
-import {
-  clearLocalData,
-  toast,
-  useAuthStore,
-  useLaunchStore,
-} from "@/shared/stores";
-import {
-  CtaButton,
-  Icon,
-  PressableScale,
-  Screen,
-  SignInBackdrop,
-} from "@/shared/ui";
+import { toast, useAuthStore, useLaunchStore } from "@/shared/stores";
+import { CtaButton, Icon, Screen, SignInBackdrop } from "@/shared/ui";
 
-import { signInWithGoogle, signOut } from "../api/auth-api";
+import { signInWithGoogle } from "../api/auth-api";
 
 export const SignInScreen = () => {
-  // when set, the screen is a step in a flow (e.g. mid-onboarding)
-  // and both closing and signing in continue forward instead of going back
-  const { next } = useLocalSearchParams<{ next?: string }>();
   const setUser = useAuthStore((state) => state.setUser);
   const [loading, setLoading] = useState(false);
 
-  // "Continue" skips sign-in into a fresh guest session
-  const continueFree = () => {
-    if (next) return router.replace(next as Href);
-    // wiping local data clears the plan, so the user always starts at step one;
-    // push (not replace) keeps a back stack so they can return to sign-in
-    clearLocalData();
-    router.push("/onboarding/goal");
-  };
-
-  // Sign-in is for paid members only. Settle both entitlement sources
-  // (RevenueCat, then the profiles mirror) before deciding: paid users
-  // continue in, unpaid ones get told and choose purchase or free.
+  // Sign-in is required for everyone. Entitlement is settled after sign-in only
+  // to set isPaid (which caps how much is retained), never to gate access:
+  // paid and unpaid members both continue into the app.
   const handleSignIn = async () => {
     setLoading(true);
     try {
       const signedIn = await signInWithGoogle();
       setUser(signedIn);
-      // settle both entitlement sources before deciding: RevenueCat authority,
-      // then the profiles mirror when RC is unconfigured
+      // bind RC to the account, then settle entitlement so isPaid is correct
+      // before the first sync decides how much to pull/push
       await logInPurchases(signedIn.id);
       await reconcileEntitlement({ userId: signedIn.id });
-      if (useAuthStore.getState().isPaid) {
-        // restore plan + history from cloud before routing; otherwise
-        // getPlanRoute reads the just-cleared local plan and sends paid
-        // users back to onboarding step zero
-        await syncNow();
-        setLoading(false);
-        // arm the one-shot greeting: the index gate shows welcome-back when a
-        // plan was restored, onboarding when this is a fresh paid sign-up
-        useLaunchStore.getState().requestWelcomeBack();
-        // re-enter the index gate so the resolver decides where to land
-        if (next) router.replace(next as Href);
-        else router.replace("/");
-        return;
-      }
+      // restore plan + history from cloud before routing; otherwise the index
+      // gate reads the local plan and may send a returning member to onboarding
+      await syncNow();
       setLoading(false);
-      const choice = await SheetManager.show("no-purchase", {
-        payload: { email: signedIn.email },
-      });
-      if (choice === "purchase") {
-        router.push({ pathname: "/paywall", params: { gate: "1" } });
-      } else {
-        // anything else drops the unpaid session first
-        await signOut();
-        useAuthStore.getState().resetAuth();
-        if (choice === "free") {
-          clearLocalData();
-          router.replace(getPlanRoute());
-        }
-        // purchase may live on another Google account: rerun the whole
-        // flow, the picker shows again since sign-in clears its session
-        else if (choice === "switch") return handleSignIn();
-      }
+      // arm the one-shot greeting: the index gate shows welcome-back when a
+      // plan was restored, onboarding when this is a fresh sign-up
+      useLaunchStore.getState().requestWelcomeBack();
+      // re-enter the index gate so the resolver decides where to land
+      router.replace("/");
     } catch (err) {
       console.error("sign-in failed:", err);
       toast.error("Sign-in failed. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
@@ -131,16 +82,11 @@ export const SignInScreen = () => {
           }}
         >
           <CtaButton
-            label="Continue for free"
-            onPress={continueFree}
+            label={loading ? "Signing in…" : "Continue with Google"}
+            onPress={handleSignIn}
             disabled={loading}
           />
         </View>
-        <PressableScale onPress={handleSignIn} disabled={loading}>
-          <Text className="py-2 text-center font-sans-semibold text-[15px] text-mut">
-            {loading ? "Signing in…" : "Already a member? Sign In"}
-          </Text>
-        </PressableScale>
         <Text className="text-center font-sans text-xs leading-[17px] text-faint">
           By continuing you agree to our{" "}
           <Text

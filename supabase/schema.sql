@@ -112,3 +112,38 @@ drop trigger if exists protect_is_paid on public.profiles;
 create trigger protect_is_paid
   before insert or update on public.profiles
   for each row execute function public.protect_is_paid();
+
+-- Free-tier cloud retention cap. Free users back up only a recent window; the
+-- client push filter (features/sync/lib/engine.ts) uploads only in-window rows,
+-- and this scheduled prune is the authoritative backstop keyed on the
+-- entitlement source of truth (is_paid), so a downgraded or tampered client
+-- can't hoard cloud storage. Keep FREE_CLOUD_WEEKS (8) in sync with
+-- shared/lib/entitlements.ts — the interval below is 8 * 7 = 56 days.
+-- Requires the pg_cron extension (enable it in the Supabase dashboard first).
+create extension if not exists pg_cron;
+
+create or replace function public.prune_free_cloud_data()
+  returns void
+  language sql
+  security definer
+as $$
+  delete from public.workout_sessions s
+    using public.profiles p
+   where s.user_id = p.id
+     and p.is_paid = false
+     and s.ts < (extract(epoch from now()) * 1000 - 56 * 86400000)::bigint;
+
+  delete from public.bodyweight_logs b
+    using public.profiles p
+   where b.user_id = p.id
+     and p.is_paid = false
+     and b.date < (now() - interval '56 days')::date;
+$$;
+
+-- Run daily at 03:00 UTC. Re-running select cron.schedule with the same job
+-- name updates the existing schedule rather than creating a duplicate.
+select cron.schedule(
+  'prune-free-cloud-data',
+  '0 3 * * *',
+  $$select public.prune_free_cloud_data();$$
+);

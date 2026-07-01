@@ -1,7 +1,10 @@
-import type { SessionRecord } from "@/shared/types";
+import type { BodyweightEntry, SessionRecord } from "@/shared/types";
 
 import {
+  FREE_CLOUD_WEEKS,
   FREE_HISTORY_WEEKS,
+  capSessionsToCloudWindow,
+  capWeightsToCloudWindow,
   filterDatesToFreeWindow,
   filterSessionsToFreeWindow,
 } from "./entitlements";
@@ -9,6 +12,7 @@ import {
 const NOW = Date.parse("2026-06-13T00:00:00.000Z");
 const DAY = 86_400_000;
 const windowMs = FREE_HISTORY_WEEKS * 7 * DAY;
+const cloudMs = FREE_CLOUD_WEEKS * 7 * DAY;
 
 const session = (ts: number): SessionRecord => ({
   id: `s${ts}`,
@@ -47,5 +51,27 @@ describe("filterDatesToFreeWindow", () => {
       .slice(0, 10);
     const kept = filterDatesToFreeWindow([insideDate, outsideDate]);
     expect(kept).toEqual([insideDate]);
+  });
+});
+
+describe("capSessionsToCloudWindow", () => {
+  it("uploads only sessions within the cloud-backup window", () => {
+    const inside = session(NOW - cloudMs + DAY);
+    const outside = session(NOW - cloudMs - DAY);
+    const kept = capSessionsToCloudWindow([inside, outside]);
+    expect(kept.map((s) => s.id)).toEqual([inside.id]);
+  });
+});
+
+describe("capWeightsToCloudWindow", () => {
+  it("uploads only bodyweight entries within the cloud-backup window", () => {
+    const weight = (ts: number): BodyweightEntry => ({
+      date: new Date(ts).toISOString().slice(0, 10),
+      kg: 80,
+    });
+    const inside = weight(NOW - cloudMs + DAY);
+    const outside = weight(NOW - cloudMs - DAY);
+    const kept = capWeightsToCloudWindow([inside, outside]);
+    expect(kept.map((w) => w.date)).toEqual([inside.date]);
   });
 });

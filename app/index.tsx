@@ -8,13 +8,12 @@ import { useAuthStore, useLaunchStore, usePlanStore } from "@/shared/stores";
 // and the launch route resolves against real state with no gate.
 export default function Index() {
   const user = useAuthStore((state) => Boolean(state.user));
-  const isPaid = useAuthStore((state) => state.isPaid);
   const welcomeBackPending = useLaunchStore((state) => state.welcomeBackPending);
   const hasPlan = usePlanStore(isPlanComplete);
 
   return (
     <Redirect
-      href={resolveLaunchRoute({ user, isPaid, welcomeBackPending, hasPlan })}
+      href={resolveLaunchRoute({ user, welcomeBackPending, hasPlan })}
     />
   );
 }
