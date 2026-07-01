@@ -47,7 +47,9 @@ declare module "react-native-actions-sheet" {
     }>;
     "data-warning": SheetDefinition;
     review: SheetDefinition;
-    "session-recap": SheetDefinition;
+    "session-recap": SheetDefinition<{
+      payload: { session: SessionRecord };
+    }>;
     "streak-journey": SheetDefinition;
     "no-purchase": SheetDefinition<{
       payload: { email: string | null };

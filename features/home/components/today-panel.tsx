@@ -73,7 +73,7 @@ export const TodayPanel = () => {
       </View>
 
       <ScrollView className="flex-1" contentContainerClassName="pb-2">
-        <RecapCard />
+        <RecapCard dayKey={day.key} />
         <View className="flex-row items-center justify-between px-5 pb-2 pt-4">
           <Text className="font-mono text-[11px] uppercase tracking-wider text-faint">
             Exercises

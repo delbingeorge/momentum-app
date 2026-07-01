@@ -5,14 +5,15 @@ import { COLORS } from "@/shared/lib/colors";
 import { fmtHM } from "@/shared/lib/dates";
 import { volumeToDisp } from "@/shared/lib/units";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
+import type { DayKey } from "@/shared/types";
 import { Icon, PressableScale } from "@/shared/ui";
 
 import { analyzeRecap, relDate } from "../lib/recap";
 
-export const RecapCard = () => {
+export const RecapCard = ({ dayKey }: { dayKey: DayKey }) => {
   const pastSessions = useWorkoutStore((state) => state.pastSessions);
   const unit = useSettingsStore((state) => state.unit);
-  const recap = analyzeRecap(pastSessions);
+  const recap = analyzeRecap(pastSessions, dayKey);
   if (!recap) return null;
 
   const vol = volumeToDisp(recap.last.volume, unit).toLocaleString();
@@ -25,12 +26,16 @@ export const RecapCard = () => {
 
   return (
     <PressableScale
-      onPress={() => SheetManager.show("session-recap")}
+      onPress={() =>
+        SheetManager.show("session-recap", {
+          payload: { session: recap.last },
+        })
+      }
       className="mx-4 mb-0.5 mt-1 rounded-[20px] border border-line bg-card p-4"
     >
       <View className="mb-3 flex-row items-center gap-2">
         <Text className="font-mono text-[10.5px] uppercase tracking-widest text-lime">
-          Last session
+          Last time
         </Text>
         <Text className="font-mono text-[10.5px] text-faint">
           {relDate(recap.last.ts)} · {recap.last.dayName}

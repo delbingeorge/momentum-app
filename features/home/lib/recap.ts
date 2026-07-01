@@ -1,4 +1,4 @@
-import type { SessionRecord } from "@/shared/types";
+import type { DayKey, SessionRecord } from "@/shared/types";
 
 export const relDate = (ts: number): string => {
   const d = new Date(ts);
@@ -20,8 +20,14 @@ export interface Recap {
   last: SessionRecord;
 }
 
-// Summary of the most recent session for the home recap card/sheet
-export const analyzeRecap = (pastSessions: SessionRecord[]): Recap | null => {
-  const last = pastSessions[0];
+// The last time TODAY's day was trained — a like-for-like target to beat, since
+// the exercises match. pastSessions is newest-first, so the first hit is the
+// most recent instance. Returns null when this day has no history yet, which
+// hides the recap card.
+export const analyzeRecap = (
+  pastSessions: SessionRecord[],
+  dayKey: DayKey,
+): Recap | null => {
+  const last = pastSessions.find((session) => session.dayKey === dayKey);
   return last ? { last } : null;
 };
