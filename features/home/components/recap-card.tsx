@@ -18,10 +18,16 @@ export const RecapCard = ({ dayKey }: { dayKey: DayKey }) => {
 
   const vol = volumeToDisp(recap.last.volume, unit).toLocaleString();
 
-  const stats: [string, string][] = [
-    [`${vol} ${unit}`, "volume"],
-    [String(recap.last.totalSets), "sets"],
-    [fmtHM(recap.last.durationSec), "time"],
+  // Volume trend vs. the previous instance of this day (linear conversion, so
+  // the delta converts directly). Undefined on the first-ever session.
+  const volDelta = recap.prev
+    ? volumeToDisp(recap.last.volume, unit) - volumeToDisp(recap.prev.volume, unit)
+    : undefined;
+
+  const stats: { value: string; label: string; delta?: number }[] = [
+    { value: `${vol} ${unit}`, label: "volume", delta: volDelta },
+    { value: String(recap.last.totalSets), label: "sets" },
+    { value: fmtHM(recap.last.durationSec), label: "time" },
   ];
 
   return (
@@ -46,7 +52,7 @@ export const RecapCard = ({ dayKey }: { dayKey: DayKey }) => {
         </View>
       </View>
       <View className="flex-row gap-2">
-        {stats.map(([value, label]) => (
+        {stats.map(({ value, label, delta }) => (
           <View key={label} className="flex-1 rounded-[13px] bg-black/20 px-3 py-2.5">
             <Text
               numberOfLines={1}
@@ -54,9 +60,20 @@ export const RecapCard = ({ dayKey }: { dayKey: DayKey }) => {
             >
               {value}
             </Text>
-            <Text className="mt-0.5 font-mono text-[9.5px] uppercase tracking-wide text-faint">
-              {label}
-            </Text>
+            <View className="mt-0.5 flex-row items-center gap-1">
+              <Text className="font-mono text-[9.5px] uppercase tracking-wide text-faint">
+                {label}
+              </Text>
+              {delta !== undefined && delta !== 0 ? (
+                <Text
+                  numberOfLines={1}
+                  className={`font-mono text-[9.5px] ${delta > 0 ? "text-lime" : "text-danger"}`}
+                >
+                  {delta > 0 ? "▲" : "▼"}
+                  {Math.abs(delta).toLocaleString()}
+                </Text>
+              ) : null}
+            </View>
           </View>
         ))}
       </View>

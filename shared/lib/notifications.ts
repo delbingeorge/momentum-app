@@ -11,11 +11,15 @@ Notifications.setNotificationHandler({
   }),
 });
 
-const ANDROID_CHANNEL = "momentum";
+// Every scheduled notification must pass this as its trigger `channelId`.
+// Without it, Android delivers backgrounded notifications through a fallback
+// channel with heads-up disabled — so they only surface while the app is open
+// (the foreground handler force-shows them). See expo/expo#30762.
+export const NOTIFICATION_CHANNEL_ID = "momentum";
 
 export const ensureNotificationChannel = async (): Promise<void> => {
   if (Platform.OS !== "android") return;
-  await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL, {
+  await Notifications.setNotificationChannelAsync(NOTIFICATION_CHANNEL_ID, {
     name: "Momentum",
     importance: Notifications.AndroidImportance.HIGH,
     vibrationPattern: [0, 250, 250, 250],

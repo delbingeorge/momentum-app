@@ -1,6 +1,9 @@
 import * as Notifications from "expo-notifications";
 
-import { ensureNotificationChannel } from "@/shared/lib/notifications";
+import {
+  ensureNotificationChannel,
+  NOTIFICATION_CHANNEL_ID,
+} from "@/shared/lib/notifications";
 import { cycleWipeTs, RETENTION_WARN_DAYS } from "@/shared/lib/retention";
 import { useAuthStore, useWorkoutStore } from "@/shared/stores";
 
@@ -38,6 +41,7 @@ export const scheduleRetentionWarning = async (): Promise<void> => {
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DATE,
       date: new Date(fireAt),
+      channelId: NOTIFICATION_CHANNEL_ID,
     },
   });
 };

@@ -1,7 +1,10 @@
 import * as Notifications from "expo-notifications";
 
 import { shuffledQuotes } from "@/shared/lib/motivational-quotes";
-import { ensureNotificationChannel } from "@/shared/lib/notifications";
+import {
+  ensureNotificationChannel,
+  NOTIFICATION_CHANNEL_ID,
+} from "@/shared/lib/notifications";
 
 import { fmt12, reminderSummary } from "./reminder-format";
 
@@ -49,6 +52,7 @@ export const scheduleReminder = async (
           weekday: day + 1,
           hour,
           minute,
+          channelId: NOTIFICATION_CHANNEL_ID,
         },
       }),
     ),
@@ -64,6 +68,7 @@ export const scheduleReminder = async (
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds: 2,
+        channelId: NOTIFICATION_CHANNEL_ID,
       },
     });
   }

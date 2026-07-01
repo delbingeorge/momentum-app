@@ -1,7 +1,10 @@
 import * as Notifications from "expo-notifications";
 
 import { randomRestQuote } from "@/shared/lib/motivational-quotes";
-import { ensureNotificationChannel } from "@/shared/lib/notifications";
+import {
+  ensureNotificationChannel,
+  NOTIFICATION_CHANNEL_ID,
+} from "@/shared/lib/notifications";
 
 const DONE_ID = "rest-done";
 
@@ -24,6 +27,7 @@ export const startRestNotification = async (endAt: number): Promise<void> => {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds,
         repeats: false,
+        channelId: NOTIFICATION_CHANNEL_ID,
       },
     });
   } catch (error) {
