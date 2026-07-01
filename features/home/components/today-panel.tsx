@@ -50,7 +50,7 @@ export const TodayPanel = () => {
 
   return (
     <View className="flex-1">
-      <BrandBar />
+      <BrandBar explore />
       <View className="px-5 pb-1.5">
         <Text className="font-sans-bold text-[27px] tracking-tight text-text">
           Today's workout
