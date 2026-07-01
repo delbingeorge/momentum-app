@@ -9,8 +9,6 @@ import { useWorkoutStore } from "@/shared/stores";
 import { Icon } from "@/shared/ui";
 import { PressableScale } from "@/shared/ui/pressable-scale";
 
-// `explore` adds a browse-catalog shortcut next to the streak chip. It lives in
-// the header (not the tab bar) so the bottom bar stays free for future sections.
 export const BrandBar = ({ explore = false }: { explore?: boolean }) => {
   const sessionDates = useWorkoutStore((state) => state.sessionDates);
   const streak = weekStreak(sessionDates);
@@ -38,12 +36,12 @@ export const BrandBar = ({ explore = false }: { explore?: boolean }) => {
             onPress={() => router.push("/explore")}
             className="h-9 w-9 items-center justify-center rounded-full bg-card"
           >
-            <Icon name="search" size={17} color={COLORS.text} strokeWidth={2} />
+            <Icon name="search" size={15} color={COLORS.text} strokeWidth={2} />
           </PressableScale>
         ) : null}
         <PressableScale
           onPress={() => SheetManager.show("streak-journey")}
-          className="flex-row items-center gap-1.5 rounded-full bg-card py-1.5 pl-2.5 pr-3"
+          className="flex-row items-center gap-1.5 rounded-full bg-card py-1.5 pl-2.5 pr-3 h-9 w-fit"
         >
           <Icon name="fire" size={15} color={COLORS.lime} />
           <Text className="font-mono text-[12.5px] text-text">{streak}</Text>
