@@ -31,7 +31,7 @@ export const SessionDetailSheet = ({
           day: "numeric",
         })}
       </Text>
-      <View className="flex-row gap-2 px-5 pt-3.5">
+      <View className="flex-row gap-2 px-5 pt-3.5 pb-2">
         {stats.map(([label, value]) => (
           <View key={label} className="flex-1 rounded-2xl bg-card px-3 py-3">
             <Text className="font-sans-bold text-[17px] tracking-tight text-text">
