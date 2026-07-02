@@ -1,9 +1,12 @@
 import { router } from "expo-router";
-import { Text, View } from "react-native";
+import { useVideoPlayer, VideoView } from "expo-video";
+import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 import { SheetManager, type SheetProps } from "react-native-actions-sheet";
 
 import { COLORS } from "@/shared/lib/colors";
 import { useIsPaid } from "@/shared/lib/entitlements";
+import { posterUrl, useExerciseVideo } from "@/shared/lib/exercise-media";
+import type { ExerciseInstance } from "@/shared/types";
 import { BaseSheet, Icon, PressableScale, SheetScrollView } from "@/shared/ui";
 
 import { CUES } from "../lib/cues";
@@ -15,6 +18,64 @@ const glyphFor = (muscle: string) => {
   if (muscle === "Quads" || muscle === "Hamstrings" || muscle === "Calves")
     return "activity" as const;
   return "dumbbell" as const;
+};
+
+// Plays the short looping form clip. Mounted only once a signed URL exists.
+const FormVideoPlayer = ({ uri }: { uri: string }) => {
+  const player = useVideoPlayer(uri, (p) => {
+    p.loop = true;
+    p.muted = true;
+    p.play();
+  });
+  return (
+    <VideoView
+      player={player}
+      style={StyleSheet.absoluteFill}
+      contentFit="cover"
+      nativeControls={false}
+    />
+  );
+};
+
+// The FORM VIDEO tile: poster placeholder -> real video when the signed URL
+// arrives -> muscle-glyph watermark as the final fallback (no media / offline).
+const FormVideo = ({ exercise }: { exercise: ExerciseInstance }) => {
+  const { url, loading } = useExerciseVideo(exercise.id);
+  const poster = posterUrl(exercise.id);
+  return (
+    <View className="aspect-video w-full items-center justify-center self-center overflow-hidden rounded-[18px] border border-line bg-card2">
+      {poster ? (
+        <Image
+          source={{ uri: poster }}
+          resizeMode="cover"
+          style={StyleSheet.absoluteFill}
+        />
+      ) : (
+        <View className="absolute inset-0 items-center justify-center opacity-10">
+          <Icon
+            name={glyphFor(exercise.muscle)}
+            size={140}
+            color={COLORS.text}
+            strokeWidth={1}
+          />
+        </View>
+      )}
+      {url ? (
+        <FormVideoPlayer uri={url} />
+      ) : (
+        <View className="flex-row items-center gap-1.5 rounded-lg bg-black/45 px-2.5 py-1.5">
+          {loading ? (
+            <ActivityIndicator size="small" color={COLORS.lime} />
+          ) : (
+            <Icon name="videoCam" size={13} color={COLORS.lime} />
+          )}
+          <Text className="font-mono text-[10px] tracking-wider text-text">
+            FORM VIDEO
+          </Text>
+        </View>
+      )}
+    </View>
+  );
 };
 
 export const ExerciseInfoSheet = ({
@@ -41,22 +102,7 @@ export const ExerciseInfoSheet = ({
         contentContainerStyle={{ paddingBottom: 32 }}
       >
         {isPaid ? (
-          <View className="aspect-video w-full items-center justify-center self-center overflow-hidden rounded-[18px] border border-line bg-card2">
-            <View className="absolute inset-0 items-center justify-center opacity-10">
-              <Icon
-                name={glyphFor(exercise.muscle)}
-                size={140}
-                color={COLORS.text}
-                strokeWidth={1}
-              />
-            </View>
-            <View className="flex-row items-center gap-1.5 rounded-lg bg-black/45 px-2.5 py-1.5">
-              <Icon name="videoCam" size={13} color={COLORS.lime} />
-              <Text className="font-mono text-[10px] tracking-wider text-text">
-                FORM VIDEO
-              </Text>
-            </View>
-          </View>
+          <FormVideo exercise={exercise} />
         ) : (
           <PressableScale
             onPress={openPaywall}

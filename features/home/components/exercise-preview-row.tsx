@@ -1,6 +1,8 @@
-import { Text, View } from "react-native";
+import { useState } from "react";
+import { Image, Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
+import { posterUrl } from "@/shared/lib/exercise-media";
 import type { ExerciseInstance } from "@/shared/types";
 import { Icon, PressableScale } from "@/shared/ui";
 
@@ -11,14 +13,20 @@ interface ExercisePreviewRowProps {
   onPress?: () => void;
 }
 
-export const ExercisePreviewRow = ({
-  exercise,
-  onPress,
-}: ExercisePreviewRowProps) => (
-  <PressableScale
-    onPress={onPress}
-    className="flex-row items-center gap-3 rounded-2xl border border-line bg-card px-3.5 py-3"
-  >
+const PosterThumb = ({ exercise }: { exercise: ExerciseInstance }) => {
+  const uri = posterUrl(exercise.id);
+  const [failed, setFailed] = useState(false);
+
+  if (uri && !failed) {
+    return (
+      <Image
+        source={{ uri }}
+        onError={() => setFailed(true)}
+        className="h-[46px] w-[46px] rounded-xl border border-line bg-card2"
+      />
+    );
+  }
+  return (
     <View className="h-[46px] w-[46px] items-center justify-center rounded-xl border border-line bg-card2">
       <Icon
         name={muscleGlyph(exercise.muscle)}
@@ -27,6 +35,18 @@ export const ExercisePreviewRow = ({
         strokeWidth={1.6}
       />
     </View>
+  );
+};
+
+export const ExercisePreviewRow = ({
+  exercise,
+  onPress,
+}: ExercisePreviewRowProps) => (
+  <PressableScale
+    onPress={onPress}
+    className="flex-row items-center gap-3 rounded-2xl border border-line bg-card px-3.5 py-3"
+  >
+    <PosterThumb exercise={exercise} />
     <View className="flex-1">
       <Text
         numberOfLines={1}

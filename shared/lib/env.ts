@@ -10,6 +10,9 @@ const envSchema = z.object({
   EXPO_PUBLIC_REVENUECAT_KEY: z.string().min(1).optional(),
   EXPO_PUBLIC_REVENUECAT_IOS_KEY: z.string().min(1).optional(),
   EXPO_PUBLIC_REVENUECAT_ANDROID_KEY: z.string().min(1).optional(),
+  // Public base URL for exercise posters (Cloudflare R2 public domain),
+  // e.g. https://media.yourapp.com — videos are private and signed separately.
+  EXPO_PUBLIC_MEDIA_BASE_URL: z.string().url().optional(),
 });
 
 export const env = envSchema.parse({
@@ -24,6 +27,7 @@ export const env = envSchema.parse({
   EXPO_PUBLIC_REVENUECAT_IOS_KEY: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY,
   EXPO_PUBLIC_REVENUECAT_ANDROID_KEY:
     process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY,
+  EXPO_PUBLIC_MEDIA_BASE_URL: process.env.EXPO_PUBLIC_MEDIA_BASE_URL,
 });
 
 export const isCloudConfigured = Boolean(

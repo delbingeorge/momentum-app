@@ -61,12 +61,19 @@
         {
           "ios": {
             "extraPods": [
-              { "name": "GoogleUtilities", "modular_headers": true },
-              { "name": "RecaptchaInterop", "modular_headers": true }
+              {
+                "name": "GoogleUtilities",
+                "modular_headers": true
+              },
+              {
+                "name": "RecaptchaInterop",
+                "modular_headers": true
+              }
             ]
           }
         }
-      ]
+      ],
+      "expo-video"
     ]
   }
 }
