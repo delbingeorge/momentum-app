@@ -20,6 +20,7 @@ import {
   type IconName,
   PressableScale,
 } from "@/shared/ui";
+import { ManageSubscriptionRow } from "@/features/paywall";
 import { wipeCloudData } from "@/features/sync";
 
 import { PreferencesCard } from "./preferences-card";
@@ -118,6 +119,7 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
 
         <SectionLabel>Account</SectionLabel>
         {accountSlot}
+        <ManageSubscriptionRow />
 
         <SectionLabel>Your plan</SectionLabel>
         <View className="overflow-hidden rounded-[18px] bg-card">

@@ -127,6 +127,22 @@ export const getPaywallPackages = async (): Promise<
   }
 };
 
+// Store page where the user's subscription is changed or cancelled — billing
+// belongs to the store, so the app only deep-links there. Null when there is
+// nothing to manage (free user, lifetime purchase, SDK unavailable).
+export const getManagementURL = async (): Promise<string | null> => {
+  await configurePurchases();
+  const Purchases = await getPurchases();
+  if (!Purchases || !isConfigured()) return null;
+  try {
+    const info = await Purchases.getCustomerInfo();
+    return info.managementURL;
+  } catch (error) {
+    console.error("management url fetch failed:", error);
+    return null;
+  }
+};
+
 export type PurchaseResult = "purchased" | "cancelled" | "error";
 
 export const purchasePremium = async (
