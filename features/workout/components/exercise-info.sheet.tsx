@@ -7,7 +7,6 @@ import { useIsPaid } from "@/shared/lib/entitlements";
 import { BaseSheet, Icon, PressableScale, SheetScrollView } from "@/shared/ui";
 
 import { CUES } from "../lib/cues";
-import { STEPS } from "../lib/steps";
 
 const glyphFor = (muscle: string) => {
   if (muscle.includes("delt")) return "target" as const;
@@ -26,7 +25,6 @@ export const ExerciseInfoSheet = ({
   const exercise = payload?.exercise;
   if (!exercise) return null;
   const cues = CUES[exercise.name];
-  const steps = STEPS[exercise.name];
 
   const openPaywall = () => {
     void SheetManager.hide(sheetId);
@@ -107,31 +105,6 @@ export const ExerciseInfoSheet = ({
             </View>
           ))}
         </View>
-
-        {steps ? (
-          <View className="mt-5">
-            <Text className="mb-2.5 font-mono text-[11px] uppercase tracking-wider text-faint">
-              How to do it
-            </Text>
-            <View className="gap-2">
-              {steps.map((step, index) => (
-                <View
-                  key={step}
-                  className="flex-row items-start gap-2.5 rounded-2xl bg-card px-3.5 py-3"
-                >
-                  <View className="mt-0.5 h-5 w-5 items-center justify-center rounded-full bg-lime-dim">
-                    <Text className="font-mono-bold text-[11px] text-lime">
-                      {index + 1}
-                    </Text>
-                  </View>
-                  <Text className="flex-1 font-sans text-sm leading-5 text-text">
-                    {step}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        ) : null}
 
         {cues ? (
           <View className="mt-5">

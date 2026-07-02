@@ -47,7 +47,7 @@ export const ExploreScreen = () => {
   );
 
   // Browse rows carry no prescription — mint a default instance so the shared
-  // exercise-info sheet (muscle, how-to, cues) can open straight from here.
+  // exercise-info sheet (muscle, form cues) can open straight from here.
   // Opening a result while a query is active is what makes a search "used",
   // so that's when it earns a recents chip (besides keyboard submit).
   const openInfo = (name: string) => {
@@ -71,7 +71,7 @@ export const ExploreScreen = () => {
             Explore
           </Text>
           <Text className="font-mono text-[11px] text-faint">
-            {total} exercises · tap any for how-to
+            {total} exercises · tap any for form cues
           </Text>
         </View>
       </View>
