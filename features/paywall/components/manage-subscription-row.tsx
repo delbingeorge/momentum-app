@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Linking, Text, View } from "react-native";
+import { Linking, Platform, Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
 import { toast, useAuthStore } from "@/shared/stores";
@@ -28,10 +28,21 @@ export const ManageSubscriptionRow = () => {
     };
   }, [isPaid]);
 
-  if (!url) return null;
+  // dev unlocks and Test Store purchases never have a management URL, so in
+  // dev builds fall back to the store's generic subscriptions page — otherwise
+  // the row is impossible to see before real store products exist
+  const fallbackUrl = __DEV__
+    ? Platform.select({
+        ios: "https://apps.apple.com/account/subscriptions",
+        default: "https://play.google.com/store/account/subscriptions",
+      })
+    : null;
+  const target = url ?? (isPaid ? fallbackUrl : null);
+
+  if (!target) return null;
 
   const open = () =>
-    Linking.openURL(url).catch(() =>
+    Linking.openURL(target).catch(() =>
       toast.error("Couldn't open the store. Try again."),
     );
 
