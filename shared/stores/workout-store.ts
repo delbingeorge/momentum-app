@@ -21,7 +21,9 @@ import {
   sessionSetSchema,
 } from "@/shared/types/schemas";
 
-const MAX_PAST_SESSIONS = 60;
+// Local session-cache cap. The cloud keeps the full history; this only bounds
+// the on-device copy, sized to cover the paid 18-week view at daily training.
+export const MAX_PAST_SESSIONS = 150;
 
 interface ActiveSession {
   dayIndex: number;

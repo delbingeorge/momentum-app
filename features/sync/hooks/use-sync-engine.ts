@@ -11,7 +11,7 @@ import {
 
 import { type SyncEntity, useSyncStore } from "@/shared/stores";
 
-import { canSync, pushNow, syncNow } from "../lib/engine";
+import { canSync, isApplyingCloud, pushNow, syncNow } from "../lib/engine";
 
 const PUSH_DEBOUNCE_MS = 3000;
 
@@ -36,6 +36,9 @@ export const useSyncEngine = (): void => {
     };
 
     const markAndPush = (entity: SyncEntity) => {
+      // a pull replacing the caches is not a local edit — marking it dirty
+      // would echo every pull straight back up as a push
+      if (isApplyingCloud()) return;
       useSyncStore.getState().markDirty(entity);
       schedulePush();
     };

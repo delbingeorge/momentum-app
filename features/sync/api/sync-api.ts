@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { getSupabase } from "@/shared/lib/api-client";
+import { MAX_PAST_SESSIONS } from "@/shared/stores/workout-store";
 import type { BodyweightEntry, ExerciseHistory, SessionRecord } from "@/shared/types";
 
 import {
@@ -35,8 +36,14 @@ const parseRows = <T>(
   return parsed;
 };
 
+// Newest sessions first, bounded to what the local cache keeps anyway; the
+// full history stays in the cloud.
 export const fetchSessions = async (): Promise<SessionRow[]> => {
-  const { data, error } = await getSupabase().from("workout_sessions").select();
+  const { data, error } = await getSupabase()
+    .from("workout_sessions")
+    .select()
+    .order("ts", { ascending: false })
+    .limit(MAX_PAST_SESSIONS);
   if (error) throw new Error(error.message);
   return parseRows(sessionRowSchema, data ?? [], "session");
 };

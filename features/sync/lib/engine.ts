@@ -24,17 +24,15 @@ import {
   pushSessions,
 } from "../api/sync-api";
 import { type SyncEntity, toast, useSyncStore } from "@/shared/stores";
-import { mergeHistory, mergeSessionDates, mergeSessions, mergeWeights } from "./merge";
+import {
+  datesFromSessions,
+  historyFromRows,
+  sessionsFromRows,
+  weightsFromRows,
+} from "./apply-cloud";
 import { runExclusive } from "./sync-lock";
 
 type DirtyMap = Record<SyncEntity, boolean>;
-
-const CLEAN: DirtyMap = {
-  profile: false,
-  sessions: false,
-  history: false,
-  bodyweight: false,
-};
 
 // Every signed-in user syncs now, paid or free. Entitlement no longer gates
 // access to the cloud — it only caps how much a free user backs up (see the
@@ -69,8 +67,27 @@ const buildProfilePayload = (): Record<string, unknown> => {
 const hashProfile = (payload: Record<string, unknown>): string =>
   JSON.stringify(payload);
 
-// Pull everything and merge into local stores (local stays source of truth).
-// These reads feed the merge engine, not React render, so they stay imperative
+// Guards the pull's own store writes: the use-sync-engine subscribers can't
+// tell a cloud apply from a user edit, so without this every pull would
+// re-mark its entities dirty and trigger a pointless echo push.
+let applyingCloud = false;
+export const isApplyingCloud = (): boolean => applyingCloud;
+
+const applyCloudState = (apply: () => void): void => {
+  applyingCloud = true;
+  try {
+    apply();
+  } finally {
+    applyingCloud = false;
+  }
+};
+
+// Pull everything and REPLACE the local caches — the cloud is the source of
+// truth; on-device stores are a rebuildable write-through cache. syncNow pushes
+// before calling this, so anything worth keeping is already upstream. An
+// entity is skipped only when it has unpushed changes (its dirty flag was
+// re-set by a write landing mid-sync); it converges on the next cycle.
+// These reads feed the engine, not React render, so they stay imperative
 // rather than moving to TanStack Query.
 export const pullAll = async (): Promise<void> => {
   const lastSyncedAt = useSyncStore.getState().lastSyncedAt ?? 0;
@@ -81,38 +98,47 @@ export const pullAll = async (): Promise<void> => {
     fetchBodyweight(),
   ]);
 
+  const { dirty } = useSyncStore.getState();
   const workout = useWorkoutStore.getState();
-  const mergedSessions = mergeSessions(workout.pastSessions, sessions);
-  workout.applyCloud({
-    history: mergeHistory(workout.history, history, lastSyncedAt),
-    pastSessions: mergedSessions,
-    sessionDates: mergeSessionDates(workout.sessionDates, mergedSessions),
-  });
+  const nextSessions = dirty.sessions
+    ? workout.pastSessions
+    : sessionsFromRows(sessions);
+  applyCloudState(() => {
+    workout.applyCloud({
+      history: dirty.history ? workout.history : historyFromRows(history),
+      pastSessions: nextSessions,
+      sessionDates: dirty.sessions
+        ? workout.sessionDates
+        : datesFromSessions(nextSessions),
+    });
 
-  useBodyStore
-    .getState()
-    .setWeights(mergeWeights(useBodyStore.getState().weights, weights, lastSyncedAt));
+    if (!dirty.bodyweight) {
+      useBodyStore.getState().setWeights(weightsFromRows(weights));
+    }
+  });
 
   // entitlement is reconciled from RevenueCat, never from the profile mirror;
   // the profile updated_at gate now only fires when profile content changed
-  if (profile && Date.parse(profile.updated_at) > lastSyncedAt) {
+  if (profile && !dirty.profile && Date.parse(profile.updated_at) > lastSyncedAt) {
     const plan = usePlanStore.getState();
     const goal = goalSchema.safeParse(profile.goal);
     const level = levelSchema.safeParse(profile.level);
     const gender = genderSchema.safeParse(profile.gender);
-    plan.applyCloud({
-      goal: goal.success ? goal.data : plan.goal,
-      level: level.success ? level.data : plan.level,
-      gender: gender.success ? gender.data : plan.gender,
-      weightKg: profile.weight_kg ?? plan.weightKg,
-      days: profile.days ?? plan.days,
-      splitId: profile.split_id ?? plan.splitId,
-      schedule: profile.schedule ?? plan.schedule,
+    applyCloudState(() => {
+      plan.applyCloud({
+        goal: goal.success ? goal.data : plan.goal,
+        level: level.success ? level.data : plan.level,
+        gender: gender.success ? gender.data : plan.gender,
+        weightKg: profile.weight_kg ?? plan.weightKg,
+        days: profile.days ?? plan.days,
+        splitId: profile.split_id ?? plan.splitId,
+        schedule: profile.schedule ?? plan.schedule,
+      });
+      const settings = useSettingsStore.getState();
+      const unit = unitSchema.safeParse(profile.unit);
+      if (unit.success) settings.setUnit(unit.data);
+      if (profile.rest_sec !== null) settings.setRestSec(profile.rest_sec);
     });
-    const settings = useSettingsStore.getState();
-    const unit = unitSchema.safeParse(profile.unit);
-    if (unit.success) settings.setUnit(unit.data);
-    if (profile.rest_sec !== null) settings.setRestSec(profile.rest_sec);
   }
 };
 
@@ -202,19 +228,21 @@ export const pushNow = (): Promise<void> =>
     }
   });
 
-// Full cycle: pull-merge, push everything, stamp the sync point. Serialized with
-// every other write path through the shared lock.
+// Full cycle: push everything, then pull and replace the local caches. Push
+// MUST come first — once local changes are upstream, the replace can't drop
+// anything (and if the push fails we bail before the pull, so unpushed local
+// data is never clobbered). Serialized with every other write path through the
+// shared lock.
 export const syncNow = (): Promise<void> =>
   runExclusive(async () => {
     if (!canSync()) return;
     useSyncStore.getState().setStatus("syncing");
-    // claim after the pull so cloud-merge writes are absorbed (matching the old
-    // clear-after-push behavior); restored on failure so nothing is dropped
-    let claimed: DirtyMap = { ...CLEAN };
+    // claim up front; a write landing mid-sync re-sets its own flag, which also
+    // makes pullAll skip replacing that entity this cycle
+    const claimed = useSyncStore.getState().claimDirty();
     try {
-      await pullAll();
-      claimed = useSyncStore.getState().claimDirty();
       await pushClaimed(claimed, { all: true });
+      await pullAll();
       useSyncStore.getState().setLastSyncedAt(Date.now());
       useSyncStore.getState().setStatus("idle");
     } catch (error) {
