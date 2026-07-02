@@ -1,4 +1,5 @@
 import { useBodyStore } from "./body-store";
+import { useExploreStore } from "./explore-store";
 import { useLaunchStore } from "./launch-store";
 import { usePlanStore } from "./plan-store";
 import { useSettingsStore } from "./settings-store";
@@ -13,6 +14,7 @@ export const clearLocalData = () => {
   usePlanStore.getState().resetPlan();
   useSettingsStore.getState().resetSettings();
   useSyncStore.getState().resetSync();
+  useExploreStore.getState().clearRecentSearches();
   // drop any pending greeting: this is a sign-out / guest reset, not a sign-in
   useLaunchStore.getState().clearWelcomeBack();
 };

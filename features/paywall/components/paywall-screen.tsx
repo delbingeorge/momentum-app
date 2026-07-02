@@ -15,45 +15,48 @@ import {
   restorePremium,
 } from "../api/purchases-api";
 import { usePaywallPackages } from "../hooks/use-paywall-packages";
-import { TIERS } from "../lib/tiers";
+import { DEFAULT_PLAN_ID, PLANS, type PlanId } from "../lib/plans";
 
 interface Perk {
   label: string;
+  // shown as a muted note so the free/premium difference stays honest
   freeNote?: string;
 }
 
 const PERKS: Perk[] = [
-  { label: "Form videos for every exercise" },
   {
-    label: "Full training history & all-time stats",
-    freeNote: "free keeps the last 8 weeks",
+    label: "All-time history, stats & PRs",
+    freeNote: "free sees the last 8 weeks",
   },
-  { label: "Unlimited cloud backup" },
-  { label: "Sync your logs across devices" },
+  { label: "Multi-device sync" },
+  { label: "Data export (CSV + full backup)" },
+  { label: "Form videos for every exercise" },
+  { label: "Advanced analytics & full heatmap" },
   { label: "No ads, ever", freeNote: "ads on the free plan" },
-  { label: "Pay once, keep it for life" },
+  { label: "Early access to AI coach & Health sync" },
 ];
 
-interface DisplayTier {
-  id: string;
+interface DisplayPlan {
+  id: PlanId;
   name: string;
   blurb: string;
   priceString: string;
-  suggested: boolean;
+  cadence: string;
+  badge?: string;
+  featured: boolean;
   rcPackage: PaywallPackage["rcPackage"] | null;
 }
 
-const placeholderTiers: DisplayTier[] = TIERS.map((tier) => ({
-  id: tier.id,
-  name: tier.name,
-  blurb: tier.blurb,
-  priceString: tier.displayPrice,
-  suggested: Boolean(tier.suggested),
+const placeholderPlans: DisplayPlan[] = PLANS.map((plan) => ({
+  id: plan.id,
+  name: plan.name,
+  blurb: plan.blurb,
+  priceString: plan.displayPrice,
+  cadence: plan.cadence,
+  badge: plan.badge,
+  featured: Boolean(plan.featured),
   rcPackage: null,
 }));
-
-const defaultTierId = (tiers: DisplayTier[]): string | undefined =>
-  tiers.find((tier) => tier.suggested)?.id ?? tiers[0]?.id;
 
 const Radio = ({ on }: { on: boolean }) => (
   <View
@@ -75,20 +78,42 @@ export const PaywallScreen = () => {
   const setUser = useAuthStore((state) => state.setUser);
   const setPaid = useAuthStore((state) => state.setPaid);
   const { data: packages } = usePaywallPackages();
-  const tiers: DisplayTier[] = packages?.length ? packages : placeholderTiers;
-  const [selectedId, setSelectedId] = useState(defaultTierId(placeholderTiers));
+  const plans: DisplayPlan[] = packages?.length ? packages : placeholderPlans;
+  const [selectedId, setSelectedId] = useState<PlanId>(DEFAULT_PLAN_ID);
   const [loading, setLoading] = useState(false);
 
-  // move the selection onto the live packages once they load
+  // keep the selection valid if the live offering is missing the default plan
   useEffect(() => {
-    if (packages?.length) setSelectedId(defaultTierId(packages));
-  }, [packages]);
+    const first = packages?.[0];
+    if (first && !packages.some((p) => p.id === selectedId)) {
+      setSelectedId(first.id);
+    }
+  }, [packages, selectedId]);
 
-  const selected = tiers.find((tier) => tier.id === selectedId);
+  const selected = plans.find((plan) => plan.id === selectedId);
 
   const close = () => {
     if (router.canGoBack()) router.back();
     else router.replace("/");
+  };
+
+  const ctaLabel = (): string => {
+    if (loading) return "Processing…";
+    if (!selected) return "Unavailable";
+    if (selected.id === "annual") return "Start 7-day free trial";
+    if (selected.id === "lifetime") {
+      return `Unlock lifetime · ${selected.priceString}`;
+    }
+    return `Subscribe · ${selected.priceString}${selected.cadence}`;
+  };
+
+  const billingNote = (): string => {
+    if (!selected) return "";
+    if (selected.id === "annual") {
+      return `7 days free, then ${selected.priceString}/yr. Cancel anytime.`;
+    }
+    if (selected.id === "monthly") return "Billed monthly. Cancel anytime.";
+    return "One-time payment. Yours forever.";
   };
 
   const unlock = async () => {
@@ -142,7 +167,7 @@ export const PaywallScreen = () => {
   };
 
   const restore = async () => {
-    if (tiers[0]?.rcPackage) {
+    if (plans.some((plan) => plan.rcPackage)) {
       if (user?.id) await logInPurchases(user.id);
       const result = await restorePremium();
       if (result === "purchased") {
@@ -169,7 +194,7 @@ export const PaywallScreen = () => {
           <View className="flex-row items-center gap-1.5 rounded-full bg-lime-dim px-3 py-1.5">
             <Icon name="zap" size={14} color={COLORS.lime} strokeWidth={2.2} />
             <Text className="font-mono text-[11px] tracking-wide text-lime">
-              UNLOCK MOMENTUM
+              MOMENTUM PREMIUM
             </Text>
           </View>
           <PressableScale
@@ -181,19 +206,23 @@ export const PaywallScreen = () => {
         </View>
 
         <Text className="font-sans-bold text-[32px] leading-9 tracking-tight text-text">
-          Pay what feels fair.
+          See your all-time progress.
         </Text>
         <Text className="mb-5 mt-3 font-sans text-[15.5px] leading-[22px] text-mut">
-          Momentum is built by one developer. Training stays free forever.
-          Unlock once for your full history, unlimited backup, and to support
-          the work.
+          Training stays free forever. Upgrade to unlock your full history, sync
+          across devices, export your data, and back the work.
         </Text>
 
         <View className="mb-5 gap-3">
           {PERKS.map((perk) => (
             <View key={perk.label} className="flex-row items-center gap-3">
               <View className="h-[26px] w-[26px] items-center justify-center rounded-full bg-lime-dim">
-                <Icon name="check" size={15} color={COLORS.lime} strokeWidth={3} />
+                <Icon
+                  name="check"
+                  size={15}
+                  color={COLORS.lime}
+                  strokeWidth={3}
+                />
               </View>
               <Text className="flex-1 font-sans text-[15.5px] text-text">
                 {perk.label}
@@ -206,53 +235,64 @@ export const PaywallScreen = () => {
         </View>
 
         <View className="gap-2.5">
-          {tiers.map((tier) => (
-            <PressableScale
-              key={tier.id}
-              onPress={() => setSelectedId(tier.id)}
-              className={cn(
-                "flex-row items-center gap-3.5 rounded-[18px] p-4",
-                selectedId === tier.id ? "bg-lime-dim" : "bg-card",
-              )}
-            >
-              <Radio on={selectedId === tier.id} />
-              <View className="flex-1 justify-center">
-                <View className="flex-row items-center gap-2">
-                  <Text className="font-sans-bold text-base text-text">
-                    {tier.name}
-                  </Text>
-                  {tier.suggested ? (
-                    <Text className="rounded-full bg-lime px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wide text-lime-text">
-                      Suggested
+          {plans.map((plan) => {
+            const active = selectedId === plan.id;
+            return (
+              <PressableScale
+                key={plan.id}
+                onPress={() => setSelectedId(plan.id)}
+                className={cn(
+                  "flex-row items-center gap-3.5 rounded-[18px] border p-4",
+                  active
+                    ? "border-transparent bg-lime-dim"
+                    : plan.featured
+                      ? "border-line2 bg-card"
+                      : "border-transparent bg-card",
+                )}
+              >
+                <Radio on={active} />
+                <View className="flex-1 justify-center">
+                  <View className="flex-row items-center gap-2">
+                    <Text className="font-sans-bold text-base text-text">
+                      {plan.name}
+                    </Text>
+                    {plan.badge ? (
+                      <Text className="rounded-full bg-lime px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wide text-lime-text">
+                        {plan.badge}
+                      </Text>
+                    ) : null}
+                  </View>
+                  {plan.blurb ? (
+                    <Text className="mt-px font-sans text-[12.5px] text-mut">
+                      {plan.blurb}
                     </Text>
                   ) : null}
                 </View>
-                {tier.blurb ? (
-                  <Text className="mt-px font-sans text-[12.5px] text-mut">
-                    {tier.blurb}
+                <View className="items-end">
+                  <Text className="font-sans-bold text-[19px] tracking-tight text-text">
+                    {plan.priceString}
                   </Text>
-                ) : null}
-              </View>
-              <Text className="font-sans-bold text-[19px] tracking-tight text-text">
-                {tier.priceString}
-              </Text>
-            </PressableScale>
-          ))}
+                  <Text className="font-sans text-[11.5px] text-faint">
+                    {plan.cadence}
+                  </Text>
+                </View>
+              </PressableScale>
+            );
+          })}
         </View>
       </ScrollView>
 
       <View className="px-6 pb-3 pt-2">
         <CtaButton
-          label={
-            loading
-              ? "Processing…"
-              : `Pay ${selected?.priceString ?? ""} · ${selected?.name ?? ""}`
-          }
+          label={ctaLabel()}
           icon={loading ? undefined : "check"}
           disabled={loading || !selected}
           onPress={() => void unlock()}
         />
-        <View className="mt-3.5 flex-row items-center justify-center gap-3.5">
+        <Text className="mt-2.5 text-center font-sans text-[12px] text-faint">
+          {billingNote()}
+        </Text>
+        <View className="mt-2 flex-row items-center justify-center gap-3.5">
           <PressableScale onPress={() => void restore()}>
             <Text className="font-sans-medium text-[13px] text-mut">
               Restore purchase

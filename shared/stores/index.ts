@@ -1,5 +1,7 @@
 export { type AuthUser, useAuthStore } from "./auth-store";
 export { useBodyStore } from "./body-store";
+export { useCatalogStore } from "./catalog-store";
+export { useExploreStore } from "./explore-store";
 export { useLaunchStore } from "./launch-store";
 export { usePlanStore } from "./plan-store";
 export { type ReminderConfig, useSettingsStore } from "./settings-store";

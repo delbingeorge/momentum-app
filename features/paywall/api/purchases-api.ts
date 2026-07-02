@@ -1,6 +1,6 @@
 import type { PurchasesPackage } from "react-native-purchases";
 
-import { TIERS } from "../lib/tiers";
+import { PLANS, type PlanId, planOrder } from "../lib/plans";
 import {
   apiKey,
   getPurchases,
@@ -61,16 +61,19 @@ export const logOutPurchases = async (): Promise<void> => {
 };
 
 export interface PaywallPackage {
-  id: string;
+  id: PlanId;
   name: string;
   blurb: string;
   priceString: string;
-  suggested: boolean;
+  cadence: string;
+  badge?: string;
+  featured: boolean;
   rcPackage: PurchasesPackage;
 }
 
-// Map live offering packages onto our tier copy (matched by store product id);
-// unknown products still render using their store metadata.
+// Map live offering packages onto our plan copy, matched by RevenueCat package
+// type (MONTHLY / ANNUAL / LIFETIME). Store packages that don't correspond to
+// one of our three plans are dropped rather than rendered raw.
 export const getPaywallPackages = async (): Promise<
   PaywallPackage[] | null
 > => {
@@ -98,21 +101,26 @@ export const getPaywallPackages = async (): Promise<
       });
       return null;
     }
-    const mapped = packages.map((pkg) => {
-      const tier = TIERS.find((t) => t.sku === pkg.product.identifier);
-      return {
-        id: pkg.identifier,
-        name: tier?.name ?? pkg.product.title,
-        blurb: tier?.blurb ?? pkg.product.description,
-        priceString: pkg.product.priceString,
-        suggested: tier?.suggested ?? false,
-        rcPackage: pkg,
-      };
+    const mapped = packages.flatMap<PaywallPackage>((pkg) => {
+      const plan = PLANS.find(
+        (p) => p.packageType === String(pkg.packageType),
+      );
+      if (!plan) return [];
+      return [
+        {
+          id: plan.id,
+          name: plan.name,
+          blurb: plan.blurb,
+          priceString: pkg.product.priceString,
+          cadence: plan.cadence,
+          badge: plan.badge,
+          featured: Boolean(plan.featured),
+          rcPackage: pkg,
+        },
+      ];
     });
-    // high anchor first, like the tier list
-    return mapped.sort(
-      (a, b) => b.rcPackage.product.price - a.rcPackage.product.price,
-    );
+    // preserve the deliberate plan order (annual hero first), not price
+    return mapped.sort((a, b) => planOrder(a.id) - planOrder(b.id));
   } catch (error) {
     console.error("offerings fetch failed:", error);
     return null;

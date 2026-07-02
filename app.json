@@ -53,7 +53,18 @@
       [
         "@react-native-google-signin/google-signin",
         {
-          "iosUrlScheme": "com.googleusercontent.apps.527182548698-sd5fprv7shaoi6ts0u0meaogj3tqdls0"
+          "iosUrlScheme": "com.googleusercontent.apps.527182548698-r74na8uf8ic9srkctdddajfi8tun9jko"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "extraPods": [
+              { "name": "GoogleUtilities", "modular_headers": true },
+              { "name": "RecaptchaInterop", "modular_headers": true }
+            ]
+          }
         }
       ]
     ]

@@ -8,7 +8,7 @@ import { COLORS } from "@/shared/lib/colors";
 import { toast, useAuthStore, useLaunchStore } from "@/shared/stores";
 import { CtaButton, Icon, Screen, SignInBackdrop } from "@/shared/ui";
 
-import { signInWithGoogle } from "../api/auth-api";
+import { signInWithGoogle, type SignInErrorCode } from "../api/auth-api";
 
 export const SignInScreen = () => {
   const setUser = useAuthStore((state) => state.setUser);
@@ -37,7 +37,13 @@ export const SignInScreen = () => {
       router.replace("/");
     } catch (err) {
       console.error("sign-in failed:", err);
-      toast.error("Sign-in failed. Please try again.");
+      const code = (err as { code?: SignInErrorCode })?.code;
+      // cancelled = user dismissed the picker: stay silent
+      if (code === "network") {
+        toast.error("Couldn't reach Google. Check your connection and try again.");
+      } else if (code !== "cancelled") {
+        toast.error("Sign-in failed. Please try again.");
+      }
       setLoading(false);
     }
   };

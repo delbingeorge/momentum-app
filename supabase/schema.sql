@@ -61,6 +61,34 @@ create policy "own history" on public.exercise_history
 create policy "own bodyweight" on public.bodyweight_logs
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+-- Global exercise catalog — reference data, not user data. The app ships a
+-- bundled snapshot (shared/lib/program/exercise-catalog.json) and refreshes
+-- from this table on launch, so new exercises reach users without an app
+-- update. Rows are managed via the dashboard / supabase/seed-exercises.sql;
+-- there is intentionally no client write policy. Exercise names are the keys
+-- of users' exercise_history rows, so treat names as append-only: add new
+-- rows, never rename existing ones.
+create table if not exists public.exercises (
+  id text primary key,               -- stable slug, e.g. 'barbell-bench-press'
+  name text not null unique,
+  muscle text not null,
+  default_kg numeric,                -- first-session load; dumbbells per hand
+  is_barbell boolean not null default false,
+  is_dumbbell boolean not null default false,
+  is_bodyweight boolean not null default false,
+  is_timed boolean not null default false,
+  is_compound boolean not null default false,
+  bodyweight_load numeric,           -- fraction of bodyweight as resistance
+  sort_order int not null,           -- library display order within a muscle
+  updated_at timestamptz default now()
+);
+
+alter table public.exercises enable row level security;
+
+-- World-readable so the catalog refresh works signed-out too.
+create policy "catalog readable by all" on public.exercises
+  for select to anon, authenticated using (true);
+
 -- User feedback (bug reports, feature requests, general notes). Open to all:
 -- anonymous (free, local-only) users submit via the anon key, signed-in users
 -- via authenticated. There is intentionally no read policy, so rows are only

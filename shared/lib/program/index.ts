@@ -2,18 +2,20 @@ export { CORE_POOL, DAY, dayOf, withCore } from "./day-templates";
 export { type ExerciseGroup, searchExercises } from "./exercise-search";
 export {
   bodyweightLoad,
-  DEFAULT_KG,
   defaultKgFor,
   defaultTargetFor,
-  EX,
   isBodyweight,
   isCompound,
   isDumbbell,
   isTimed,
-  LIB,
+  libGroups,
   makeExercise,
   muscleOf,
 } from "./exercises";
+export {
+  type ExerciseDef,
+  exerciseDefSchema,
+} from "./exercise-catalog";
 export {
   buildSession,
   initLog,

@@ -23,6 +23,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { getCurrentUser } from "@/features/auth";
+import { useCatalogRefresh } from "@/features/catalog";
 import {
   configurePurchases,
   logInPurchases,
@@ -42,6 +43,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useSyncEngine();
+  useCatalogRefresh();
   // reactive sign-in-required invariant, complements the index launch gate
   useAuthGuard();
   const [fontsLoaded] = useFonts({

@@ -1,6 +1,6 @@
 import type { Muscle } from "@/shared/types";
 
-import { LIB } from "./exercises";
+import { libGroups } from "./exercises";
 
 export interface ExerciseGroup {
   muscle: Muscle;
@@ -43,13 +43,13 @@ const fuzzyScore = (query: string, target: string): number | null => {
 // returns the full library in its natural anatomical order.
 export const searchExercises = (query: string): ExerciseGroup[] => {
   const q = query.trim().toLowerCase();
-  const entries = Object.entries(LIB) as [Muscle, string[]][];
+  const groups = libGroups();
 
-  if (!q) return entries.map(([muscle, names]) => ({ muscle, names }));
+  if (!q) return groups.map(({ muscle, names }) => ({ muscle, names }));
 
   const ranked: { group: ExerciseGroup; best: number }[] = [];
 
-  for (const [muscle, names] of entries) {
+  for (const { muscle, names } of groups) {
     const categoryScore = fuzzyScore(q, muscle);
     const scored: { name: string; score: number }[] = [];
     let best = -Infinity;
