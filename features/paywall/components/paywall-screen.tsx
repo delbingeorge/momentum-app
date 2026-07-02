@@ -26,14 +26,12 @@ interface Perk {
 const PERKS: Perk[] = [
   {
     label: "All-time history, stats & PRs",
-    freeNote: "free sees the last 8 weeks",
   },
   { label: "Multi-device sync" },
   { label: "Data export (CSV + full backup)" },
   { label: "Form videos for every exercise" },
   { label: "Advanced analytics & full heatmap" },
-  { label: "No ads, ever", freeNote: "ads on the free plan" },
-  { label: "Early access to AI coach & Health sync" },
+  { label: "Early access to new features" },
 ];
 
 interface DisplayPlan {
