@@ -7,6 +7,7 @@ export { Icon, type IconName } from "./icon";
 export { OptionCard } from "./option-card";
 export { PressableScale } from "./pressable-scale";
 export { Screen } from "./screen";
+export { SectionLabel } from "./section-label";
 export { SignInBackdrop } from "./sign-in-backdrop";
 export { BaseSheet, SheetScrollView } from "./sheet";
 export { StepBar } from "./step-bar";

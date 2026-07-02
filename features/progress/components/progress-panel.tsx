@@ -13,7 +13,7 @@ import {
 import { cn } from "@/shared/lib/cn";
 import { weekStreak } from "@/shared/lib/streaks";
 import { useSettingsStore, useWorkoutStore } from "@/shared/stores";
-import { BrandBar } from "@/shared/ui";
+import { BrandBar, SectionLabel } from "@/shared/ui";
 
 import { recentPRs, trainingStats } from "../lib/training-stats";
 import { ActivityHeatmap } from "./activity-heatmap";
@@ -57,32 +57,32 @@ export const ProgressPanel = () => {
   return (
     <View className="flex-1">
       <BrandBar />
-      <Text className="px-5 pb-2 font-sans-bold text-[27px] tracking-tight text-text">
-        Progress
-      </Text>
       <ScrollView
         className="flex-1 px-5"
         contentContainerClassName="gap-4 pb-6"
       >
-        <View className="flex-row gap-2.5 pt-3">
-          {statCards.map(([value, label, highlight]) => (
-            <View
-              key={label}
-              className="flex-1 rounded-[18px] bg-card px-3.5 py-3.5"
-            >
-              <Text
-                className={cn(
-                  "font-sans-bold text-2xl tracking-tight",
-                  highlight ? "text-lime" : "text-text",
-                )}
+        <View className="flex-col">
+          <SectionLabel className="mb-3 mt-0">OVERVIEW</SectionLabel>
+          <View className="flex-row gap-2.5">
+            {statCards.map(([value, label, highlight]) => (
+              <View
+                key={label}
+                className="flex-1 rounded-[18px] bg-card px-3.5 py-3.5"
               >
-                {value}
-              </Text>
-              <Text className="mt-1 font-mono text-[10px] uppercase tracking-wide text-faint">
-                {label}
-              </Text>
-            </View>
-          ))}
+                <Text
+                  className={cn(
+                    "font-sans-bold text-2xl tracking-tight",
+                    highlight ? "text-lime" : "text-text",
+                  )}
+                >
+                  {value}
+                </Text>
+                <Text className="mt-1 font-mono text-[10px] uppercase tracking-wide text-faint">
+                  {label}
+                </Text>
+              </View>
+            ))}
+          </View>
         </View>
         <ActivityHeatmap
           weeks={isPaid ? PAID_HISTORY_WEEKS : FREE_HISTORY_WEEKS}

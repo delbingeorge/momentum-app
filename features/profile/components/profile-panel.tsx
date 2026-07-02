@@ -19,17 +19,12 @@ import {
   Icon,
   type IconName,
   PressableScale,
+  SectionLabel,
 } from "@/shared/ui";
 import { ManageSubscriptionRow } from "@/features/paywall";
 import { wipeCloudData } from "@/features/sync";
 
 import { PreferencesCard } from "./preferences-card";
-
-const SectionLabel = ({ children }: { children: string }) => (
-  <Text className="mb-2.5 mt-5 font-mono text-[11px] uppercase tracking-wider text-faint">
-    {children}
-  </Text>
-);
 
 const PlanRow = ({
   icon,
@@ -91,10 +86,6 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
     <View className="flex-1">
       <BrandBar />
       <ScrollView className="flex-1 px-5" contentContainerClassName="pb-8">
-        <Text className="pb-3 font-sans-bold text-[27px] tracking-tight text-text">
-          Profile
-        </Text>
-
         <View className="flex-row items-center gap-4">
           <View className="h-16 w-16 items-center justify-center rounded-full border border-line bg-card2">
             <Icon name="user" size={30} color={COLORS.mut} />
@@ -105,7 +96,12 @@ export const ProfilePanel = ({ accountSlot }: ProfilePanelProps) => {
                 {user ? user.name : "Athlete"}
               </Text>
               {isPaid ? (
-                <Icon name="crown" size={16} color={COLORS.lime} strokeWidth={2.2} />
+                <Icon
+                  name="crown"
+                  size={16}
+                  color={COLORS.lime}
+                  strokeWidth={2.2}
+                />
               ) : null}
             </View>
             <View className="mt-1.5 flex-row items-center gap-1.5 self-start rounded-lg bg-lime-dim px-2.5 py-1">
