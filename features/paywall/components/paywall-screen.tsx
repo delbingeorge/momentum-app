@@ -204,11 +204,11 @@ export const PaywallScreen = () => {
         </View>
 
         <Text className="font-sans-bold text-[32px] leading-9 tracking-tight text-text">
-          See your all-time progress.
+          Never lose your passion.
         </Text>
         <Text className="mb-5 mt-3 font-sans text-[15.5px] leading-[22px] text-mut">
-          Training stays free forever. Upgrade to unlock your full history, sync
-          across devices, export your data, and back the work.
+          Your latest 8 weeks are always free. Upgrade to Premium to keep every
+          workout, PR, and milestone for as long as you train.
         </Text>
 
         <View className="mb-5 gap-3">
