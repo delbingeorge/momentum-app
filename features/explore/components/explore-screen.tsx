@@ -1,10 +1,12 @@
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { SectionList, Text, TextInput, View } from "react-native";
+import { Image, SectionList, StyleSheet, Text, TextInput, View } from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
 import { COLORS } from "@/shared/lib/colors";
+import { posterUrl } from "@/shared/lib/exercise-media";
 import { makeExercise, searchExercises } from "@/shared/lib/program";
+import { slugOf } from "@/shared/lib/program/exercises";
 import { useCatalogStore, useExploreStore } from "@/shared/stores";
 import type { Muscle } from "@/shared/types";
 import { Icon, type IconName, PressableScale, Screen } from "@/shared/ui";
@@ -15,6 +17,29 @@ const glyphFor = (muscle: Muscle): IconName => {
   if (muscle === "Chest" || muscle === "Back") return "layers";
   if (muscle === "Biceps" || muscle === "Triceps") return "dumbbell";
   return "activity";
+};
+
+// Row thumbnail: exercise poster when one exists, muscle glyph otherwise.
+const RowThumb = ({ name, muscle }: { name: string; muscle: Muscle }) => {
+  const poster = posterUrl(slugOf(name));
+  return (
+    <View className="h-[38px] w-[38px] items-center justify-center overflow-hidden rounded-lg border border-line bg-card2">
+      {poster ? (
+        <Image
+          source={{ uri: poster }}
+          resizeMode="cover"
+          style={StyleSheet.absoluteFill}
+        />
+      ) : (
+        <Icon
+          name={glyphFor(muscle)}
+          size={17}
+          color="rgba(255,255,255,0.28)"
+          strokeWidth={1.7}
+        />
+      )}
+    </View>
+  );
 };
 
 interface ExerciseSection {
@@ -151,14 +176,7 @@ export const ExploreScreen = () => {
             onPress={() => openInfo(name)}
             className="flex-row items-center gap-3 rounded-xl border border-line bg-card px-3.5 py-3"
           >
-            <View className="h-[38px] w-[38px] items-center justify-center rounded-lg border border-line bg-card2">
-              <Icon
-                name={glyphFor(section.muscle)}
-                size={17}
-                color="rgba(255,255,255,0.28)"
-                strokeWidth={1.7}
-              />
-            </View>
+            <RowThumb name={name} muscle={section.muscle} />
             <Text className="flex-1 font-sans-semibold text-[15px] text-text">
               {name}
             </Text>
