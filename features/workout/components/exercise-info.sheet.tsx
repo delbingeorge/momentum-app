@@ -72,7 +72,7 @@ const FormVideo = ({ exercise }: { exercise: ExerciseInstance }) => {
             <Icon name="videoCam" size={13} color={COLORS.lime} />
           )}
           <Text className="font-mono text-[10px] tracking-wider text-text">
-            FORM VIDEO
+           WARMING UP 
           </Text>
         </View>
       )}
