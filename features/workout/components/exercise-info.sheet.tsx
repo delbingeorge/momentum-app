@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
+import { useRef } from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 import { SheetManager, type SheetProps } from "react-native-actions-sheet";
 
@@ -22,19 +23,33 @@ const glyphFor = (muscle: string) => {
 };
 
 // Plays the short looping form clip. Mounted only once a signed URL exists.
+// A tap on the expand chip enters native fullscreen; `orientation: "default"`
+// lets the fullscreen view rotate freely to portrait or landscape, independent
+// of the app's portrait lock.
 const FormVideoPlayer = ({ uri }: { uri: string }) => {
+  const viewRef = useRef<VideoView>(null);
   const player = useVideoPlayer(uri, (p) => {
     p.loop = true;
     p.muted = true;
     p.play();
   });
   return (
-    <VideoView
-      player={player}
-      style={StyleSheet.absoluteFill}
-      contentFit="cover"
-      nativeControls={false}
-    />
+    <>
+      <VideoView
+        ref={viewRef}
+        player={player}
+        style={StyleSheet.absoluteFill}
+        contentFit="cover"
+        nativeControls={false}
+        fullscreenOptions={{ enable: true, orientation: "default" }}
+      />
+      <PressableScale
+        onPress={() => void viewRef.current?.enterFullscreen()}
+        className="absolute bottom-2 right-2 h-8 w-8 items-center justify-center rounded-full bg-black/55"
+      >
+        <Icon name="expand" size={15} color={COLORS.text} strokeWidth={2} />
+      </PressableScale>
+    </>
   );
 };
 
