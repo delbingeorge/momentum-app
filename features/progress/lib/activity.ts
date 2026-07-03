@@ -1,13 +1,13 @@
 import { isoDate } from "@/shared/lib/dates";
 
-export interface ActivityDay {
+interface ActivityDay {
   future: boolean;
   key?: string;
   lvl: number;
   date?: Date;
 }
 
-export type ActivityWeek = ActivityDay[];
+type ActivityWeek = ActivityDay[];
 
 // GitHub-style grid: `cols` weeks × 7 days ending this week. Levels 1-4 are
 // the day's sets relative to the best day, so shades read like commit counts.

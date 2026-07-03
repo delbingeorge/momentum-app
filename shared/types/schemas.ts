@@ -55,7 +55,7 @@ export const scheduledDaySchema = z.object({
   exercises: z.array(exerciseInstanceSchema),
 });
 
-export const setTypeSchema = z.enum(["normal", "warmup", "drop"]);
+const setTypeSchema = z.enum(["normal", "warmup", "drop"]);
 
 export const loggedSetSchema = z.object({
   kg: z.number(),

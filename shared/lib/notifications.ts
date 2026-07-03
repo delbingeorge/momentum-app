@@ -26,7 +26,7 @@ export const ensureNotificationChannel = async (): Promise<void> => {
   });
 };
 
-export type NotificationPermission = "granted" | "denied" | "unsupported";
+type NotificationPermission = "granted" | "denied" | "unsupported";
 
 export const requestNotificationPermission =
   async (): Promise<NotificationPermission> => {

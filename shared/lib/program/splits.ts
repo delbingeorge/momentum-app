@@ -59,7 +59,7 @@ export const GENDERS: GenderOption[] = [
   { id: "other", name: "Other" },
 ];
 
-export const WD = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
+const WD = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 
 const SPLITS_BY_DAYS: Record<number, Split[]> = {
   2: [

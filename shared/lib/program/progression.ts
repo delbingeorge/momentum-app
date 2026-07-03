@@ -33,7 +33,7 @@ const LEVEL_INCREMENT_FACTOR: Record<Level, number> = {
 };
 
 // kg to add when last session cleared the top of its rep range, by goal & level
-export const progressIncrement = (
+const progressIncrement = (
   name: string,
   goal: Goal,
   level: Level,

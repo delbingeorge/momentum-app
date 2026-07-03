@@ -11,7 +11,7 @@ export interface StreakWeek {
   inCurrentStreak: boolean;
 }
 
-export interface StreakJourney {
+interface StreakJourney {
   weeks: StreakWeek[];
   currentStreak: number;
   bestStreak: number;

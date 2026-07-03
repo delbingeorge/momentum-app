@@ -2,7 +2,7 @@ import type { Muscle } from "@/shared/types";
 
 import { libGroups } from "./exercises";
 
-export interface ExerciseGroup {
+interface ExerciseGroup {
   muscle: Muscle;
   names: string[];
 }

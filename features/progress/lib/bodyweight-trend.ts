@@ -8,10 +8,10 @@ const WINDOW_DAYS = 30;
 // flipping the sentiment up and down.
 const FLAT_KG = 0.3;
 
-export type TrendDirection = "up" | "down" | "flat";
-export type TrendSentiment = "good" | "bad" | "neutral";
+type TrendDirection = "up" | "down" | "flat";
+type TrendSentiment = "good" | "bad" | "neutral";
 
-export interface BodyTrend {
+interface BodyTrend {
   current: number; // latest weight, kg
   deltaKg: number; // change across the window, kg
   ratePerWeek: number; // kg per week, kg

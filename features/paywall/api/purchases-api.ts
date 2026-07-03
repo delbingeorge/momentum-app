@@ -143,7 +143,7 @@ export const getManagementURL = async (): Promise<string | null> => {
   }
 };
 
-export type PurchaseResult = "purchased" | "cancelled" | "error";
+type PurchaseResult = "purchased" | "cancelled" | "error";
 
 export const purchasePremium = async (
   pkg: PurchasesPackage,

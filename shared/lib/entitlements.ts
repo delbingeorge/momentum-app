@@ -7,7 +7,7 @@ import type { BodyweightEntry, SessionRecord } from "@/shared/types";
 // + the server-side prune in schema.sql). Paid unlock widens the view to
 // all-time and keeps everything in the cloud forever.
 export const FREE_HISTORY_WEEKS = 8;
-export const FREE_PR_DAYS = 30;
+const FREE_PR_DAYS = 30;
 
 // Cloud backup retention for free users. Reuses the history window so "free =
 // last 8 weeks" is one coherent story across the view and the backup.
@@ -23,7 +23,7 @@ export const freeHistoryCutoffTs = (): number =>
 export const freePrCutoffTs = (): number =>
   Date.now() - FREE_PR_DAYS * 86400000;
 
-export const freeCloudCutoffTs = (): number =>
+const freeCloudCutoffTs = (): number =>
   Date.now() - FREE_CLOUD_WEEKS * 7 * 86400000;
 
 const cutoffDate = (cutoffTs: number): string => isoDate(new Date(cutoffTs));

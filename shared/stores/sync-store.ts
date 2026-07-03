@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createPersistStorage } from "@/shared/lib/storage";
 
 export type SyncEntity = "profile" | "sessions" | "history" | "bodyweight";
-export type SyncStatus = "idle" | "syncing" | "error";
+type SyncStatus = "idle" | "syncing" | "error";
 
 interface SyncState {
   dirty: Record<SyncEntity, boolean>;

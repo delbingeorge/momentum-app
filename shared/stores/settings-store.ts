@@ -6,7 +6,7 @@ import { createPersistStorage } from "@/shared/lib/storage";
 import type { Unit } from "@/shared/types";
 import { unitSchema } from "@/shared/types/schemas";
 
-export interface ReminderConfig {
+interface ReminderConfig {
   enabled: boolean;
   time: string;
   days: number[];

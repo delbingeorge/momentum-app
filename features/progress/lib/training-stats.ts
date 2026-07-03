@@ -1,7 +1,7 @@
 import { isWorkingSet } from "@/shared/lib/program";
 import type { SessionRecord } from "@/shared/types";
 
-export interface TrainingStats {
+interface TrainingStats {
   total: number;
   thisWeek: number;
 }

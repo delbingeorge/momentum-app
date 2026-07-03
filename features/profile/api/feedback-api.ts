@@ -5,7 +5,7 @@ import { getSupabase } from "@/shared/lib/api-client";
 
 export type FeedbackType = "bug" | "feature" | "other";
 
-export interface FeedbackInput {
+interface FeedbackInput {
   type: FeedbackType;
   message: string;
   // null when the user isn't signed in (free, local-only)

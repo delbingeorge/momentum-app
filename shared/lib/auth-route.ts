@@ -1,6 +1,6 @@
 import type { Href } from "expo-router";
 
-export interface LaunchRouteState {
+interface LaunchRouteState {
   user: boolean;
   welcomeBackPending: boolean;
   hasPlan: boolean;

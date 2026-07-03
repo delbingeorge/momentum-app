@@ -7,7 +7,7 @@ import { env } from "@/shared/lib/env";
 // "configured" flag in one place lets both the purchases API and the
 // entitlement reconciler use them, and gives tests a single module to mock.
 
-export const ENTITLEMENT_ID = "Momentum Premium";
+const ENTITLEMENT_ID = "Momentum Premium";
 
 export const apiKey = (): string | undefined =>
   (Platform.OS === "ios"

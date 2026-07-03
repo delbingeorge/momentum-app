@@ -89,7 +89,7 @@ const applyCloudState = (apply: () => void): void => {
 // re-set by a write landing mid-sync); it converges on the next cycle.
 // These reads feed the engine, not React render, so they stay imperative
 // rather than moving to TanStack Query.
-export const pullAll = async (): Promise<void> => {
+const pullAll = async (): Promise<void> => {
   const lastSyncedAt = useSyncStore.getState().lastSyncedAt ?? 0;
   const [profile, sessions, history, weights] = await Promise.all([
     fetchProfile(),

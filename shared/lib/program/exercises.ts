@@ -66,7 +66,7 @@ export const libGroups = (): { muscle: Muscle; names: string[] }[] =>
 
 // Scale the (intermediate-baseline) default loads to the user's experience.
 // First-session only — once history exists, progression takes over.
-export const LEVEL_KG_FACTOR: Record<Level, number> = {
+const LEVEL_KG_FACTOR: Record<Level, number> = {
   beginner: 0.6,
   intermediate: 1,
   advanced: 1.3,
@@ -74,7 +74,7 @@ export const LEVEL_KG_FACTOR: Record<Level, number> = {
 
 // An Olympic barbell weighs 20kg. Novices start barbell lifts here and ramp up
 // via progression, rather than from a scaled estimate that overshoots the bar.
-export const EMPTY_BAR_KG = 20;
+const EMPTY_BAR_KG = 20;
 
 export const isBarbell = (name: string): boolean =>
   defOf(name)?.isBarbell ?? false;

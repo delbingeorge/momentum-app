@@ -8,7 +8,7 @@ import type { AuthUser } from "@/shared/stores";
 // Expo Go from crashing). "cancelled" is user-driven and shown silently.
 export type SignInErrorCode = "network" | "cancelled" | "unknown";
 
-export class SignInError extends Error {
+class SignInError extends Error {
   code: SignInErrorCode;
   constructor(code: SignInErrorCode, message: string) {
     super(message);

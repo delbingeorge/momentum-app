@@ -1,6 +1,6 @@
 export type PlanId = "monthly" | "annual" | "lifetime";
 
-export interface PaywallPlan {
+interface PaywallPlan {
   id: PlanId;
   // RevenueCat PACKAGE_TYPE value this plan maps to
   packageType: "MONTHLY" | "ANNUAL" | "LIFETIME";

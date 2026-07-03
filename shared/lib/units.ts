@@ -19,7 +19,7 @@ export const dispToKg = (value: number, unit: Unit): number =>
   unit === "kg" ? round5(value) : Math.round(value) / KG_PER_LB;
 
 // One stepper tick, expressed in display units: 2.5 kg or 5 lb.
-export const dispStep = (unit: Unit): number => (unit === "kg" ? 2.5 : 5);
+const dispStep = (unit: Unit): number => (unit === "kg" ? 2.5 : 5);
 
 // Step a stored kg weight by one tick (dir = +1 / -1), snapping to clean display
 // units so stepping in lb never leaves a drifting kg value behind.

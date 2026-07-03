@@ -17,7 +17,7 @@ import { useIsPaid } from "@/shared/lib/entitlements";
 const MEDIA_BASE = env.EXPO_PUBLIC_MEDIA_BASE_URL?.replace(/\/+$/, "");
 
 /** Exercise ids (slugs) that have an uploaded poster + video. */
-export const EXERCISE_MEDIA_IDS: ReadonlySet<string> = new Set([
+const EXERCISE_MEDIA_IDS: ReadonlySet<string> = new Set([
   "barbell-back-squat",
   "barbell-bench-press",
   "barbell-curl",
@@ -142,7 +142,7 @@ export const EXERCISE_MEDIA_IDS: ReadonlySet<string> = new Set([
   "zottman-curl",
 ]);
 
-export const hasExerciseMedia = (id: string): boolean =>
+const hasExerciseMedia = (id: string): boolean =>
   EXERCISE_MEDIA_IDS.has(id);
 
 /** Public poster URL, or null when there's no media / no base configured. */

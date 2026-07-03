@@ -16,7 +16,7 @@ export const relDate = (ts: number): string => {
   });
 };
 
-export interface Recap {
+interface Recap {
   last: SessionRecord;
   // The instance of this day before `last`, when one exists — used for the
   // "vs. last time" trend. Null on the first-ever time this day is trained.
