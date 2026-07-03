@@ -3,6 +3,7 @@ import { Image, Text, View } from "react-native";
 
 import { COLORS } from "@/shared/lib/colors";
 import { posterUrl } from "@/shared/lib/exercise-media";
+import { slugOf } from "@/shared/lib/program/exercises";
 import type { ExerciseInstance } from "@/shared/types";
 import { Icon, PressableScale } from "@/shared/ui";
 
@@ -14,7 +15,7 @@ interface ExercisePreviewRowProps {
 }
 
 const PosterThumb = ({ exercise }: { exercise: ExerciseInstance }) => {
-  const uri = posterUrl(exercise.id);
+  const uri = posterUrl(slugOf(exercise.name));
   const [failed, setFailed] = useState(false);
 
   if (uri && !failed) {

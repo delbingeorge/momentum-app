@@ -56,6 +56,11 @@ const index = (): CatalogIndex => {
 const defOf = (name: string): ExerciseDef | undefined =>
   index().byName.get(name);
 
+// Catalog slug (stable id) for an exercise by display name. Instance ids are
+// `${name}#${random}` so duplicates can coexist, so media lookups must resolve
+// the slug from the name, not from ExerciseInstance.id.
+export const slugOf = (name: string): string | undefined => defOf(name)?.id;
+
 export const muscleOf = (name: string): Muscle =>
   defOf(name)?.muscle ?? "Full body";
 

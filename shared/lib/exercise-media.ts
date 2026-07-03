@@ -146,8 +146,8 @@ const hasExerciseMedia = (id: string): boolean =>
   EXERCISE_MEDIA_IDS.has(id);
 
 /** Public poster URL, or null when there's no media / no base configured. */
-export const posterUrl = (id: string): string | null =>
-  MEDIA_BASE && hasExerciseMedia(id)
+export const posterUrl = (id: string | undefined): string | null =>
+  id && MEDIA_BASE && hasExerciseMedia(id)
     ? `${MEDIA_BASE}/images/${id}.webp`
     : null;
 

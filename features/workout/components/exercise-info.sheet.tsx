@@ -6,6 +6,7 @@ import { SheetManager, type SheetProps } from "react-native-actions-sheet";
 import { COLORS } from "@/shared/lib/colors";
 import { useIsPaid } from "@/shared/lib/entitlements";
 import { posterUrl, useExerciseVideo } from "@/shared/lib/exercise-media";
+import { slugOf } from "@/shared/lib/program/exercises";
 import type { ExerciseInstance } from "@/shared/types";
 import { BaseSheet, Icon, PressableScale, SheetScrollView } from "@/shared/ui";
 
@@ -40,8 +41,9 @@ const FormVideoPlayer = ({ uri }: { uri: string }) => {
 // The FORM VIDEO tile: poster placeholder -> real video when the signed URL
 // arrives -> muscle-glyph watermark as the final fallback (no media / offline).
 const FormVideo = ({ exercise }: { exercise: ExerciseInstance }) => {
-  const { url, loading } = useExerciseVideo(exercise.id);
-  const poster = posterUrl(exercise.id);
+  const slug = slugOf(exercise.name);
+  const { url, loading } = useExerciseVideo(slug);
+  const poster = posterUrl(slug);
   return (
     <View className="aspect-video w-full items-center justify-center self-center overflow-hidden rounded-[18px] border border-line bg-card2">
       {poster ? (
