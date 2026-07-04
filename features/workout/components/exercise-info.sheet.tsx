@@ -55,11 +55,22 @@ const FormVideoPlayer = ({ uri }: { uri: string }) => {
 
 // The FORM VIDEO tile: poster placeholder -> real video when the signed URL
 // arrives -> muscle-glyph watermark as the final fallback (no media / offline).
-const FormVideo = ({ exercise }: { exercise: ExerciseInstance }) => {
+// The poster is shown to everyone; the video itself is paid-only, so non-paid
+// users see the poster under a small "Premium" indicator that opens the paywall.
+const FormVideo = ({
+  exercise,
+  isPaid,
+  onLockedPress,
+}: {
+  exercise: ExerciseInstance;
+  isPaid: boolean;
+  onLockedPress: () => void;
+}) => {
   const slug = slugOf(exercise.name);
   const { url, loading } = useExerciseVideo(slug);
   const poster = posterUrl(slug);
-  return (
+
+  const tile = (
     <View className="aspect-video w-full items-center justify-center self-center overflow-hidden rounded-[18px] border border-line bg-card2">
       {poster ? (
         <Image
@@ -77,7 +88,23 @@ const FormVideo = ({ exercise }: { exercise: ExerciseInstance }) => {
           />
         </View>
       )}
-      {url ? (
+
+      {!isPaid ? (
+        // Non-paid: poster stays visible under a light scrim, with a play
+        // affordance and a "Premium" badge hinting the form video is locked.
+        <>
+          <View className="absolute inset-0 bg-black/30" />
+          <View className="h-11 w-11 items-center justify-center rounded-full bg-black/55">
+            <Icon name="play" size={18} color={COLORS.lime} strokeWidth={2} />
+          </View>
+          <View className="absolute right-2 top-2 flex-row items-center gap-1 rounded-full bg-lime px-2 py-0.5">
+            <Icon name="lock" size={9} color={COLORS.limeText} strokeWidth={2.2} />
+            <Text className="font-mono text-[9.5px] uppercase tracking-wide text-lime-text">
+              Premium
+            </Text>
+          </View>
+        </>
+      ) : url ? (
         <FormVideoPlayer uri={url} />
       ) : (
         <View className="flex-row items-center gap-1.5 rounded-lg bg-black/45 px-2.5 py-1.5">
@@ -87,11 +114,18 @@ const FormVideo = ({ exercise }: { exercise: ExerciseInstance }) => {
             <Icon name="videoCam" size={13} color={COLORS.lime} />
           )}
           <Text className="font-mono text-[10px] tracking-wider text-text">
-           WARMING UP 
+           WARMING UP
           </Text>
         </View>
       )}
     </View>
+  );
+
+  if (isPaid) return tile;
+  return (
+    <PressableScale onPress={onLockedPress} className="w-full">
+      {tile}
+    </PressableScale>
   );
 };
 
@@ -118,34 +152,17 @@ export const ExerciseInfoSheet = ({
         className="px-5"
         contentContainerStyle={{ paddingBottom: 32 }}
       >
-        {isPaid ? (
-          <FormVideo exercise={exercise} />
-        ) : (
-          <PressableScale
-            onPress={openPaywall}
-            className="flex-row items-center gap-3 rounded-2xl border border-dashed border-line2 bg-card px-3.5 py-3"
-          >
-            <View className="h-[38px] w-[38px] items-center justify-center rounded-xl bg-lime-dim">
-              <Icon
-                name="videoCam"
-                size={18}
-                color={COLORS.lime}
-                strokeWidth={1.8}
-              />
-            </View>
-            <View className="flex-1">
-              <Text className="font-sans-semibold text-[15px] text-text">
-                Form video
-              </Text>
-              <Text className="mt-0.5 font-mono text-[10.5px] text-faint">
-                Unlock to watch how each rep should look
-              </Text>
-            </View>
-            <Text className="rounded-full bg-lime px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wide text-lime-text">
-              Premium
-            </Text>
-          </PressableScale>
-        )}
+        <FormVideo
+          exercise={exercise}
+          isPaid={isPaid}
+          onLockedPress={openPaywall}
+        />
+
+        {!isPaid ? (
+          <Text className="mt-2 px-0.5 font-mono text-[10.5px] text-faint">
+            Unlock to watch how each rep should look
+          </Text>
+        ) : null}
 
         <View className="mt-4 flex-row gap-2">
           {(

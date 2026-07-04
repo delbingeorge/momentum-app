@@ -31,6 +31,7 @@ import {
   reconcileEntitlement,
 } from "@/features/paywall";
 import { useSyncEngine } from "@/features/sync";
+import { useUpdateCheck } from "@/features/update";
 import { scheduleReminder } from "@/features/profile";
 import { useAuthGuard } from "@/shared/hooks/use-auth-guard";
 import { queryClient } from "@/shared/lib/query-client";
@@ -44,6 +45,8 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   useSyncEngine();
   useCatalogRefresh();
+  // prompt for a store update when the installed build is behind
+  useUpdateCheck();
   // reactive sign-in-required invariant, complements the index launch gate
   useAuthGuard();
   const [fontsLoaded] = useFonts({

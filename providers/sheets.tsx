@@ -18,6 +18,7 @@ import {
   StreakJourneySheet,
   WeighInGuideSheet,
 } from "@/features/progress";
+import { AppUpdateSheet } from "@/features/update";
 import { ExerciseInfoSheet, ExercisePickerSheet } from "@/features/workout";
 import type { ExerciseInstance, SessionRecord } from "@/shared/types";
 
@@ -48,6 +49,9 @@ declare module "react-native-actions-sheet" {
       payload: { session: SessionRecord };
     }>;
     "streak-journey": SheetDefinition;
+    "app-update": SheetDefinition<{
+      payload: { mode: "soft" | "force"; latestVersion: string };
+    }>;
   }
 }
 
@@ -67,6 +71,7 @@ export const AppSheets = () => (
       review: ReviewSheet,
       "session-recap": RecapSheet,
       "streak-journey": StreakJourneySheet,
+      "app-update": AppUpdateSheet,
     }}
   />
 );

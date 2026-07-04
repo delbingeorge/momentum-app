@@ -19,12 +19,15 @@ interface SettingsState {
   hapticsEnabled: boolean;
   reviewPromptDone: boolean;
   reviewPromptNextTs: number;
+  // latest_version the user soft-dismissed; suppresses re-prompting for it
+  updatePromptDismissedVersion: string;
   setUnit: (unit: Unit) => void;
   setRestSec: (restSec: number) => void;
   setReminder: (reminder: ReminderConfig) => void;
   setHapticsEnabled: (hapticsEnabled: boolean) => void;
   completeReviewPrompt: () => void;
   snoozeReviewPrompt: (nextTs: number) => void;
+  dismissUpdatePrompt: (version: string) => void;
   resetSettings: () => void;
 }
 
@@ -41,6 +44,7 @@ const initialState = {
   hapticsEnabled: true,
   reviewPromptDone: false,
   reviewPromptNextTs: 0,
+  updatePromptDismissedVersion: "",
 };
 
 const persistedSchema = z.object({
@@ -54,6 +58,7 @@ const persistedSchema = z.object({
   hapticsEnabled: z.boolean().catch(true),
   reviewPromptDone: z.boolean().catch(false),
   reviewPromptNextTs: z.number().catch(0),
+  updatePromptDismissedVersion: z.string().catch(""),
 });
 
 export const useSettingsStore = create<SettingsState>()(
@@ -66,6 +71,8 @@ export const useSettingsStore = create<SettingsState>()(
       setHapticsEnabled: (hapticsEnabled) => set({ hapticsEnabled }),
       completeReviewPrompt: () => set({ reviewPromptDone: true }),
       snoozeReviewPrompt: (nextTs) => set({ reviewPromptNextTs: nextTs }),
+      dismissUpdatePrompt: (version) =>
+        set({ updatePromptDismissedVersion: version }),
       resetSettings: () => set(initialState),
     }),
     {

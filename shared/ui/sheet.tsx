@@ -13,6 +13,8 @@ interface BaseSheetProps {
   title?: string;
   height?: DimensionValue;
   fullHeight?: boolean;
+  // false = non-dismissible gate: no swipe, no back button, no close X.
+  dismissible?: boolean;
   children: ReactNode;
 }
 
@@ -22,13 +24,17 @@ export const BaseSheet = ({
   title,
   height,
   fullHeight = false,
+  dismissible = true,
   children,
 }: BaseSheetProps) => {
   const fixedHeight = height ?? (fullHeight ? "88%" : undefined);
   return (
     <ActionSheet
       id={sheetId}
-      gestureEnabled
+      gestureEnabled={dismissible}
+      closable={dismissible}
+      closeOnPressBack={dismissible}
+      closeOnTouchBackdrop={dismissible}
       containerStyle={{
         backgroundColor: COLORS.sheet,
         borderTopLeftRadius: 26,
@@ -49,12 +55,14 @@ export const BaseSheet = ({
             <Text className="flex-1 font-sans-bold text-xl tracking-tight text-text">
               {title}
             </Text>
-            <PressableScale
-              onPress={() => SheetManager.hide(sheetId)}
-              className="h-9 w-9 items-center justify-center rounded-full bg-card2"
-            >
-              <Icon name="x" size={18} color={COLORS.text} strokeWidth={2.2} />
-            </PressableScale>
+            {dismissible ? (
+              <PressableScale
+                onPress={() => SheetManager.hide(sheetId)}
+                className="h-9 w-9 items-center justify-center rounded-full bg-card2"
+              >
+                <Icon name="x" size={18} color={COLORS.text} strokeWidth={2.2} />
+              </PressableScale>
+            ) : null}
           </View>
         ) : null}
         {children}
