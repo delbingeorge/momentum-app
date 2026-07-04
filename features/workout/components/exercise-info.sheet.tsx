@@ -11,8 +11,6 @@ import { slugOf } from "@/shared/lib/program/exercises";
 import type { ExerciseInstance } from "@/shared/types";
 import { BaseSheet, Icon, PressableScale, SheetScrollView } from "@/shared/ui";
 
-import { CUES } from "../lib/cues";
-
 const glyphFor = (muscle: string) => {
   if (muscle.includes("delt")) return "target" as const;
   if (muscle === "Chest" || muscle === "Back") return "layers" as const;
@@ -22,10 +20,6 @@ const glyphFor = (muscle: string) => {
   return "dumbbell" as const;
 };
 
-// Plays the short looping form clip. Mounted only once a signed URL exists.
-// A tap on the expand chip enters native fullscreen; `orientation: "default"`
-// lets the fullscreen view rotate freely to portrait or landscape, independent
-// of the app's portrait lock.
 const FormVideoPlayer = ({ uri }: { uri: string }) => {
   const viewRef = useRef<VideoView>(null);
   const player = useVideoPlayer(uri, (p) => {
@@ -53,10 +47,6 @@ const FormVideoPlayer = ({ uri }: { uri: string }) => {
   );
 };
 
-// The FORM VIDEO tile: poster placeholder -> real video when the signed URL
-// arrives -> muscle-glyph watermark as the final fallback (no media / offline).
-// The poster is shown to everyone; the video itself is paid-only, so non-paid
-// users see the poster under a small "Premium" indicator that opens the paywall.
 const FormVideo = ({
   exercise,
   isPaid,
@@ -72,7 +62,7 @@ const FormVideo = ({
   const [posterFailed, setPosterFailed] = useState(false);
 
   const tile = (
-    <View className="aspect-video w-full items-center justify-center self-center overflow-hidden rounded-[18px] border border-line bg-card2">
+    <View className="pt-2 aspect-video w-full items-center justify-center self-center overflow-hidden rounded-[18px] border border-line bg-card2">
       {poster && !posterFailed ? (
         <Image
           source={{ uri: poster }}
@@ -92,15 +82,18 @@ const FormVideo = ({
       )}
 
       {!isPaid ? (
-        // Non-paid: poster stays visible under a light scrim, with a play
-        // affordance and a "Premium" badge hinting the form video is locked.
         <>
           <View className="absolute inset-0 bg-black/30" />
           <View className="h-11 w-11 items-center justify-center rounded-full bg-black/55">
             <Icon name="play" size={18} color={COLORS.lime} strokeWidth={2} />
           </View>
           <View className="absolute right-2 top-2 flex-row items-center gap-1 rounded-full bg-lime px-2 py-0.5">
-            <Icon name="lock" size={9} color={COLORS.limeText} strokeWidth={2.2} />
+            <Icon
+              name="lock"
+              size={9}
+              color={COLORS.limeText}
+              strokeWidth={2.2}
+            />
             <Text className="font-mono text-[9.5px] uppercase tracking-wide text-lime-text">
               Premium
             </Text>
@@ -134,7 +127,6 @@ export const ExerciseInfoSheet = ({
   const isPaid = useIsPaid();
   const exercise = payload?.exercise;
   if (!exercise) return null;
-  const cues = CUES[exercise.name];
 
   const openPaywall = () => {
     void SheetManager.hide(sheetId);
@@ -142,10 +134,7 @@ export const ExerciseInfoSheet = ({
   };
 
   return (
-    <BaseSheet height="65%" sheetId={sheetId} title={exercise.name} fullHeight>
-      <Text className="-mt-2 px-5 pb-2 font-mono text-[11.5px] text-mut">
-        {exercise.muscle} · {exercise.sets}×{exercise.target}
-      </Text>
+    <BaseSheet height="45%" sheetId={sheetId} title={exercise.name} fullHeight>
       <SheetScrollView
         className="px-5"
         contentContainerStyle={{ paddingBottom: 32 }}
@@ -183,31 +172,6 @@ export const ExerciseInfoSheet = ({
             </View>
           ))}
         </View>
-
-        {cues ? (
-          <View className="mt-5">
-            <Text className="mb-2.5 font-mono text-[11px] uppercase tracking-wider text-faint">
-              Form cues
-            </Text>
-            <View className="gap-2">
-              {cues.map((cue, index) => (
-                <View
-                  key={cue}
-                  className="flex-row items-start gap-2.5 rounded-2xl bg-card px-3.5 py-3"
-                >
-                  <View className="mt-0.5 h-5 w-5 items-center justify-center rounded-full bg-lime-dim">
-                    <Text className="font-mono-bold text-[11px] text-lime">
-                      {index + 1}
-                    </Text>
-                  </View>
-                  <Text className="flex-1 font-sans text-sm leading-5 text-text">
-                    {cue}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        ) : null}
       </SheetScrollView>
     </BaseSheet>
   );

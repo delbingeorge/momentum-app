@@ -1,6 +1,13 @@
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { Image, SectionList, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Image,
+  SectionList,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { SheetManager } from "react-native-actions-sheet";
 
 import { COLORS } from "@/shared/lib/colors";
@@ -11,7 +18,6 @@ import { useCatalogStore, useExploreStore } from "@/shared/stores";
 import type { Muscle } from "@/shared/types";
 import { Icon, type IconName, PressableScale, Screen } from "@/shared/ui";
 
-// Local glyph so the browser stays self-contained (mirrors the info sheet).
 const glyphFor = (muscle: Muscle): IconName => {
   if (muscle.includes("delt")) return "target";
   if (muscle === "Chest" || muscle === "Back") return "layers";
@@ -19,7 +25,6 @@ const glyphFor = (muscle: Muscle): IconName => {
   return "activity";
 };
 
-// Row thumbnail: exercise poster when one exists, muscle glyph otherwise.
 const RowThumb = ({ name, muscle }: { name: string; muscle: Muscle }) => {
   const poster = posterUrl(slugOf(name));
   const [failed, setFailed] = useState(false);
@@ -51,10 +56,7 @@ interface ExerciseSection {
 
 export const ExploreScreen = () => {
   const [query, setQuery] = useState("");
-  // subscribe to the row array itself (replaced wholesale on refresh) so the
-  // list stays live when the launch refresh lands mid-screen
   const exercises = useCatalogStore((state) => state.exercises);
-  const total = exercises.length;
   const recents = useExploreStore((state) => state.recentSearches);
   const addRecentSearch = useExploreStore((state) => state.addRecentSearch);
   const clearRecentSearches = useExploreStore(
@@ -67,16 +69,10 @@ export const ExploreScreen = () => {
         muscle,
         data: names,
       })),
-    // exercises: searchExercises reads the catalog through the store, so the
-    // linter can't see the dependency — keep it to recompute on refresh
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [query, exercises],
   );
 
-  // Browse rows carry no prescription — mint a default instance so the shared
-  // exercise-info sheet (muscle, form cues) can open straight from here.
-  // Opening a result while a query is active is what makes a search "used",
-  // so that's when it earns a recents chip (besides keyboard submit).
   const openInfo = (name: string) => {
     if (query.trim()) addRecentSearch(query);
     SheetManager.show("exercise-info", {
@@ -96,9 +92,6 @@ export const ExploreScreen = () => {
         <View className="flex-1">
           <Text className="font-sans-bold text-[22px] tracking-tight text-text">
             Explore
-          </Text>
-          <Text className="font-mono text-[11px] text-faint">
-            {total} exercises · tap any for form cues
           </Text>
         </View>
       </View>
