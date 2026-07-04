@@ -90,6 +90,12 @@ export const isBarbell = (name: string): boolean =>
 export const isDumbbell = (name: string): boolean =>
   defOf(name)?.isDumbbell ?? false;
 
+// Unilateral lifts (single-arm/single-leg) — performed one side at a time and
+// repeated on both, so one logged set represents both sides' work. Volume
+// counts both sides (see buildSession), same as two-dumbbell lifts.
+export const isUnilateral = (name: string): boolean =>
+  defOf(name)?.isUnilateral ?? false;
+
 // Bodyweight core/calisthenics — their default load is 0, so they progress via
 // reps (or held seconds for timed holds), not added weight. See progressionFor.
 export const isBodyweight = (name: string): boolean =>

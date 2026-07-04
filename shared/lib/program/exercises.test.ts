@@ -54,6 +54,7 @@ describe("exercise catalog helpers (bundled snapshot)", () => {
         defaultKg: 50,
         isBarbell: true,
         isDumbbell: false,
+        isUnilateral: false,
         isBodyweight: false,
         isTimed: false,
         isCompound: true,

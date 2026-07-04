@@ -19,6 +19,7 @@ import {
   isCompound,
   isDumbbell,
   isTimed,
+  isUnilateral,
 } from "./exercises";
 
 // Warmups don't count toward progression or working volume
@@ -142,17 +143,21 @@ export const buildSession = (
         .map((set) => ({ kg: set.kg, reps: set.reps, type: set.type })),
     }))
     .filter((exercise) => exercise.sets.length > 0);
-  // Dumbbell loads are stored per hand, so their volume counts both hands.
-  // Bodyweight movements credit a share of bodyweight per rep (plus any added
-  // load); see bodyweightLoad.
+  // A logged set is counted for both sides when the lift loads both at once
+  // (two dumbbells, stored per hand) OR is unilateral (done one side at a time
+  // and repeated) — either way ×2, never compounded past it. Bodyweight
+  // movements credit a share of bodyweight per rep (plus any added load), and
+  // that credit doubles for unilateral work too. See bodyweightLoad.
   const volume = exercises.reduce((total, exercise) => {
-    const hands = isDumbbell(exercise.name) ? 2 : 1;
+    const bothSides =
+      isDumbbell(exercise.name) || isUnilateral(exercise.name);
+    const mult = bothSides ? 2 : 1;
     const bwLoad = bodyweightLoad(exercise.name, bodyweightKg);
     return (
       total +
       exercise.sets
         .filter(isWorkingSet)
-        .reduce((sum, set) => sum + (set.kg * hands + bwLoad) * set.reps, 0)
+        .reduce((sum, set) => sum + (set.kg + bwLoad) * mult * set.reps, 0)
     );
   }, 0);
   const totalSets = exercises.reduce(

@@ -14,6 +14,10 @@ export const exerciseDefSchema = z.object({
   defaultKg: z.number().nullable(),
   isBarbell: z.boolean(),
   isDumbbell: z.boolean(),
+  // Trained one limb at a time and repeated on both sides — its volume counts
+  // both sides (see buildSession). Tolerant default so a table/snapshot without
+  // the column degrades to false instead of dropping the whole catalog.
+  isUnilateral: z.boolean().catch(false),
   isBodyweight: z.boolean(),
   isTimed: z.boolean(),
   isCompound: z.boolean(),

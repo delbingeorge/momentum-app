@@ -7,7 +7,8 @@ import {
 // Aliased to camelCase so rows parse straight into ExerciseDef.
 const COLUMNS =
   "id, name, muscle, defaultKg:default_kg, isBarbell:is_barbell, " +
-  "isDumbbell:is_dumbbell, isBodyweight:is_bodyweight, isTimed:is_timed, " +
+  "isDumbbell:is_dumbbell, isUnilateral:is_unilateral, " +
+  "isBodyweight:is_bodyweight, isTimed:is_timed, " +
   "isCompound:is_compound, bodyweightLoad:bodyweight_load";
 
 // Full catalog, in library display order. Drop schema-invalid rows but surface
