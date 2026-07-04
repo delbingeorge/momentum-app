@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 import { SheetManager, type SheetProps } from "react-native-actions-sheet";
 
@@ -69,12 +69,14 @@ const FormVideo = ({
   const slug = slugOf(exercise.name);
   const { url, loading } = useExerciseVideo(slug);
   const poster = posterUrl(slug);
+  const [posterFailed, setPosterFailed] = useState(false);
 
   const tile = (
     <View className="aspect-video w-full items-center justify-center self-center overflow-hidden rounded-[18px] border border-line bg-card2">
-      {poster ? (
+      {poster && !posterFailed ? (
         <Image
           source={{ uri: poster }}
+          onError={() => setPosterFailed(true)}
           resizeMode="cover"
           style={StyleSheet.absoluteFill}
         />
@@ -106,18 +108,14 @@ const FormVideo = ({
         </>
       ) : url ? (
         <FormVideoPlayer uri={url} />
-      ) : (
+      ) : loading ? (
         <View className="flex-row items-center gap-1.5 rounded-lg bg-black/45 px-2.5 py-1.5">
-          {loading ? (
-            <ActivityIndicator size="small" color={COLORS.lime} />
-          ) : (
-            <Icon name="videoCam" size={13} color={COLORS.lime} />
-          )}
+          <ActivityIndicator size="small" color={COLORS.lime} />
           <Text className="font-mono text-[10px] tracking-wider text-text">
-           WARMING UP
+            WARMING UP
           </Text>
         </View>
-      )}
+      ) : null}
     </View>
   );
 

@@ -22,11 +22,13 @@ const glyphFor = (muscle: Muscle): IconName => {
 // Row thumbnail: exercise poster when one exists, muscle glyph otherwise.
 const RowThumb = ({ name, muscle }: { name: string; muscle: Muscle }) => {
   const poster = posterUrl(slugOf(name));
+  const [failed, setFailed] = useState(false);
   return (
     <View className="h-[38px] w-[38px] items-center justify-center overflow-hidden rounded-lg border border-line bg-card2">
-      {poster ? (
+      {poster && !failed ? (
         <Image
           source={{ uri: poster }}
+          onError={() => setFailed(true)}
           resizeMode="cover"
           style={StyleSheet.absoluteFill}
         />
