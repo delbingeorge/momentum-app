@@ -33,11 +33,10 @@ export const AppUpdateSheet = ({
   return (
     <BaseSheet sheetId={sheetId} dismissible={!isForce}>
       <View className="items-center px-6 pt-6">
-        <Text className="text-4xl">🚀</Text>
         <Text className="mt-4 font-sans-bold text-2xl tracking-tight text-text">
           {isForce ? "Update required" : "A new version is out"}
         </Text>
-        <Text className="mt-2 text-center font-sans text-base leading-6 text-mut">
+        <Text className="mt-1 text-center font-sans text-base leading-6 text-mut">
           {isForce
             ? "This version of Momentum is no longer supported. Update to keep tracking your workouts."
             : "We’ve shipped improvements and fixes. Grab the latest build for the best experience."}

@@ -19,6 +19,7 @@ export const useUpdateCheck = (): void => {
       .then((config) => {
         if (!config) return;
         const mode = resolveUpdateMode(getInstalledVersion(), config);
+
         if (mode === "none") return;
 
         if (mode === "soft") {
